@@ -1,0 +1,13 @@
+<section class="container section">
+    <div class="card">
+      <h1 class="h1"><%= status || 500 %></h1>
+      <p class="muted"><%= message || "Unexpected error." %></p>
+  
+      <% if (details) { %>
+        <pre class="error-details"><%= details %></pre>
+      <% } %>
+  
+      <a class="btn btn-primary" href="/">Go Home</a>
+    </div>
+  </section>
+  

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+
+  <link rel="stylesheet" href="/stylesheets/main.css" />
+</head>
+<body>
+  <%- include("partials/navbar", { active: page || "index" }) %>
+
+  <main class="app">
+    <% if (page === "index") { %>
+      <%- include("index", {
+        heroSlides: (data && data.heroSlides) ? data.heroSlides : [],
+        topGames: (data && data.topGames) ? data.topGames : []
+      }) %>
+    <% } else if (page === "games") { %>
+      <%- include("games", { data }) %>
+    <% } else if (page === "error") { %>
+      <%- include("error", { data }) %>
+    <% } else { %>
+      <%- include(page, { data }) %>
+    <% } %>
+  </main>
+
+  <%- include("partials/footer") %>
+
+  <script src="/javascripts/main.js"></script>
+
+  <% if (page === "index") { %>
+    <script src="/javascripts/hero-slider.js"></script>
+  <% } %>
+
+  <% if (page === "games") { %>
+    <script src="/javascripts/games-sliders.js"></script>
+  <% } %>
+</body>
+</html>

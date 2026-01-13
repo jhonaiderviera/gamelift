@@ -1,0 +1,110 @@
+<section class="games-hero">
+    <div class="games-hero__bg" aria-hidden="true"></div>
+    <div class="container games-hero__content">
+      <h1 class="games-hero__title"><%= data.hero.title %></h1>
+      <p class="games-hero__subtitle"><%= data.hero.subtitle %></p>
+  
+      <div class="games-hero__actions">
+        <a class="btn btn-primary" href="#trending" id="exploreTrending">Explore Trending</a>
+        <a class="btn btn-ghost" href="#best" id="jumpToBest">Jump to Best</a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Sección de búsqueda -->
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Search for a game..." />
+    <button class="btn btn-primary" onclick="searchGames()">Search</button>
+  </div>
+  
+  <!-- Botón para obtener juegos aleatorios -->
+  <button class="btn btn-ghost" onclick="loadRandomGames()">Load Random Games</button>
+  
+  <script>
+    // Función para redirigir a los resultados de búsqueda
+    function searchGames() {
+      const searchQuery = document.getElementById("search").value;
+      if (searchQuery) {
+        window.location.href = `/games?search=${searchQuery}`;
+      } else {
+        alert("Please enter a game to search.");
+      }
+    }
+  
+    // Función para cargar juegos aleatorios
+    function loadRandomGames() {
+      window.location.href = `/games?search=random`;
+    }
+  
+    // Hacer que los botones "Explore Trending" y "Jump to Best" redirijan correctamente
+    document.getElementById("exploreTrending").addEventListener("click", function() {
+      window.location.href = "/games?search=trending";
+    });
+  
+    document.getElementById("jumpToBest").addEventListener("click", function() {
+      window.location.href = "/games?search=best";
+    });
+  </script>
+  
+  <!-- Aquí empieza la sección de los juegos -->
+  <section class="container games-page">
+    <% data.sections.forEach(section => { %>
+      <section class="slider-block" id="<%= section.id %>" data-slider>
+        <div class="slider-block__header">
+          <div class="slider-block__titleWrap">
+            <h2 class="slider-block__title"><%= section.title %></h2>
+            <button class="link subtle" type="button" disabled aria-disabled="true" title="Coming soon">
+              <%= section.cta %>
+            </button>
+          </div>
+  
+          <div class="slider-block__controls" aria-label="<%= section.title %> controls">
+            <button class="icon-btn" type="button" data-slider-prev aria-label="Previous">‹</button>
+            <button class="icon-btn" type="button" data-slider-next aria-label="Next">›</button>
+          </div>
+        </div>
+  
+        <div class="slider" data-slider-track>
+          <% if (!section.items || section.items.length === 0) { %>
+            <div class="empty-state">
+              <p>No games found.</p>
+            </div>
+          <% } else { %>
+            <% section.items.forEach(game => { %>
+              <article class="game-card" tabindex="0">
+                <div class="game-card__media">
+                  <img
+                    src="<%= game.coverUrl || game.heroFallbackUrl || '/images/Community.png' %>"
+                    alt="<%= game.name %> cover"
+                    loading="lazy"
+                  />
+                  <div class="game-card__overlay">
+                    <div class="game-card__meta">
+                      <span class="pill">View details</span>
+                      <% if (game.rating !== null) { %>
+                        <span class="rating-badge"><%= game.rating %></span>
+                      <% } else { %>
+                        <span class="rating-badge rating-badge--muted">—</span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="game-card__body">
+                  <h3 class="game-card__title" title="<%= game.name %>"><%= game.name %></h3>
+                  <p class="game-card__sub">
+                    <% if (game.ratingCount) { %>
+                      <span class="muted"><%= game.ratingCount.toLocaleString() %> votes</span>
+                    <% } else { %>
+                      <span class="muted">No votes yet</span>
+                    <% } %>
+                  </p>
+                </div>
+              </article>
+            <% }) %>
+          <% } %>
+        </div>
+      </section>
+    <% }) %>
+  </section>
+  

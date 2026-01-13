@@ -1,0 +1,29 @@
+<header class="site-header">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="brand-mark">GAMELIFT</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-controls="navMenu" aria-expanded="false">
+        <span class="nav-toggle-line"></span>
+        <span class="nav-toggle-line"></span>
+        <span class="nav-toggle-line"></span>
+      </button>
+
+      <nav id="navMenu" class="nav-menu" aria-label="Primary navigation">
+        <a class="nav-link <%= (active === 'index') ? 'is-active' : '' %>" href="/">Home</a>
+        <a class="nav-link <%= (active === 'games') ? 'is-active' : '' %>" href="/games">Games</a>
+        <a class="nav-link <%= (active === 'features') ? 'is-active' : '' %>" href="/features">New Features</a>
+        <a class="nav-link <%= (active === 'support') ? 'is-active' : '' %>" href="/support-developers">Support Developers</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm" href="/login">Login</a>
+        <a class="btn btn-primary btn-sm" href="/register">Register</a>
+      </div>
+    </div>
+  </div>
+</header>

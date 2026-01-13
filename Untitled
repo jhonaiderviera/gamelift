@@ -1,0 +1,2 @@
+var igdbRouter = require('./routes/igdb');
+app.use('/api/igdb', igdbRouter);

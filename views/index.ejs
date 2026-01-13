@@ -1,0 +1,74 @@
+<section class="container section">
+  <div class="hero-frame" data-carousel tabindex="0" aria-label="Featured games carousel">
+    <div class="hero-track" data-carousel-track>
+      <% (heroSlides || []).forEach((s, idx) => { %>
+        <article
+          class="hero-slide"
+          data-carousel-slide
+          aria-hidden="<%= idx === 0 ? 'false' : 'true' %>"
+        >
+          <div class="hero-bg" style="background-image:url('<%= s.imageUrl %>')"></div>
+          <div class="hero-overlay"></div>
+
+          <div class="hero-content">
+            <h2 class="hero-title"><%= s.title %></h2>
+            <p class="hero-subtitle">Featured title</p>
+
+            <div class="hero-actions">
+              <span class="hero-chip">Community score: coming soon</span>
+              <a class="btn btn-primary" href="<%= s.ctaHref %>">More Information</a>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+    <button class="hero-arrow hero-arrow--left" type="button" data-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hero-arrow hero-arrow--right" type="button" data-carousel-next aria-label="Next slide">›</button>
+
+    <div class="hero-dots" data-carousel-dots aria-label="Carousel pagination">
+      <% (heroSlides || []).forEach((s, idx) => { %>
+        <button
+          class="hero-dot <%= idx === 0 ? 'is-active' : '' %>"
+          type="button"
+          data-carousel-dot="<%= idx %>"
+          aria-label="Go to slide <%= idx + 1 %>"
+          aria-selected="<%= idx === 0 ? 'true' : 'false' %>"
+        ></button>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="section-head">
+    <h2 class="h2">Top 10 Games</h2>
+    <p class="muted">Community score: coming soon</p>
+  </div>
+
+  <div class="grid">
+    <% (topGames || []).slice(0, 9).forEach(g => { %>
+      <article class="game-card">
+        <div class="game-cover">
+          <% if (g.coverUrl) { %>
+            <img src="<%= g.coverUrl %>" alt="<%= g.name %> cover">
+          <% } else { %>
+            <div class="cover-fallback">No cover</div>
+          <% } %>
+
+          <span class="score score-mid">—</span>
+        </div>
+
+        <div class="game-body">
+          <h3 class="h3"><%= g.name %></h3>
+          <p class="muted game-desc"><%= (g.summary || "No description available.").slice(0, 120) %>...</p>
+
+          <div class="game-actions">
+            <a class="btn btn-primary btn-sm" href="/games/<%= g.id %>">More info</a>
+            <button class="btn btn-ghost btn-sm" disabled>Rate (soon)</button>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
