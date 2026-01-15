@@ -18,6 +18,10 @@
     <% if (page === "game-detail") { %>
       <link rel="stylesheet" href="/stylesheets/game-detail.css" />
     <% } %>
+
+    <% if (page === "features") { %>
+      <link rel="stylesheet" href="/stylesheets/features.css" />
+    <% } %>
   </head>
 <body>
   <%- include("partials/navbar", { active: page || "index" }) %>

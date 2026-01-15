@@ -1,0 +1,44 @@
+<section class="container section">
+    <div class="features-header">
+      <h1 class="h1">New Releases</h1>
+      <p class="muted">Fresh from the oven. Explore the latest titles added to our database.</p>
+    </div>
+  
+    <div class="features-grid">
+      <% if (!data.games || data.games.length === 0) { %>
+        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+          <p class="muted">No new releases found at the moment.</p>
+        </div>
+      <% } else { %>
+        <% data.games.forEach(game => { %>
+          <a href="/games/<%= game.id %>" class="game-card card-hoverable">
+            
+            <div class="game-cover">
+              <% if (game.coverUrl) { %>
+                <img src="<%= game.coverUrl %>" alt="<%= game.name %> cover" loading="lazy">
+              <% } else { %>
+                <div class="cover-fallback">No Image</div>
+              <% } %>
+  
+              <div class="card-overlay">
+                <% if (game.rating) { %>
+                  <span class="rating-badge"><%= Math.round(game.rating) %></span>
+                <% } %>
+              </div>
+            </div>
+  
+            <div class="game-body">
+              <h3 class="game-title"><%= game.name %></h3>
+              <div class="game-meta">
+                <% if (game.ratingCount) { %>
+                  <span class="muted-sm"><%= game.ratingCount.toLocaleString() %> votes</span>
+                <% } else { %>
+                  <span class="muted-sm">Just added</span>
+                <% } %>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      <% } %>
+    </div>
+  </section>
