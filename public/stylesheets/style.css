@@ -1,100 +1,28 @@
+/* 1. Asegurar que el body ocupe toda la altura */
 body {
-  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
 }
 
-header {
-  background-color: #333;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* 2. Hacer que el contenido principal empuje el footer hacia abajo */
+/* Asumiendo que todo tu contenido está dentro de un <main> o un div wrapper */
+main, .site-content { 
+  flex: 1; 
 }
 
-.logo-container img {
-  width: 150px;
-}
-
-nav ul {
-  display: flex;
-  list-style-type: none;
-}
-
-nav ul li {
-  margin: 0 15px;
-}
-
-nav ul li a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-nav ul li a:hover {
-  color: #ff6f61;
-}
-
-.featured {
-  padding: 50px 20px;
-  text-align: center;
-}
-
-h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
-#heroSlider {
-  display: flex;
-  overflow: auto;
-  gap: 20px;
-}
-
-.hero-image {
-  width: 300px;
-  height: 400px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.hero-info {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  color: #fff;
-}
-
-.game-logo {
-  width: 50px;
-  margin-bottom: 10px;
-}
-
-.game-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.more-btn {
-  background-color: #ff6f61;
-  padding: 10px 20px;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 5px;
-}
-
-.more-btn:hover {
-  background-color: #d55d50;
-}
-
+/* 3. Estilizar el Footer para que no sea tan alto */
 footer {
+  background: #0a0a12; /* O el color oscuro que uses */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px 0; /* Reducir padding si es muy alto */
   text-align: center;
-  background-color: #333;
-  color: #fff;
-  padding: 20px;
+  margin-top: auto; /* Esto también ayuda a empujarlo abajo */
+}
+
+footer p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
 }

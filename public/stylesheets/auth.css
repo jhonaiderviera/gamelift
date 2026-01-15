@@ -1,0 +1,116 @@
+/* auth.css - Split-Screen Design */
+
+/* El contenedor principal ocupa toda la pantalla y se divide en dos */
+.auth-wrapper {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    z-index: 10;
+    background: var(--bg); /* Fondo base por si acaso */
+  }
+  
+  /* --- COLUMNA IZQUIERDA (Formulario) --- */
+  .auth-left {
+    flex: 1; /* Ocupa el 50% o el espacio restante */
+    background: #0a0a12; /* Color sólido oscuro para el lado del formulario */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+  }
+  
+  /* La tarjeta del formulario ahora es transparente para integrarse */
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: transparent; /* Sin fondo propio */
+    box-shadow: none; /* Sin sombra */
+    border: none;
+    position: relative;
+    z-index: 20;
+    animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  /* --- COLUMNA DERECHA (Imagen) --- */
+  .auth-right {
+    flex: 1.2; /* Un poco más ancha para dar protagonismo a la imagen */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: relative;
+    /* Overlay opcional para que el texto de la imagen no compita, si lo hubiera */
+  }
+  
+  .auth-right::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to left, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+    pointer-events: none;
+  }
+  
+  
+  /* --- ESTILOS DEL FORMULARIO (Igual que antes, pero ajustados) --- */
+  .auth-header { text-align: left; margin-bottom: 30px; } /* Alineado a la izquierda */
+  .auth-logo { 
+    font-family: 'Poppins', sans-serif; 
+    font-weight: 900; font-size: 32px; letter-spacing: 0.1em; 
+    background: linear-gradient(to right, #fff, #b6b7c9);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    display: inline-block; margin-bottom: 12px;
+  }
+  .auth-title { margin: 0; font-size: 2.2rem; font-weight: 700; color: #fff; }
+  .auth-subtitle { color: var(--muted); font-size: 1rem; margin-top: 8px; max-width: 80%; }
+  
+  /* Inputs con fondo más oscuro */
+  .auth-form { display: flex; flex-direction: column; gap: 18px; }
+  .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    transition: 0.3s ease;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  /* Checklist de contraseña */
+  .password-requirements {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: -8px;
+  }
+  .req-item { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .req-item i { font-size: 12px; }
+  .req-item.valid { color: #4ade80; }
+  .req-item.valid i::before { content: "✓"; font-weight: bold; }
+  .req-item.invalid i::before { content: "○"; }
+  
+  /* Botones y Footer */
+  .form-options { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--muted); }
+  .custom-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .custom-check input { accent-color: var(--primary); width: 16px; height: 16px; }
+  .form-footer { text-align: left; margin-top: 24px; color: var(--muted); font-size: 0.95rem; }
+  .auth-link { color: var(--primary); font-weight: 600; }
+  .btn-block { width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 8px; }
+  .alert-error { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+  
+  /* Responsive: En móviles se apila */
+  @media (max-width: 900px) {
+    .auth-wrapper { flex-direction: column-reverse; position: relative; height: auto; min-height: 100vh; }
+    .auth-right { flex: none; height: 35vh; width: 100%; }
+    .auth-left { flex: none; width: 100%; padding: 30px 20px; }
+    .auth-card { max-width: 100%; }
+  }

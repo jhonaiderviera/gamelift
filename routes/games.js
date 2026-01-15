@@ -1,95 +1,139 @@
 const express = require("express");
 const router = express.Router();
-
-// Importamos las funciones del servicio de IGDB
-const {
-  getNewReleasesGames,
-  getTrendingGames,
-  getBestRatedGames,
-  getGameDetails // <--- Nueva función importada
+// Importamos todas las funciones del servicio (incluida la nueva getUpcomingGames)
+const { 
+  getNewReleasesGames, 
+  getTrendingGames, 
+  getUpcomingGames, 
+  searchGames, 
+  getGameDetails 
 } = require("../services/igdbClient");
 
-// Importamos el servicio de SteamGrid para imágenes HD
-const { getHeroMetaByGameName } = require("../services/steamGridClient");
-
-// --------------------------------------------------------------------------
-// GET /games
-// Pantalla principal de "Explorar Juegos" (Sliders: Nuevos, Trending, Top)
-// --------------------------------------------------------------------------
-router.get("/", async (req, res, next) => {
+// 1. PORTADA PRINCIPAL (/games)
+router.get("/", async (req, res) => {
   try {
-    const [newFeatures, trending, bestGames] = await Promise.all([
-      getNewReleasesGames(10),
-      getTrendingGames(10),
-      getBestRatedGames(10),
-    ]);
+    // Pedimos 10 de cada uno para los sliders de la Home
+    const newReleases = await getNewReleasesGames(10);
+    const popularGames = await getTrendingGames(10); 
+    const upcomingGames = await getUpcomingGames(10); // <--- Nueva sección
 
     res.render("layout", {
-      title: "Games | GameLift",
-      page: "games", // Carga views/games.ejs y public/stylesheets/games.css
-      data: {
-        hero: {
-          title: "Discover Your Next Favorite Game",
-          subtitle: "Explore new releases, trending titles, and the best-rated games — all in one place.",
-          // Podríamos poner una imagen fija o aleatoria aquí
-          bgImage: "/images/Gamelift.png" 
-        },
-        sections: [
-          { id: "new", title: "New Features", items: newFeatures, cta: "See all" },
-          { id: "trending", title: "Trending this week", items: trending, cta: "See all" },
-          { id: "best", title: "Best Games", items: bestGames, cta: "See all" },
-        ],
-      },
+      title: "Games Catalog | GameLift",
+      page: "games",
+      active: "games",
+      data: { 
+        newReleases, 
+        popularGames,
+        upcomingGames,
+        isCategoryView: false // Estamos en la home, mostramos todos los sliders
+      }
     });
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    res.render("layout", {
+      title: "Games | GameLift",
+      page: "games",
+      active: "games",
+      error: "Error loading games.",
+      data: { newReleases: [], popularGames: [], upcomingGames: [] }
+    });
   }
 });
 
-// --------------------------------------------------------------------------
-// GET /games/:id
-// Pantalla de Detalle del Juego (Ficha técnica, reviews, etc.)
-// --------------------------------------------------------------------------
-router.get("/:id", async (req, res, next) => {
+// 2. BUSCADOR (Resultados completos)
+router.get("/search", async (req, res) => {
+  const query = req.query.q;
+  
+  if (!query) return res.redirect("/games");
+
   try {
-    const gameId = req.params.id;
-
-    // 1. Obtener detalles completos de IGDB
-    const game = await getGameDetails(gameId);
-
-    if (!game) {
-      // Si no existe el juego, mostramos error 404
-      const err = new Error("Game not found");
-      err.status = 404;
-      return next(err);
-    }
-
-    // 2. Intentar buscar arte "Hero" de alta calidad en SteamGridDB
-    let heroUrl = game.heroFallback || game.coverUrl; // Valor por defecto (IGDB)
-
-    try {
-      const heroMeta = await getHeroMetaByGameName(game.name);
-      // Solo usamos la imagen de SteamGrid si es suficientemente ancha (>1200px)
-      if (heroMeta && heroMeta.width >= 1200) {
-        heroUrl = heroMeta.url;
-      }
-    } catch (err) {
-      console.error("SteamGrid Image fallback failed:", err.message);
-      // No pasa nada, nos quedamos con la de IGDB
-    }
-
-    // 3. Renderizar la vista de detalle
+    const results = await searchGames(query);
+    
     res.render("layout", {
-      title: `${game.name} | GameLift`,
-      page: "game-detail", // Carga views/game-detail.ejs (que creamos antes)
+      title: `Search: ${query} | GameLift`,
+      page: "games",
+      active: "games",
       data: {
-        game,
-        heroUrl
-      },
+        newReleases: results, // Usamos el grid principal para pintar resultados
+        popularGames: [],     // Ocultamos otros sliders
+        upcomingGames: [],
+        sectionTitle: `Results for "${query}"`,
+        isCategoryView: true, // Activamos modo vista única (muestra botón volver)
+        searchQuery: query
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.redirect("/games");
+  }
+});
+
+// 3. CATEGORÍAS "VER TODO" (/games/category/:type)
+router.get("/category/:type", async (req, res) => {
+  const type = req.params.type;
+  
+  try {
+    let games = [];
+    let title = "";
+
+    // Aumentamos el límite a 24 para llenar la pantalla en "Ver todo"
+    if (type === "new") {
+      games = await getNewReleasesGames(24);
+      title = "All New Releases";
+    } else if (type === "popular") {
+      games = await getTrendingGames(24);
+      title = "All Trending Games";
+    } else if (type === "upcoming") {
+      games = await getUpcomingGames(24);
+      title = "Upcoming Releases";
+    } else {
+      return res.redirect("/games");
+    }
+
+    res.render("layout", {
+      title: `${title} | GameLift`,
+      page: "games",
+      active: "games",
+      data: {
+        newReleases: games, // Usamos el grid principal
+        popularGames: [],   // Vaciamos los secundarios
+        upcomingGames: [],
+        sectionTitle: title,
+        isCategoryView: true // <--- Esto activa el botón "Back" y oculta los otros sliders
+      }
     });
 
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    console.error(error);
+    res.redirect("/games");
+  }
+});
+
+// 4. DETALLE DEL JUEGO (/games/:id)
+router.get("/:id", async (req, res) => {
+  try {
+    const gameId = req.params.id;
+    const gameData = await getGameDetails(gameId);
+
+    if (!gameData) {
+      return res.status(404).render("error", { 
+        message: "Game not found", 
+        error: { status: 404 },
+        page: "error",
+        data: {}
+      });
+    }
+
+    res.render("layout", {
+      title: `${gameData.name} | GameLift`,
+      page: "game-detail",
+      active: "games",
+      data: gameData
+    });
+
+  } catch (error) {
+    console.error("Error loading game details:", error);
+    res.redirect("/games");
   }
 });
 

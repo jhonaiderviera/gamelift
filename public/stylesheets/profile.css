@@ -1,0 +1,109 @@
+/* Layout de 2 columnas */
+.profile-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    align-items: start;
+  }
+  
+  /* Tarjeta Izquierda (Visual) */
+  .profile-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    text-align: center;
+    padding-bottom: 30px;
+  }
+  
+  .profile-banner {
+    height: 120px;
+    background: linear-gradient(135deg, var(--primary), #4f46e5);
+  }
+  
+  .profile-avatar-container {
+    margin-top: -60px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid var(--card); /* Borde del color de fondo para separar */
+    object-fit: cover;
+    background: #222;
+  }
+  
+  .profile-name { font-size: 1.5rem; font-weight: 700; margin: 0; color: #fff; }
+  .profile-email { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  
+  .profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-value { font-weight: 800; font-size: 1.2rem; color: #fff; }
+  .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  
+  /* Tarjeta Derecha (Formulario) */
+  .settings-card {
+    background: rgba(15, 16, 32, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+  }
+  
+  .form-group { margin-bottom: 20px; text-align: left; }
+  .form-label { display: block; color: #fff; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+  .form-input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #fff;
+  }
+  .form-input:focus { outline: none; border-color: var(--primary); }
+
+  /* ... Tus estilos anteriores ... */
+
+/* Alineación de botones */
+.form-actions {
+    display: flex;
+    justify-content: space-between; /* Uno a cada extremo */
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Línea sutil separadora */
+  }
+  
+  /* Botón de Logout personalizado (Estilo Danger sutil) */
+  .btn-danger-outline {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.5); /* Rojo suave */
+    color: #fca5a5; /* Texto rojizo claro */
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-danger-outline:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+  
+  /* Responsive */
+  @media (max-width: 800px) {
+    .profile-layout { grid-template-columns: 1fr; }
+  }

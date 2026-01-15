@@ -1,12 +1,10 @@
-const axios = require("axios"); // Mantenemos si lo usas, aunque usamos fetch nativo abajo
-
 const IGDB_BASE_URL = "https://api.igdb.com/v4";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 
 let cachedToken = null;
 let cachedTokenExpiry = 0;
 
-// Cached pool for random featured carousel (6h)
+// Caché para el carrusel aleatorio (6h)
 let cachedFeaturedPool = null;
 let cachedFeaturedPoolExpiry = 0;
 
@@ -16,6 +14,7 @@ function mustGetEnv(name) {
   return v;
 }
 
+// --- AUTENTICACIÓN ---
 async function getAccessToken() {
   const now = Date.now();
   if (cachedToken && now < cachedTokenExpiry) return cachedToken;
@@ -36,13 +35,12 @@ async function getAccessToken() {
 
   const json = await res.json();
   cachedToken = json.access_token;
-
   const expiresInMs = (json.expires_in || 3600) * 1000;
   cachedTokenExpiry = now + expiresInMs - 60_000;
-
   return cachedToken;
 }
 
+// --- UTILIDADES ---
 function normalizeIgdbImageUrl(url) {
   if (!url) return null;
   if (url.startsWith("//")) return `https:${url}`;
@@ -57,8 +55,8 @@ async function igdbQuery(endpoint, body) {
     method: "POST",
     headers: {
       "Client-ID": clientId,
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
+      "Authorization": `Bearer ${token}`,
+      "Accept": "application/json",
     },
     body,
   });
@@ -67,7 +65,6 @@ async function igdbQuery(endpoint, body) {
     const text = await res.text();
     throw new Error(`IGDB error ${res.status}: ${text}`);
   }
-
   return res.json();
 }
 
@@ -84,13 +81,10 @@ function pickIgdbBigHeroFallback(g) {
   const art = g.artworks?.[0]?.url || null;
   const shot = g.screenshots?.[0]?.url || null;
   const cover = g.cover?.url || null;
-
   const raw = art || shot || cover;
   if (!raw) return null;
 
-  const url = normalizeIgdbImageUrl(raw);
-
-  return url
+  return normalizeIgdbImageUrl(raw)
     .replace("t_thumb", "t_1080p")
     .replace("t_screenshot_med", "t_1080p")
     .replace("t_cover_big", "t_1080p");
@@ -100,7 +94,6 @@ function mapGameCard(g) {
   const cover = normalizeIgdbImageUrl(g.cover?.url)
     ? normalizeIgdbImageUrl(g.cover.url).replace("t_thumb", "t_cover_big")
     : null;
-
   return {
     id: g.id,
     name: g.name,
@@ -112,7 +105,8 @@ function mapGameCard(g) {
   };
 }
 
-// ---------- Existing API helpers ----------
+// --- FUNCIONES API ---
+
 async function getTrendingGames(limit = 10) {
   const body = `
     fields id,name,slug,rating,rating_count,cover.url,artworks.url,screenshots.url;
@@ -128,17 +122,17 @@ async function searchGames(query, limit = 20) {
   const safe = String(query || "").replace(/"/g, "");
   const body = `
     search "${safe}";
-    fields id,name,slug,summary,rating,cover.url,genres.name;
+    fields id,name,slug,summary,rating,rating_count,cover.url,genres.name;
     limit ${limit};
   `;
   const games = await igdbQuery("games", body);
-
   return (games || []).map((g) => ({
     id: g.id,
     name: g.name,
     slug: g.slug,
     summary: g.summary || "",
     rating: typeof g.rating === "number" ? Math.round(g.rating) : null,
+    ratingCount: g.rating_count || 0,
     coverUrl: normalizeIgdbImageUrl(g.cover?.url)
       ? normalizeIgdbImageUrl(g.cover.url).replace("t_thumb", "t_cover_big")
       : null,
@@ -146,7 +140,6 @@ async function searchGames(query, limit = 20) {
   }));
 }
 
-// ---------- HOME: random featured pool ----------
 async function getFeaturedPool(poolSize = 300) {
   const now = Date.now();
   if (cachedFeaturedPool && now < cachedFeaturedPoolExpiry) return cachedFeaturedPool;
@@ -159,9 +152,7 @@ async function getFeaturedPool(poolSize = 300) {
     sort rating_count desc;
     limit ${poolSize};
   `;
-
   const games = await igdbQuery("games", body);
-
   cachedFeaturedPool = (games || []).map((g) => ({
     id: g.id,
     name: g.name,
@@ -174,7 +165,6 @@ async function getFeaturedPool(poolSize = 300) {
     heroFallbackUrl: pickIgdbBigHeroFallback(g),
     genres: (g.genres || []).map((x) => x.name).slice(0, 2),
   }));
-
   cachedFeaturedPoolExpiry = now + 1000 * 60 * 60 * 6;
   return cachedFeaturedPool;
 }
@@ -184,17 +174,15 @@ async function getRandomFeaturedGames(limit = 10) {
   return shuffleCopy(pool).slice(0, limit);
 }
 
-// ---------- /games page data ----------
 async function getNewReleasesGames(limit = 10) {
   const nowSec = Math.floor(Date.now() / 1000);
-  const fromSec = nowSec - 120 * 24 * 60 * 60;
-
+  const fromSec = nowSec - 120 * 24 * 60 * 60; // 4 meses
   const body = `
     fields id,name,slug,rating,rating_count,first_release_date,cover.url,artworks.url,screenshots.url;
     where first_release_date != null
       & first_release_date > ${fromSec}
       & rating_count != null
-      & rating_count > 20;
+      & rating_count > 5;
     sort first_release_date desc;
     limit ${limit};
   `;
@@ -213,8 +201,9 @@ async function getBestRatedGames(limit = 10) {
   return (games || []).map(mapGameCard);
 }
 
-// ---------- DETALLE DEL JUEGO (NUEVO) ----------
+// --- DETALLE DEL JUEGO ---
 async function getGameDetails(id) {
+  // AÑADIDO: platforms.id para los logos
   const body = `
     fields 
       name, slug, summary, storyline,
@@ -226,7 +215,7 @@ async function getGameDetails(id) {
       videos.video_id,
       genres.name, 
       involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
-      platforms.name, platforms.abbreviation;
+      platforms.id, platforms.name, platforms.abbreviation; 
     where id = ${id};
   `;
   
@@ -235,37 +224,55 @@ async function getGameDetails(id) {
 
   if (!g) return null;
 
-  // Normalizar datos
   return {
     id: g.id,
     name: g.name,
     slug: g.slug,
     summary: g.summary || g.storyline || "No description available.",
-    releaseDate: g.first_release_date 
-      ? new Date(g.first_release_date * 1000).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })
-      : "TBA",
+    storyline: g.storyline,
+    year: g.first_release_date ? new Date(g.first_release_date * 1000).getFullYear() : "N/A",
     rating: g.rating ? Math.round(g.rating) : null,
-    ratingCount: g.rating_count || 0,
+    rating_count: g.rating_count || 0,
     coverUrl: normalizeIgdbImageUrl(g.cover?.url)?.replace("t_thumb", "t_cover_big"),
-    heroFallback: pickIgdbBigHeroFallback(g),
-    genres: (g.genres || []).map(x => x.name),
-    companies: (g.involved_companies || []).map(c => ({
-      name: c.company.name,
-      role: c.developer ? "Developer" : (c.publisher ? "Publisher" : "Support")
+    backdropUrl: pickIgdbBigHeroFallback(g),
+    
+    // Arrays simples para mostrar texto
+    genres: (g.genres || []).map(x => x.name).join(", "),
+    companies: (g.involved_companies || []).map(c => c.company.name).join(", "),
+    
+    // Array de objetos para las Plataformas (ID + Nombre)
+    platforms: (g.platforms || []).map(p => ({
+      id: p.id,
+      name: p.name,
+      abbreviation: p.abbreviation || p.name
     })),
-    platforms: (g.platforms || []).map(p => p.abbreviation || p.name),
-    screenshots: (g.screenshots || []).map(s => normalizeIgdbImageUrl(s.url)?.replace("t_thumb", "t_1080p")).slice(0, 6),
-    videos: (g.videos || []).map(v => `https://www.youtube.com/embed/${v.video_id}`),
-    communityScore: null // Placeholder
+    
+    screenshots: (g.screenshots || []).map(s => normalizeIgdbImageUrl(s.url)?.replace("t_thumb", "t_1080p")).slice(0, 4),
+    videos: (g.videos || []).map(v => ({ video_id: v.video_id }))
   };
 }
 
-// IMPORTANTÍSIMO: Asegúrate de que getGameDetails esté en este objeto
+async function getUpcomingGames(limit = 10) {
+  const nowSec = Math.floor(Date.now() / 1000);
+  
+  const body = `
+    fields id,name,slug,first_release_date,cover.url,rating,rating_count;
+    where first_release_date > ${nowSec} 
+      & cover != null 
+      & hypes > 5; 
+    sort first_release_date asc; 
+    limit ${limit};
+  `;
+  const games = await igdbQuery("games", body);
+  return (games || []).map(mapGameCard);
+}
+
 module.exports = {
   getTrendingGames,
   searchGames,
   getRandomFeaturedGames,
   getNewReleasesGames,
   getBestRatedGames,
-  getGameDetails // <--- ¡AQUÍ ESTABA EL PROBLEMA!
+  getGameDetails,
+  getUpcomingGames
 };

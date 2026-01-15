@@ -1,121 +1,190 @@
-<section class="games-hero">
-    <div class="games-hero__bg" aria-hidden="true"></div>
+<div class="container" style="padding-top: 20px; padding-bottom: 60px;">
+
+    <section class="games-hero" style="background-image: url('https://images.igdb.com/igdb/image/upload/t_1080p/co670h.jpg');">
+      <div class="hero-overlay"></div>
   
-    <div class="games-hero__content">
-      <h1 class="games-hero__title"><%= data.hero.title %></h1>
-      <p class="games-hero__subtitle"><%= data.hero.subtitle %></p>
-  
-      <div class="games-hero__toolbar">
-        <div class="games-hero__actions">
-          <a class="btn btn-primary" href="#trending" id="exploreTrending">Explore Trending</a>
-          <a class="btn btn-ghost" href="#best" id="jumpToBest">Jump to Best</a>
+      <div class="hero-content">
+        <span class="hero-tag">Explora el universo</span>
+        <h1 class="hero-title">Discover Your <span class="text-gradient">Next Favorite</span> Game</h1>
+        <p class="hero-subtitle">
+          Busca entre miles de títulos, descubre lanzamientos o deja que el azar decida.
+        </p>
+        
+        <div class="hero-search-container">
+          <form id="gamesSearchForm" class="search-form" autocomplete="off">
+            <i class="fas fa-search search-icon"></i>
+            
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search for a game (e.g., 'Zelda')..." 
+              class="search-input"
+              value="<%= (data.searchQuery) ? data.searchQuery : '' %>"
+            >
+            
+            <div class="search-actions">
+              <button type="button" id="btnSearch" class="btn-search">Search</button>
+              <button type="button" id="btnRandom" class="btn-random" title="Surprise me!">
+                <i class="fas fa-dice"></i>
+              </button>
+            </div>
+          </form>
         </div>
   
-        <form class="games-search" id="gamesSearchForm" role="search" aria-label="Search games">
-          <label class="sr-only" for="searchInput">Search for a game</label>
-          <input
-            type="text"
-            id="searchInput"
-            name="q"
-            placeholder="Search for a game..."
-            autocomplete="off"
-          />
-          <button class="btn btn-primary" type="submit" id="btnSearch">Search</button>
-          <button class="btn btn-ghost" type="button" id="btnRandom" title="Load random games">Random Game Selection</button>
-        </form>
+        <div class="hero-tags">
+          <span>Popular:</span>
+          <span class="tag-pill">RPG</span>
+          <span class="tag-pill">Action</span>
+          <span class="tag-pill">Indie</span>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
   
-  <section class="container games-page">
   
     <div id="normalMode">
-      <% data.sections.forEach(section => { %>
-        <section class="slider-block" id="<%= section.id %>" data-slider>
-          
-          <div class="slider-block__header">
-            <h2 class="slider-block__title"><%= section.title %></h2>
+      
+      <% if (data.newReleases && data.newReleases.length > 0) { %>
+        <section class="games-section">
+          <div class="section-header">
             
-            <div class="slider-header-right">
-              <button class="btn-see-all" type="button" data-section-target="<%= section.id %>">
-                See all
-              </button>
-              
-              <div class="slider-arrows">
-                <button class="arrow-btn arrow-btn--prev" type="button" data-slider-prev aria-label="Previous slide">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-                <button class="arrow-btn arrow-btn--next" type="button" data-slider-next aria-label="Next slide">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
+            <h2 class="section-title">
+              <%= data.sectionTitle || "New Releases" %>
+            </h2>
+  
+            <% if (!data.isCategoryView) { %>
+              <div class="section-nav">
+                <a href="/games/category/new" class="btn-see-all">See all</a>
               </div>
+            <% } else { %>
+              <div class="section-nav">
+                <a href="/games" class="btn-ghost" style="display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px; transition: 0.2s;">
+                  <i class="fas fa-arrow-left"></i> Back to Games
+                </a>
+              </div>
+            <% } %>
+  
+          </div>
+  
+          <div class="games-grid">
+            <% data.newReleases.forEach(game => { %>
+              <article class="game-card" data-game-id="<%= game.id %>" tabindex="0">
+                <div class="game-card__media">
+                  <img src="<%= game.coverUrl || '/images/Community.png' %>" alt="<%= game.name %>" loading="lazy">
+                  <div class="game-card__overlay">
+                    <div class="game-card__meta">
+                      <span class="pill">View details</span>
+                      <% if (game.rating) { %>
+                        <span class="rating-badge"><%= Math.round(game.rating) %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title"><%= game.name %></h3>
+                  <p class="game-card__sub"><span class="muted"><%= game.ratingCount || 0 %> votes</span></p>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+  
+      <% if (!data.isCategoryView && data.upcomingGames && data.upcomingGames.length > 0) { %>
+        <section class="games-section" style="margin-top: 60px;">
+          <div class="section-header">
+            <h2 class="section-title">Coming Soon</h2>
+            <div class="section-nav">
+              <a href="/games/category/upcoming" class="btn-see-all">See all</a>
             </div>
           </div>
   
-          <div class="slider" data-slider-track>
-            <% if (!section.items || section.items.length === 0) { %>
-              <div class="empty-state">
-                <p>No games found in this section.</p>
-              </div>
-            <% } else { %>
-              <% section.items.forEach(game => { %>
-                <article class="game-card" tabindex="0" data-game-id="<%= game.id %>">
-                  <div class="game-card__media">
-                    <img
-                      src="<%= game.coverUrl || game.heroFallbackUrl || '/images/Community.png' %>"
-                      alt="<%= game.name %> cover"
-                      loading="lazy"
-                    />
-                    
-                    <div class="game-card__overlay">
-                      <div class="game-card__meta">
-                        <span class="pill">View details</span>
-                        
-                        <% if (game.rating !== null && game.rating !== undefined) { %>
-                          <span class="rating-badge"><%= game.rating %></span>
-                        <% } else { %>
-                          <span class="rating-badge rating-badge--muted">-</span>
-                        <% } %>
-                      </div>
-                    </div>
+          <div class="games-grid">
+            <% data.upcomingGames.forEach(game => { %>
+              <article class="game-card" data-game-id="<%= game.id %>" tabindex="0">
+                <div class="game-card__media">
+                  <img src="<%= game.coverUrl || '/images/Community.png' %>" alt="<%= game.name %>" loading="lazy">
+                  <div class="game-card__overlay">
+                     <div class="game-card__meta"><span class="pill">Pre-order info</span></div>
                   </div>
-  
-                  <div class="game-card__body">
-                    <h3 class="game-card__title" title="<%= game.name %>"><%= game.name %></h3>
-                    <p class="game-card__sub">
-                      <% if (game.ratingCount) { %>
-                        <span class="muted"><%= game.ratingCount.toLocaleString() %> votes</span>
-                      <% } else { %>
-                        <span class="muted">No votes</span>
-                      <% } %>
-                    </p>
-                  </div>
-                </article>
-              <% }) %>
-            <% } %>
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title"><%= game.name %></h3>
+                  <p class="game-card__sub" style="color: #a78bfa; font-weight: 600;">Coming Soon</p>
+                </div>
+              </article>
+            <% }) %>
           </div>
         </section>
-      <% }) %>
+      <% } %>
+  
+      <% if (!data.isCategoryView && data.popularGames && data.popularGames.length > 0) { %>
+        <section class="games-section" style="margin-top: 60px;">
+          <div class="section-header">
+            <h2 class="section-title">Trending Now</h2>
+            <div class="section-nav">
+              <a href="/games/category/popular" class="btn-see-all">See all</a>
+            </div>
+          </div>
+  
+          <div class="games-grid">
+            <% data.popularGames.forEach(game => { %>
+              <article class="game-card" data-game-id="<%= game.id %>" tabindex="0">
+                <div class="game-card__media">
+                  <img src="<%= game.coverUrl || '/images/Community.png' %>" alt="<%= game.name %>" loading="lazy">
+                  <div class="game-card__overlay">
+                    <div class="game-card__meta">
+                      <span class="pill">View details</span>
+                      <% if (game.rating) { %>
+                        <span class="rating-badge"><%= Math.round(game.rating) %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="game-card__body">
+                  <h3 class="game-card__title"><%= game.name %></h3>
+                  <p class="game-card__sub"><span class="muted"><%= game.ratingCount || 0 %> votes</span></p>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+  
     </div>
   
-    <section id="searchMode" class="search-mode hidden" aria-live="polite">
-      <header class="search-mode__head">
-        <h2 class="search-mode__title" id="resultsTitle">Search results</h2>
-        <p class="search-mode__meta muted" id="resultsMeta"></p>
-      </header>
   
-      <div class="search-mode__states">
-        <div id="resultsLoading" class="results-state hidden">Loading games...</div>
-        <div id="resultsEmpty" class="results-state hidden">No results found.</div>
-        <div id="resultsError" class="results-state hidden">Something went wrong. Please try again.</div>
+    <div id="searchMode" class="hidden">
+      
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="resultsTitle">Search Results</h2>
+          <p class="text-muted" id="resultsMeta" style="font-size: 0.9rem; margin-top: 5px;"></p>
+        </div>
+        <button onclick="document.getElementById('searchInput').value=''; document.getElementById('searchInput').dispatchEvent(new Event('input'));" class="btn-ghost" style="font-size: 0.8rem;">
+          Clear & Close
+        </button>
       </div>
   
-      <div id="resultsGrid" class="results-grid">
-        </div>
-    </section>
+      <div id="resultsGrid" class="games-grid"></div>
   
-  </section>
+      <div id="resultsLoading" class="state-container hidden">
+        <div class="spinner"></div>
+        <p>Searching the cosmos...</p>
+      </div>
+  
+      <div id="resultsEmpty" class="state-container hidden">
+        <i class="fas fa-ghost" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+        <p>No games found.</p>
+      </div>
+  
+      <div id="resultsError" class="state-container hidden">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px; color: #ef4444;"></i>
+        <p>Something went wrong. Please try again.</p>
+      </div>
+  
+    </div>
+  
+  </div>
+  
+  <script src="/javascripts/games-search.js"></script>
+  <script src="/javascripts/games-actions.js"></script>

@@ -1,119 +1,141 @@
+<% 
+  const platformMap = {
+    6:  { icon: 'fab fa-windows', name: 'PC (Windows)' },
+    14: { icon: 'fab fa-apple', name: 'Mac' },
+    3:  { icon: 'fab fa-linux', name: 'Linux' },
+    48: { icon: 'fab fa-playstation', name: 'PS4' },
+    167:{ icon: 'fab fa-playstation', name: 'PS5' },
+    9:  { icon: 'fab fa-playstation', name: 'PS3' },
+    49: { icon: 'fab fa-xbox', name: 'Xbox One' },
+    169:{ icon: 'fab fa-xbox', name: 'Xbox Series' },
+    12: { icon: 'fab fa-xbox', name: 'Xbox 360' },
+    130:{ icon: 'fas fa-gamepad', name: 'Nintendo Switch' },
+    34: { icon: 'fab fa-android', name: 'Android' },
+    39: { icon: 'fab fa-app-store-ios', name: 'iOS' }
+  };
+%>
+
 <div class="detail-page">
-    <div class="detail-hero">
-      <div class="detail-hero__bg" style="background-image: url('<%= data.heroUrl %>')"></div>
-      <div class="detail-hero__overlay"></div>
-      
-      <div class="container detail-hero__content">
-        <div class="detail-header">
-          <div class="detail-cover">
-            <img src="<%= data.game.coverUrl || '/images/Community.png' %>" alt="<%= data.game.name %> Cover">
-          </div>
-          
-          <div class="detail-info">
-            <div class="detail-meta">
-              <span class="detail-date"><%= data.game.releaseDate %></span>
-              <% if(data.game.companies.length > 0) { %>
-                <span class="detail-dev">by <%= data.game.companies[0].name %></span>
-              <% } %>
-            </div>
-            
-            <h1 class="detail-title"><%= data.game.name %></h1>
-            
-            <div class="detail-genres">
-              <% data.game.genres.forEach(genre => { %>
-                <span class="chip"><%= genre %></span>
-              <% }) %>
-            </div>
-  
-            <div class="detail-actions">
-              <button class="btn btn-primary">Rate Game</button>
-              
-              <% if (data.game.videos && data.game.videos.length > 0) { %>
-                <a href="#trailer" class="btn btn-ghost">▶ Watch Trailer</a>
-              <% } else { %>
-                <button class="btn btn-ghost">+ Add to Library</button>
-              <% } %>
-            </div>
-          </div>
-  
-          <div class="detail-scores">
-            <div class="score-box">
-              <span class="score-label">IGDB Score</span>
-              <div class="score-circle <%= data.game.rating >= 75 ? 'good' : (data.game.rating >= 50 ? 'mid' : 'bad') %>">
-                <%= data.game.rating || 'N/A' %>
-              </div>
-            </div>
-            <div class="score-box community">
-              <span class="score-label">GameLift</span>
-              <div class="score-circle">TBD</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <div class="container detail-body">
-      <div class="detail-main">
+
+  <div class="detail-hero">
+    <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
+    <div class="detail-hero__overlay"></div>
+
+    <div class="container detail-hero__content">
+      <div class="detail-header">
         
-        <section class="detail-section">
-          <h2 class="h3 section-title">About</h2>
-          <p class="detail-summary"><%= data.game.summary %></p>
-        </section>
-  
-        <% if (data.game.videos && data.game.videos.length > 0) { %>
-          <section class="detail-section" id="trailer">
-            <h2 class="h3 section-title">Trailer</h2>
-            <div class="video-wrapper">
-              <iframe 
-                src="<%= data.game.videos[0] %>" 
-                title="<%= data.game.name %> Trailer" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-              </iframe>
-            </div>
-          </section>
-        <% } %>
-  
-        <% if (data.game.screenshots.length > 0) { %>
-        <section class="detail-section">
-          <h2 class="h3 section-title">Gallery</h2>
-          <div class="detail-gallery">
-            <% data.game.screenshots.forEach(src => { %>
-              <img src="<%= src %>" alt="Screenshot" loading="lazy">
-            <% }) %>
-          </div>
-        </section>
-        <% } %>
-  
-        <section class="detail-section reviews-section">
-          <header class="reviews-header">
-            <h2 class="h3 section-title">User Reviews</h2>
-            <button class="btn btn-ghost btn-sm">Write a Review</button>
-          </header>
-          
-          <div class="empty-reviews">
-            <p class="muted">No reviews yet. Be the first to rate this masterpiece!</p>
-          </div>
-        </section>
-      </div>
-  
-      <aside class="detail-sidebar">
-        <div class="sidebar-card">
-          <h3 class="h3" style="margin-bottom: 1rem;">Information</h3>
-          <ul class="info-list">
-            <li>
-              <span class="muted">Platforms</span>
-              <span style="text-align: right;"><%= data.game.platforms.join(", ") %></span>
-            </li>
-            <% data.game.companies.forEach(c => { %>
-              <li>
-                <span class="muted"><%= c.role %></span>
-                <span style="text-align: right;"><%= c.name %></span>
-              </li>
-            <% }) %>
-          </ul>
+        <div class="detail-cover">
+          <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Cover">
         </div>
-      </aside>
+
+        <div class="detail-info">
+          <h1 class="detail-title"><%= data.name %></h1>
+          
+          <div class="detail-meta">
+            <span class="detail-date"><%= data.year %></span>
+            <span class="separator">•</span>
+            <span><%= data.companies ? data.companies.split(',')[0] : 'Unknown Dev' %></span>
+          </div>
+
+          <div class="detail-genres">
+            <% if (data.genres) { %>
+              <% data.genres.split(', ').forEach(genre => { %>
+                <span class="detail-tag"><%= genre %></span>
+              <% }) %>
+            <% } %>
+          </div>
+
+          <div class="detail-actions">
+             <button class="btn btn-primary"><i class="fas fa-plus"></i> Add to Library</button>
+             <button class="btn btn-ghost"><i class="far fa-heart"></i> Favorite</button>
+          </div>
+        </div>
+
+        <div class="detail-scores">
+          <div class="score-box">
+            <div class="score-circle <%= (data.rating >= 80) ? 'good' : ((data.rating >= 50) ? 'mid' : 'bad') %>">
+              <%= data.rating ? Math.round(data.rating) : '-' %>
+            </div>
+            <span class="score-label">Rating</span>
+          </div>
+          <div class="score-box">
+             <div class="score-circle mid">?</div>
+             <span class="score-label">Community</span>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
+
+  <div class="container detail-body">
+    
+    <div class="detail-main">
+      <section>
+        <h3 class="section-title">About</h3>
+        <p class="detail-summary"><%= data.summary %></p>
+        
+        <% if (data.storyline) { %>
+          <div style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;">
+            <p>"<%= data.storyline %>"</p>
+          </div>
+        <% } %>
+      </section>
+
+      <% if (data.videos && data.videos.length > 0) { %>
+        <section style="margin-top: 40px;">
+          <h3 class="section-title">Trailer</h3>
+          <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/<%= data.videos[0].video_id %>" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </section>
+      <% } %>
+
+      <% if (data.screenshots && data.screenshots.length > 0) { %>
+        <section style="margin-top: 40px;">
+          <h3 class="section-title">Gallery</h3>
+          <div class="detail-gallery">
+            <% data.screenshots.forEach(img => { %>
+              <img src="<%= img %>" alt="Screenshot" loading="lazy">
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+    </div>
+
+    <aside class="detail-sidebar">
+      <div class="sidebar-card">
+        <ul class="info-list">
+          
+          <li style="flex-direction: column; align-items: flex-start; gap: 10px;">
+            <span class="sidebar-label">Available on</span>
+            <% if (data.platforms && data.platforms.length > 0) { %>
+              <div class="platform-logos">
+                <% data.platforms.forEach(p => { %>
+                  <% const plat = platformMap[p.id]; %>
+                  <% if (plat) { %>
+                    <i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i>
+                  <% } else { %>
+                    <span class="platform-text-fallback" title="<%= p.name %>"><%= p.abbreviation || p.name.substring(0,3) %></span>
+                  <% } %>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <span class="text-muted">N/A</span>
+            <% } %>
+          </li>
+
+          <li>
+            <span class="sidebar-label">Release Year</span>
+            <span><%= data.year %></span>
+          </li>
+          <li>
+            <span class="sidebar-label">Developer</span>
+            <span style="text-align: right;"><%= data.companies ? data.companies.split(',')[0] : 'Unknown' %></span>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+  </div>
+</div>

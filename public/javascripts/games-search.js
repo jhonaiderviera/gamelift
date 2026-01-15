@@ -1,5 +1,5 @@
 // /public/javascripts/games-search.js
-// Realtime search + Random picks that DOES NOT disappear
+// Realtime search + Random picks logic
 (function () {
     const form = document.getElementById("gamesSearchForm");
     const input = document.getElementById("searchInput");
@@ -50,7 +50,6 @@
     }
   
     function normalizeApiResponse(payload) {
-      // Your API: { ok: true, data: [...] }
       if (!payload) return [];
       if (Array.isArray(payload)) return payload;
       if (Array.isArray(payload.data)) return payload.data;
@@ -60,12 +59,14 @@
   
     function buildCard(game) {
       const name = escapeHtml(game?.name || "Unknown");
+      // Usamos una imagen por defecto si no hay cover
       const cover = escapeHtml(game?.coverUrl || game?.heroFallbackUrl || "/images/Community.png");
-      const rating = (game?.rating !== null && game?.rating !== undefined) ? escapeHtml(game.rating) : "—";
+      const rating = (game?.rating !== null && game?.rating !== undefined) ? Math.round(game.rating) : "—";
       const votes = game?.ratingCount ? `${Number(game.ratingCount).toLocaleString()} votes` : "No votes yet";
   
+      // Nota: Añadimos tabindex y cursor pointer para accesibilidad
       return `
-        <article class="game-card" tabindex="0" data-game-id="${escapeHtml(game?.id ?? "")}">
+        <article class="game-card" tabindex="0" data-game-id="${escapeHtml(game?.id ?? "")}" style="cursor: pointer;">
           <div class="game-card__media">
             <img src="${cover}" alt="${name} cover" loading="lazy" />
             <div class="game-card__overlay">
@@ -91,10 +92,6 @@
   
     let debounceTimer = null;
     let inFlightController = null;
-  
-    // Key fix:
-    // When we show Random picks, input might be empty.
-    // We must NOT auto-return to browse just because it's empty.
     let stickySearchMode = false; // true when random is displayed
   
     async function fetchJson(url) {
@@ -114,12 +111,8 @@
     async function doSearch(q) {
       const query = (q || "").trim();
   
-      // If empty:
-      // - If stickySearchMode=true (random is shown), KEEP search mode + results.
-      // - Otherwise, return to browsing sliders.
       if (!query) {
         if (stickySearchMode) {
-          // keep the random results visible
           setMode("search");
           resetStates();
           return;
@@ -134,9 +127,7 @@
         return;
       }
   
-      // When user types a query, we leave sticky mode
       stickySearchMode = false;
-  
       setMode("search");
       resetStates();
       show(stateLoading);
@@ -145,7 +136,6 @@
   
       try {
         const list = await fetchJson(`/api/igdb/search?q=${encodeURIComponent(query)}`);
-  
         resetStates();
   
         if (!list.length) {
@@ -153,7 +143,6 @@
           show(stateEmpty);
           return;
         }
-  
         renderResults(list, `Search results for "${query}"`, `${list.length} results`);
       } catch (e) {
         if (e?.name === "AbortError") return;
@@ -166,9 +155,7 @@
     }
   
     async function loadRandom() {
-      // Random results should stay visible even if input is empty
       stickySearchMode = true;
-  
       setMode("search");
       resetStates();
       show(stateLoading);
@@ -177,7 +164,6 @@
   
       try {
         const list = await fetchJson(`/api/igdb/random?limit=20`);
-  
         resetStates();
   
         if (!list.length) {
@@ -185,7 +171,6 @@
           show(stateEmpty);
           return;
         }
-  
         renderResults(list, "Random picks", `${list.length} results`);
       } catch (e) {
         if (e?.name === "AbortError") return;
@@ -202,7 +187,8 @@
       debounceTimer = setTimeout(() => doSearch(q), 350);
     }
   
-    // Events
+    // --- EVENTS ---
+  
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       clearTimeout(debounceTimer);
@@ -211,15 +197,10 @@
   
     input.addEventListener("input", () => {
       const q = input.value;
-  
-      // If user clears input manually:
-      // - if stickySearchMode is on, keep random visible
-      // - otherwise return to browse
       if (!q.trim()) {
         doSearch("");
         return;
       }
-  
       scheduleSearch(q);
     });
   
@@ -230,7 +211,6 @@
         doSearch(input.value);
       }
       if (e.key === "Escape") {
-        // ESC should always return to browsing
         stickySearchMode = false;
         input.value = "";
         doSearch("");
@@ -246,14 +226,21 @@
     btnRandom.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-  
-      // Important: do NOT clear the input here.
-      // If we clear, some setups trigger "input" and bounce back to browse.
-      // Random picks should be stable.
       loadRandom();
     });
   
-    // init
+    // --- NUEVO: LISTENER DE NAVEGACIÓN ---
+    // Detecta clicks en las tarjetas generadas dinámicamente y redirige
+    resultsGrid.addEventListener("click", (e) => {
+      // Busca la tarjeta más cercana al elemento clickeado
+      const card = e.target.closest(".game-card");
+      
+      // Si existe la tarjeta y tiene ID, navegamos
+      if (card && card.dataset.gameId) {
+        window.location.href = `/games/${card.dataset.gameId}`;
+      }
+    });
+  
+    // Init
     setMode("browse");
   })();
-  

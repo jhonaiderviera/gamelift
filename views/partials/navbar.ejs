@@ -1,7 +1,7 @@
 <header class="site-header">
-
   <div class="container">
     <div class="nav">
+      
       <a class="brand" href="/">
         <span class="brand-mark">GAMELIFT</span>
       </a>
@@ -20,9 +20,24 @@
       </nav>
 
       <div class="nav-actions">
-        <a class="btn btn-ghost btn-sm" href="/login">Login</a>
-        <a class="btn btn-primary btn-sm" href="/register">Register</a>
+        
+        <% if (locals.user) { %>
+          <a href="/profile" class="btn btn-ghost btn-sm" style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;">
+            <img 
+              src="<%= (user.avatarUrl) ? user.avatarUrl : 'https://ui-avatars.com/api/?name=' + (user.username || user.email) + '&background=random&color=fff' %>" 
+              alt="Profile"
+              style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;"
+            >
+            <span style="font-weight: 600;">Profile</span>
+          </a>
+
+        <% } else { %>
+          <a class="btn btn-ghost btn-sm" href="/auth/login">Login</a>
+          <a class="btn btn-primary btn-sm" href="/auth/register">Register</a>
+        <% } %>
+
       </div>
+
     </div>
   </div>
 </header>

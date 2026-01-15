@@ -1,0 +1,142 @@
+<div class="auth-wrapper">
+  
+    <div class="auth-left">
+      <div class="auth-card">
+        
+        <div class="auth-header">
+          <span class="auth-logo">GAMELIFT</span>
+          <h1 class="auth-title">Create Account</h1>
+          <p class="auth-subtitle">Join us to review, vote, and save your game list.</p>
+        </div>
+  
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+  
+        <form class="auth-form" action="/auth/register" method="POST" id="registerForm">
+          
+          <div class="form-group">
+            <input type="text" name="username" class="form-input" placeholder="Username" required>
+          </div>
+  
+          <div class="form-group">
+            <input type="email" name="email" class="form-input" placeholder="Email Address" required>
+          </div>
+  
+          <div class="form-group">
+            <input type="password" name="password" id="passwordInput" class="form-input" placeholder="Password" required>
+          </div>
+  
+          <div class="password-requirements">
+            <div class="req-item invalid" id="req-length"><i></i> 8+ characters</div>
+            <div class="req-item invalid" id="req-upper"><i></i> 1 uppercase</div>
+            <div class="req-item invalid" id="req-number"><i></i> 1 number</div>
+            <div class="req-item invalid" id="req-special"><i></i> 1 symbol</div>
+          </div>
+  
+          <div class="form-group">
+            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm Password" required>
+            
+            <div id="matchMessage" class="alert-error" style="display:none; margin-top: 10px; padding: 8px; font-size: 0.85rem; text-align: center;">
+              Passwords do not match
+            </div>
+          </div>
+          
+          <div class="form-options">
+            <label class="custom-check">
+              <input type="checkbox" name="terms" required>
+              <span>I accept the terms & conditions</span>
+            </label>
+          </div>
+  
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn" disabled style="opacity: 0.5; cursor: not-allowed;">
+            Create Account
+          </button>
+        </form>
+  
+        <div class="form-footer">
+          Already have an account? <a href="/auth/login" class="auth-link">Log in</a>
+        </div>
+      </div>
+    </div>
+  
+    <div class="auth-right" style="background-image: url('<%= data.bgImage %>');"></div>
+  
+  </div>
+  
+  <script>
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmInput = document.getElementById('confirmPassword');
+    const submitBtn = document.getElementById('submitBtn');
+    const matchMsg = document.getElementById('matchMessage');
+    const termsInput = document.querySelector('input[name="terms"]');
+  
+    const reqs = {
+      length: document.getElementById('req-length'),
+      upper: document.getElementById('req-upper'),
+      number: document.getElementById('req-number'),
+      special: document.getElementById('req-special')
+    };
+  
+    const patterns = {
+      length: /.{8,}/,
+      upper: /[A-Z]/,
+      number: /[0-9]/,
+      special: /[!@#$%^&*(),.?":{}|<>_]/
+    };
+  
+    function validateComplexity() {
+      const val = passwordInput.value;
+      let validCount = 0;
+      for (const key in patterns) {
+        if (patterns[key].test(val)) {
+          reqs[key].classList.remove('invalid');
+          reqs[key].classList.add('valid');
+          validCount++;
+        } else {
+          reqs[key].classList.remove('valid');
+          reqs[key].classList.add('invalid');
+        }
+      }
+      return validCount === 4;
+    }
+  
+    function validateMatch() {
+      const pass = passwordInput.value;
+      const confirm = confirmInput.value;
+      if (confirm.length > 0 && pass !== confirm) {
+        matchMsg.style.display = 'block';
+        return false;
+      } else {
+        matchMsg.style.display = 'none';
+        return pass === confirm && pass.length > 0;
+      }
+    }
+  
+    function checkAll() {
+      const isComplex = validateComplexity();
+      const isMatch = validateMatch();
+      const isTerms = termsInput.checked;
+  
+      if (isComplex && isMatch && isTerms) {
+        submitBtn.removeAttribute('disabled');
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
+      } else {
+        submitBtn.setAttribute('disabled', 'true');
+        submitBtn.style.opacity = "0.5";
+        submitBtn.style.cursor = "not-allowed";
+      }
+    }
+  
+    passwordInput.addEventListener('input', () => {
+      validateComplexity();
+      if (confirmInput.value.length > 0) validateMatch();
+      checkAll();
+    });
+    confirmInput.addEventListener('input', () => {
+      validateMatch();
+      checkAll();
+    });
+    termsInput.addEventListener('change', checkAll);
+  </script>

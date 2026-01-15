@@ -1,6 +1,58 @@
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <p class="muted">© <%= new Date().getFullYear() %> GameLift — TFG DAW</p>
-    <p class="muted">Node.js + Express + EJS</p>
+  <div class="container">
+    
+    <div class="footer-content">
+      
+      <div class="footer-col brand-col">
+        <a href="/" class="footer-brand">GAMELIFT</a>
+        <p class="footer-desc">
+          Your ultimate platform to discover, track, and rate video games. 
+          Connecting players with their next favorite adventures.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Explore</h4>
+        <ul class="footer-links">
+          <li><a href="/games">Game Catalog</a></li>
+          <li><a href="/features">New Releases</a></li>
+          <li><a href="/support-developers">Support Developers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Community</h4>
+        <ul class="footer-links">
+          <% if (locals.user) { %>
+            <li><a href="/profile">My Profile</a></li>
+            <li><a href="/auth/logout">Log Out</a></li>
+          <% } else { %>
+            <li><a href="/auth/login">Log In</a></li>
+            <li><a href="/auth/register">Sign Up</a></li>
+          <% } %>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Project</h4>
+        <p class="footer-text">
+          Developed as a Final Degree Project (DAW).
+        </p>
+        <div class="footer-socials">
+          <a href="#" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <a href="#" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <%= new Date().getFullYear() %> GameLift. Made with <span style="color: #ef4444;">&hearts;</span> and Node.js.</p>
+      <p class="footer-version">v1.0.0 Beta</p>
+    </div>
+
   </div>
 </footer>
