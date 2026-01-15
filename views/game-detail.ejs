@@ -1,0 +1,119 @@
+<div class="detail-page">
+    <div class="detail-hero">
+      <div class="detail-hero__bg" style="background-image: url('<%= data.heroUrl %>')"></div>
+      <div class="detail-hero__overlay"></div>
+      
+      <div class="container detail-hero__content">
+        <div class="detail-header">
+          <div class="detail-cover">
+            <img src="<%= data.game.coverUrl || '/images/Community.png' %>" alt="<%= data.game.name %> Cover">
+          </div>
+          
+          <div class="detail-info">
+            <div class="detail-meta">
+              <span class="detail-date"><%= data.game.releaseDate %></span>
+              <% if(data.game.companies.length > 0) { %>
+                <span class="detail-dev">by <%= data.game.companies[0].name %></span>
+              <% } %>
+            </div>
+            
+            <h1 class="detail-title"><%= data.game.name %></h1>
+            
+            <div class="detail-genres">
+              <% data.game.genres.forEach(genre => { %>
+                <span class="chip"><%= genre %></span>
+              <% }) %>
+            </div>
+  
+            <div class="detail-actions">
+              <button class="btn btn-primary">Rate Game</button>
+              
+              <% if (data.game.videos && data.game.videos.length > 0) { %>
+                <a href="#trailer" class="btn btn-ghost">▶ Watch Trailer</a>
+              <% } else { %>
+                <button class="btn btn-ghost">+ Add to Library</button>
+              <% } %>
+            </div>
+          </div>
+  
+          <div class="detail-scores">
+            <div class="score-box">
+              <span class="score-label">IGDB Score</span>
+              <div class="score-circle <%= data.game.rating >= 75 ? 'good' : (data.game.rating >= 50 ? 'mid' : 'bad') %>">
+                <%= data.game.rating || 'N/A' %>
+              </div>
+            </div>
+            <div class="score-box community">
+              <span class="score-label">GameLift</span>
+              <div class="score-circle">TBD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="container detail-body">
+      <div class="detail-main">
+        
+        <section class="detail-section">
+          <h2 class="h3 section-title">About</h2>
+          <p class="detail-summary"><%= data.game.summary %></p>
+        </section>
+  
+        <% if (data.game.videos && data.game.videos.length > 0) { %>
+          <section class="detail-section" id="trailer">
+            <h2 class="h3 section-title">Trailer</h2>
+            <div class="video-wrapper">
+              <iframe 
+                src="<%= data.game.videos[0] %>" 
+                title="<%= data.game.name %> Trailer" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
+          </section>
+        <% } %>
+  
+        <% if (data.game.screenshots.length > 0) { %>
+        <section class="detail-section">
+          <h2 class="h3 section-title">Gallery</h2>
+          <div class="detail-gallery">
+            <% data.game.screenshots.forEach(src => { %>
+              <img src="<%= src %>" alt="Screenshot" loading="lazy">
+            <% }) %>
+          </div>
+        </section>
+        <% } %>
+  
+        <section class="detail-section reviews-section">
+          <header class="reviews-header">
+            <h2 class="h3 section-title">User Reviews</h2>
+            <button class="btn btn-ghost btn-sm">Write a Review</button>
+          </header>
+          
+          <div class="empty-reviews">
+            <p class="muted">No reviews yet. Be the first to rate this masterpiece!</p>
+          </div>
+        </section>
+      </div>
+  
+      <aside class="detail-sidebar">
+        <div class="sidebar-card">
+          <h3 class="h3" style="margin-bottom: 1rem;">Information</h3>
+          <ul class="info-list">
+            <li>
+              <span class="muted">Platforms</span>
+              <span style="text-align: right;"><%= data.game.platforms.join(", ") %></span>
+            </li>
+            <% data.game.companies.forEach(c => { %>
+              <li>
+                <span class="muted"><%= c.role %></span>
+                <span style="text-align: right;"><%= c.name %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>

@@ -1,0 +1,210 @@
+/* Game Detail Specific Styles */
+
+.detail-page {
+    padding-bottom: 80px;
+  }
+  
+  /* Hero Section */
+  .detail-hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .detail-hero__bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center top;
+    z-index: 0;
+  }
+  
+  .detail-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, var(--bg) 5%, rgba(6,6,10,0.85) 60%, rgba(6,6,10,0.5) 100%);
+    z-index: 1;
+    backdrop-filter: blur(0px); /* Opcional: blur muy leve si la imagen es muy ruidosa */
+  }
+  
+  .detail-hero__content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+  }
+  
+  .detail-header {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 30px;
+    align-items: end;
+  }
+  
+  /* Cover Art */
+  .detail-cover {
+    width: 200px;
+    aspect-ratio: 3/4;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    transform: translateY(20px); /* Overlap effect */
+    background: #000;
+  }
+  .detail-cover img { width: 100%; height: 100%; object-fit: cover; }
+  
+  /* Info Middle */
+  .detail-info { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  
+  .detail-title {
+    font-size: clamp(2.5rem, 4vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    margin: 0;
+  }
+  
+  .detail-meta { display: flex; gap: 12px; font-size: 14px; color: var(--muted); align-items: center; }
+  .detail-date { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; }
+  .detail-genres { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  
+  .detail-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  /* Scores Right */
+  .detail-scores {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .score-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+  
+  .score-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 20px;
+    border: 3px solid #333;
+    background: rgba(0,0,0,0.6);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  
+  .score-circle.good { border-color: #22c55e; color: #22c55e; }
+  .score-circle.mid { border-color: #eab308; color: #eab308; }
+  .score-circle.bad { border-color: #ef4444; color: #ef4444; }
+  
+  /* Body Grid */
+  .detail-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+    margin-top: 20px;
+  }
+  
+  .section-title { 
+    margin-bottom: 16px; 
+    padding-bottom: 8px; 
+    border-bottom: 1px solid rgba(255,255,255,0.08); 
+    color: #fff; 
+  }
+  
+  .detail-summary { 
+    line-height: 1.7; 
+    color: rgba(255,255,255,0.85); 
+    font-size: 1.05rem; 
+    white-space: pre-line; 
+  }
+  
+  /* --- Video Trailer Styles (Responsive 16:9) --- */
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Gallery */
+  .detail-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .detail-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    cursor: zoom-in;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .detail-gallery img:hover { transform: scale(1.02); z-index: 10; }
+  
+  /* Sidebar */
+  .sidebar-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: sticky;
+    top: 100px; /* Sticky sidebar */
+  }
+  
+  .info-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .info-list li { display: flex; justify-content: space-between; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+  .info-list li:last-child { border: none; padding-bottom: 0; }
+  
+  /* Reviews */
+  .reviews-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .empty-reviews { padding: 40px; text-align: center; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed var(--border); }
+  
+  /* Responsive Media Queries */
+  @media (max-width: 900px) {
+    .detail-header { grid-template-columns: 150px 1fr; }
+    .detail-scores { grid-column: 2; justify-self: start; flex-direction: row; margin-top: 10px; }
+    .detail-body { grid-template-columns: 1fr; }
+    .sidebar-card { position: static; margin-top: 30px; }
+  }
+  
+  @media (max-width: 650px) {
+    .detail-hero { min-height: auto; padding-top: 100px; }
+    .detail-header { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 20px; }
+    .detail-cover { margin: 0 auto; transform: translateY(0); width: 160px; }
+    .detail-actions { justify-content: center; width: 100%; }
+    .detail-meta { justify-content: center; }
+    .detail-scores { grid-column: 1; margin-top: 10px; justify-content: center; }
+    .detail-title { font-size: 2rem; margin-top: 10px; }
+    .detail-genres { justify-content: center; }
+    
+    .btn { width: 100%; max-width: 200px; } /* Botones full width en móvil */
+    .detail-actions { flex-direction: column; align-items: center; }
+  }

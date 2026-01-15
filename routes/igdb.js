@@ -1,31 +1,32 @@
 const express = require("express");
 const router = express.Router();
 
-const { getTrendingGames, searchGames } = require("../services/igdbClient");
+const {
+  searchGames,
+  getRandomFeaturedGames
+} = require("../services/igdbClient");
 
-// GET /api/igdb/trending?limit=6
-router.get("/trending", async (req, res) => {
-  try {
-    const limit = Math.max(1, Math.min(24, Number(req.query.limit || 6)));
-    const data = await getTrendingGames(limit);
-    res.json({ ok: true, data });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: "Failed to load trending games." });
-  }
-});
-
-// GET /api/igdb/search?q=zelda&limit=20
+// GET /api/igdb/search?q=...
 router.get("/search", async (req, res) => {
   try {
     const q = String(req.query.q || "").trim();
-    const limit = Math.max(1, Math.min(50, Number(req.query.limit || 20)));
+    if (!q) return res.json({ ok: true, data: [] });
 
-    if (!q) return res.status(400).json({ ok: false, error: "Missing q." });
-
-    const data = await searchGames(q, limit);
-    res.json({ ok: true, data });
+    const data = await searchGames(q, 20);
+    return res.json({ ok: true, data });
   } catch (e) {
-    res.status(500).json({ ok: false, error: "Search failed." });
+    return res.status(500).json({ ok: false, error: e.message || "Search failed" });
+  }
+});
+
+// GET /api/igdb/random?limit=20
+router.get("/random", async (req, res) => {
+  try {
+    const limit = Number(req.query.limit || 20);
+    const data = await getRandomFeaturedGames(limit);
+    return res.json({ ok: true, data });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.message || "Random failed" });
   }
 });
 

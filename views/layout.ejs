@@ -1,16 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= title %></title>
-
-  <link rel="stylesheet" href="/stylesheets/main.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+  
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+  
+    <% if (page === "index") { %>
+      <link rel="stylesheet" href="/stylesheets/home.css" />
+    <% } %>
+  
+    <% if (page === "games") { %>
+      <link rel="stylesheet" href="/stylesheets/games.css" />
+    <% } %>
+    
+    <% if (page === "game-detail") { %>
+      <link rel="stylesheet" href="/stylesheets/game-detail.css" />
+    <% } %>
+  </head>
 <body>
   <%- include("partials/navbar", { active: page || "index" }) %>
 
-  <main class="app">
+  <main class="app" id="main">
     <% if (page === "index") { %>
       <%- include("index", {
         heroSlides: (data && data.heroSlides) ? data.heroSlides : [],
@@ -35,6 +47,8 @@
 
   <% if (page === "games") { %>
     <script src="/javascripts/games-sliders.js"></script>
+    <script src="/javascripts/games-actions.js"></script>
+    <script src="/javascripts/games-search.js"></script>
   <% } %>
 </body>
 </html>

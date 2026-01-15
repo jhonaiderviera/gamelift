@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require("axios"); // Mantenemos si lo usas, aunque usamos fetch nativo abajo
 
 const IGDB_BASE_URL = "https://api.igdb.com/v4";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
@@ -6,7 +6,7 @@ const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 let cachedToken = null;
 let cachedTokenExpiry = 0;
 
-// Cached pool for random featured carousel (6h) (home)
+// Cached pool for random featured carousel (6h)
 let cachedFeaturedPool = null;
 let cachedFeaturedPoolExpiry = 0;
 
@@ -114,7 +114,6 @@ function mapGameCard(g) {
 
 // ---------- Existing API helpers ----------
 async function getTrendingGames(limit = 10) {
-  // "Trending this week" approximation: high engagement / rating_count + decent rating
   const body = `
     fields id,name,slug,rating,rating_count,cover.url,artworks.url,screenshots.url;
     where rating != null & rating_count != null & rating_count > 200;
@@ -187,7 +186,6 @@ async function getRandomFeaturedGames(limit = 10) {
 
 // ---------- /games page data ----------
 async function getNewReleasesGames(limit = 10) {
-  // last 120 days
   const nowSec = Math.floor(Date.now() / 1000);
   const fromSec = nowSec - 120 * 24 * 60 * 60;
 
@@ -215,10 +213,59 @@ async function getBestRatedGames(limit = 10) {
   return (games || []).map(mapGameCard);
 }
 
+// ---------- DETALLE DEL JUEGO (NUEVO) ----------
+async function getGameDetails(id) {
+  const body = `
+    fields 
+      name, slug, summary, storyline,
+      first_release_date,
+      rating, rating_count,
+      cover.url, 
+      artworks.url, 
+      screenshots.url, screenshots.image_id,
+      videos.video_id,
+      genres.name, 
+      involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
+      platforms.name, platforms.abbreviation;
+    where id = ${id};
+  `;
+  
+  const games = await igdbQuery("games", body);
+  const g = games?.[0];
+
+  if (!g) return null;
+
+  // Normalizar datos
+  return {
+    id: g.id,
+    name: g.name,
+    slug: g.slug,
+    summary: g.summary || g.storyline || "No description available.",
+    releaseDate: g.first_release_date 
+      ? new Date(g.first_release_date * 1000).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })
+      : "TBA",
+    rating: g.rating ? Math.round(g.rating) : null,
+    ratingCount: g.rating_count || 0,
+    coverUrl: normalizeIgdbImageUrl(g.cover?.url)?.replace("t_thumb", "t_cover_big"),
+    heroFallback: pickIgdbBigHeroFallback(g),
+    genres: (g.genres || []).map(x => x.name),
+    companies: (g.involved_companies || []).map(c => ({
+      name: c.company.name,
+      role: c.developer ? "Developer" : (c.publisher ? "Publisher" : "Support")
+    })),
+    platforms: (g.platforms || []).map(p => p.abbreviation || p.name),
+    screenshots: (g.screenshots || []).map(s => normalizeIgdbImageUrl(s.url)?.replace("t_thumb", "t_1080p")).slice(0, 6),
+    videos: (g.videos || []).map(v => `https://www.youtube.com/embed/${v.video_id}`),
+    communityScore: null // Placeholder
+  };
+}
+
+// IMPORTANTÍSIMO: Asegúrate de que getGameDetails esté en este objeto
 module.exports = {
   getTrendingGames,
   searchGames,
   getRandomFeaturedGames,
   getNewReleasesGames,
   getBestRatedGames,
+  getGameDetails // <--- ¡AQUÍ ESTABA EL PROBLEMA!
 };

@@ -1,0 +1,174 @@
+/* =========================================
+   GAMES.CSS - Directory & Filters
+   ========================================= */
+
+/* 1. Games Hero Section (Specific) */
+.games-hero {
+    position: relative; height: 56vh; margin: 18px auto 22px;
+    border-radius: 22px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 28px 70px rgba(0,0,0,0.55);
+  }
+  .games-hero__bg {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-size: cover; background-position: center;
+  }
+  .games-hero__content {
+    position: relative; z-index: 5; padding: 24px; height: 100%;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .games-hero__title { margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.1; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .games-hero__subtitle { margin: 10px 0 0; color: rgba(255,255,255,0.78); max-width: 70ch; }
+  .games-hero__toolbar { margin-top: 24px; display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .games-hero__actions { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 6;}
+  
+  /* 2. Search Component */
+  .games-search {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
+    padding: 8px 12px; border-radius: 16px; position: relative; z-index: 6;
+    border: 1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.35); backdrop-filter: blur(10px);
+  }
+  .games-search input {
+    width: 100%; padding: 10px 14px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); color: #fff; outline: none;
+  }
+  .games-search input::placeholder { color: rgba(255,255,255,0.55); }
+  
+  #btnRandom.btn-ghost {
+    background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.20); color: rgba(255,255,255,0.92);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.20);
+  }
+  #btnRandom.btn-ghost:hover {
+    background: rgba(255,255,255,0.14); border-color: rgba(139,92,246,0.45); transform: translateY(-1px);
+  }
+  
+  /* 3. Slider System & Controls (NEW DESIGN) */
+  .slider-block { margin-bottom: 40px; }
+  
+  .slider-block__header {
+    display: flex;
+    align-items: flex-start; /* Alineamos arriba por si el título es largo */
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  
+  .slider-block__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding-top: 4px;
+  }
+  
+  /* Contenedor derecho que apila los elementos */
+  .slider-header-right {
+    display: flex;
+    flex-direction: column; /* Apila verticalmente */
+    align-items: flex-end; /* Alinea todo a la derecha */
+    gap: 8px; /* Espacio entre "See all" y las flechas */
+  }
+  
+  /* Botón "See all" (Estilo etiqueta gris) */
+  .btn-see-all {
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+  }
+  .btn-see-all:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+  }
+  
+  /* Contenedor de flechas */
+  .slider-arrows {
+    display: flex; gap: 10px;
+  }
+  
+  /* Botones Flecha Individuales (Círculos Morados) */
+  .arrow-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+  }
+  .arrow-btn svg { width: 20px; height: 20px; }
+  .arrow-btn:hover {
+    background: var(--primaryHover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+  }
+  .arrow-btn:active { transform: scale(0.95); }
+  
+  /* Slider Track */
+  .slider {
+    display: flex; gap: 16px; overflow-x: auto; padding: 4px 4px 20px;
+    scroll-snap-type: x mandatory; scrollbar-width: none;
+  }
+  .slider::-webkit-scrollbar { display: none; }
+  .slider > * { flex: 0 0 auto; scroll-snap-align: start; }
+  
+  /* 4. Game Card overrides for Sliders/Games Page */
+  .games-page .game-card { width: 210px; min-width: 210px; cursor: pointer; }
+  
+  .games-page .game-card__media {
+    position: relative; aspect-ratio: 3 / 4; background: #000; overflow: hidden;
+  }
+  .games-page .game-card__media img {
+    width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;
+  }
+  .games-page .game-card:hover .game-card__media img { transform: scale(1.05); }
+  
+  /* --- OVERLAY FIX (Valoraciones no cortadas) --- */
+  .games-page .game-card__overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.9) 100%);
+    display: flex; align-items: flex-end; padding: 16px;
+  }
+  .games-page .game-card__meta {
+    width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .games-page .pill {
+    background-color: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);
+    color: #fff; font-size: 0.75rem; font-weight: 600; padding: 6px 12px;
+    border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.15); white-space: nowrap;
+  }
+  .games-page .rating-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; background: var(--primary);
+    color: #fff; font-weight: 700; font-size: 0.85rem; border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;
+  }
+  .games-page .rating-badge--muted {
+    background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+  
+  /* 5. Search Results Grid */
+  .search-mode { margin-top: 18px; }
+  .search-mode__head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.10); padding-bottom: 10px; }
+  .results-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+  .results-grid .game-card { width: 100%; min-width: 0; }
+  
+  /* Responsive */
+  @media (max-width: 1020px) { .results-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 820px) {
+    .games-search { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: repeat(2, 1fr); }
+    .games-page .game-card { width: 160px; min-width: 160px; }
+  }
+  @media (max-width: 600px) {
+    /* En móviles pequeños, la cabecera puede alinearse diferente si hace falta */
+    .slider-block__header { align-items: center; }
+  }
+  @media (max-width: 520px) { .results-grid { grid-template-columns: 1fr; } .games-hero { height: auto; padding-bottom: 20px; } }
