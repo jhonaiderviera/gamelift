@@ -1,39 +1,91 @@
+<!-- Header principal del sitio -->
 <header class="site-header">
   <div class="container">
     <div class="nav">
-      
+
+      <!-- Marca del sitio y enlace a home -->
       <a class="brand" href="/">
         <span class="brand-mark">GAMELIFT</span>
       </a>
 
-      <button class="nav-toggle" type="button" aria-controls="navMenu" aria-expanded="false">
+      <!-- Boton hamburguesa para menu responsive -->
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-controls="navMenu"
+        aria-expanded="false"
+      >
+        <!-- Lineas del icono hamburguesa -->
         <span class="nav-toggle-line"></span>
         <span class="nav-toggle-line"></span>
         <span class="nav-toggle-line"></span>
       </button>
 
-      <nav id="navMenu" class="nav-menu" aria-label="Primary navigation">
-        <a class="nav-link <%= (active === 'index') ? 'is-active' : '' %>" href="/">Home</a>
-        <a class="nav-link <%= (active === 'games') ? 'is-active' : '' %>" href="/games">Games</a>
-        <a class="nav-link <%= (active === 'features') ? 'is-active' : '' %>" href="/features">New Features</a>
-        <a class="nav-link <%= (active === 'support') ? 'is-active' : '' %>" href="/support-developers">Support Developers</a>
+      <!-- Navegacion principal -->
+      <nav
+        id="navMenu"
+        class="nav-menu"
+        aria-label="Primary navigation"
+      >
+        <!-- Enlace Home con estado activo -->
+        <a class="nav-link <%= (active === 'index') ? 'is-active' : '' %>" href="/">
+          Home
+        </a>
+
+        <!-- Enlace Games -->
+        <a class="nav-link <%= (active === 'games') ? 'is-active' : '' %>" href="/games">
+          Games
+        </a>
+
+        <!-- Enlace New Features -->
+        <a class="nav-link <%= (active === 'features') ? 'is-active' : '' %>" href="/features">
+          New Features
+        </a>
+
+        <!-- Enlace Support Developers -->
+        <a class="nav-link <%= (active === 'support') ? 'is-active' : '' %>" href="/support-developers">
+          Support Developers
+        </a>
       </nav>
 
+      <!-- Acciones de usuario -->
       <div class="nav-actions">
-        
+
+        <!-- Si el usuario esta logueado -->
         <% if (locals.user) { %>
-          <a href="/profile" class="btn btn-ghost btn-sm" style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;">
-            <img 
-              src="<%= (user.avatarUrl) ? user.avatarUrl : 'https://ui-avatars.com/api/?name=' + (user.username || user.email) + '&background=random&color=fff' %>" 
+
+          <!-- Boton perfil con avatar -->
+          <a
+            href="/profile"
+            class="btn btn-ghost btn-sm"
+            style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;"
+          >
+            <!-- Avatar del usuario o avatar generado -->
+            <img
+              src="<%= (user.avatarUrl)
+                ? user.avatarUrl
+                : 'https://ui-avatars.com/api/?name=' + (user.username || user.email) + '&background=random&color=fff'
+              %>"
               alt="Profile"
               style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;"
             >
+
+            <!-- Texto del boton -->
             <span style="font-weight: 600;">Profile</span>
           </a>
 
         <% } else { %>
-          <a class="btn btn-ghost btn-sm" href="/auth/login">Login</a>
-          <a class="btn btn-primary btn-sm" href="/auth/register">Register</a>
+
+          <!-- Boton login -->
+          <a class="btn btn-ghost btn-sm" href="/auth/login">
+            Login
+          </a>
+
+          <!-- Boton registro -->
+          <a class="btn btn-primary btn-sm" href="/auth/register">
+            Register
+          </a>
+
         <% } %>
 
       </div>

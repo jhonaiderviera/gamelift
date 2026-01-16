@@ -3,6 +3,7 @@ const router = express.Router();
 const { getRandomFeaturedGames } = require("../services/igdbClient");
 const { getHeroMetaByGameName } = require("../services/steamGridClient");
 
+// Validar que la imagen de héroe tiene suficiente calidad
 function isHeroSharpEnough(meta) {
   if (!meta?.url) return false;
   const w = Number(meta.width || 0);
@@ -14,15 +15,16 @@ function isHeroSharpEnough(meta) {
   return false;
 }
 
+// Página principal con juegos destacados y carrusel héroe
 router.get("/", async (req, res, next) => {
   try {
-    // Pool grande para que salga random de verdad
+    // Obtener grupo grande de juegos aleatorios
     const pool = await getRandomFeaturedGames(30);
 
-    // Hero = 10 random
+    // Primeros 10 para el héroe
     const featured = pool.slice(0, 10);
 
-    // Top 10 = otros 10 distintos (si hay)
+    // Siguientes 10 para los juegos recomendados
     const topGames = pool
       .slice(10, 20)
       .map(g => ({
@@ -34,6 +36,7 @@ router.get("/", async (req, res, next) => {
 
     const heroSlides = [];
     for (const g of featured) {
+      // Obtener imagen héroe de mejor calidad
       const heroMeta = await getHeroMetaByGameName(g.name);
 
       const heroUrl = isHeroSharpEnough(heroMeta) ? heroMeta.url : null;
@@ -46,15 +49,15 @@ router.get("/", async (req, res, next) => {
 
       heroSlides.push({
         title: g.name,
-        subtitle: "Featured title",
+        subtitle: "Título destacado",
         imageUrl,
-        ctaText: "More Information",
+        ctaText: "Más información",
         ctaHref: "/games",
       });
     }
 
     res.render("layout", {
-      title: "Home | GameLift",
+      title: "Inicio | GameLift",
       page: "index",
       data: { heroSlides, topGames },
     });

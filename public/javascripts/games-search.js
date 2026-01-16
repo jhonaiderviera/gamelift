@@ -1,5 +1,4 @@
-// /public/javascripts/games-search.js
-// Realtime search + Random picks logic
+// Búsqueda y selección aleatoria de juegos
 (function () {
     const form = document.getElementById("gamesSearchForm");
     const input = document.getElementById("searchInput");
@@ -18,12 +17,14 @@
   
     const resultsGrid = document.getElementById("resultsGrid");
   
-    // Guard: if accidentally loaded on another page, do nothing
+    // Validar que los elementos existen
     if (!form || !input || !btnSearch || !btnRandom || !normalMode || !searchMode || !resultsGrid) return;
   
+    // Mostrar/ocultar elementos
     function show(el) { el && el.classList.remove("hidden"); }
     function hide(el) { el && el.classList.add("hidden"); }
   
+    // Cambiar entre vista de exploración y búsqueda
     function setMode(mode) {
       if (mode === "browse") {
         show(normalMode);
@@ -34,12 +35,14 @@
       }
     }
   
+    // Limpiar estados de carga y errores
     function resetStates() {
       hide(stateLoading);
       hide(stateEmpty);
       hide(stateError);
     }
   
+    // Escapar caracteres especiales HTML
     function escapeHtml(str) {
       return String(str ?? "")
         .replaceAll("&", "&amp;")
@@ -49,6 +52,7 @@
         .replaceAll("'", "&#039;");
     }
   
+    // Normalizar respuesta de API
     function normalizeApiResponse(payload) {
       if (!payload) return [];
       if (Array.isArray(payload)) return payload;
@@ -57,14 +61,15 @@
       return [];
     }
   
+    // Construir tarjeta de juego
     function buildCard(game) {
-      const name = escapeHtml(game?.name || "Unknown");
-      // Usamos una imagen por defecto si no hay cover
+      const name = escapeHtml(game?.name || "Desconocido");
+      // Usar imagen por defecto si no hay portada
       const cover = escapeHtml(game?.coverUrl || game?.heroFallbackUrl || "/images/Community.png");
       const rating = (game?.rating !== null && game?.rating !== undefined) ? Math.round(game.rating) : "—";
-      const votes = game?.ratingCount ? `${Number(game.ratingCount).toLocaleString()} votes` : "No votes yet";
+      const votes = game?.ratingCount ? `${Number(game.ratingCount).toLocaleString()} votos` : "Sin votos";
   
-      // Nota: Añadimos tabindex y cursor pointer para accesibilidad
+      // Añadir atributo tabindex para accesibilidad
       return `
         <article class="game-card" tabindex="0" data-game-id="${escapeHtml(game?.id ?? "")}" style="cursor: pointer;">
           <div class="game-card__media">
@@ -84,6 +89,7 @@
       `;
     }
   
+    // Renderizar resultados de búsqueda en la cuadrícula
     function renderResults(list, title, meta) {
       if (resultsTitle) resultsTitle.textContent = title;
       if (resultsMeta) resultsMeta.textContent = meta;
@@ -94,13 +100,16 @@
     let inFlightController = null;
     let stickySearchMode = false; // true when random is displayed
   
+    // Realizar petición HTTP y obtener JSON normalizado
     async function fetchJson(url) {
+      // Cancelar petición anterior si está en curso
       if (inFlightController) inFlightController.abort();
       inFlightController = new AbortController();
   
       const res = await fetch(url, { signal: inFlightController.signal });
       const payload = await res.json().catch(() => null);
   
+      // Validar respuesta exitosa
       if (!res.ok || !payload || payload.ok === false) {
         throw new Error(payload?.error || payload?.message || "Request failed");
       }
@@ -108,9 +117,11 @@
       return normalizeApiResponse(payload);
     }
   
+    // Ejecutar búsqueda de juegos con término especificado
     async function doSearch(q) {
       const query = (q || "").trim();
   
+      // Si no hay término y no estamos en modo sticky, volver a exploración
       if (!query) {
         if (stickySearchMode) {
           setMode("search");
@@ -135,6 +146,7 @@
       if (resultsMeta) resultsMeta.textContent = "";
   
       try {
+        // Obtener resultados de búsqueda del servidor
         const list = await fetchJson(`/api/igdb/search?q=${encodeURIComponent(query)}`);
         resetStates();
   
@@ -154,6 +166,7 @@
       }
     }
   
+    // Cargar selección aleatoria de juegos
     async function loadRandom() {
       stickySearchMode = true;
       setMode("search");
@@ -163,6 +176,7 @@
       if (resultsMeta) resultsMeta.textContent = "";
   
       try {
+        // Obtener 20 juegos aleatorios del servidor
         const list = await fetchJson(`/api/igdb/random?limit=20`);
         resetStates();
   
@@ -182,19 +196,22 @@
       }
     }
   
+    // Programar búsqueda con debounce para evitar múltiples peticiones
     function scheduleSearch(q) {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => doSearch(q), 350);
     }
   
-    // --- EVENTS ---
+    // --- GESTORES DE EVENTOS ---
   
+    // Envío del formulario de búsqueda
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       clearTimeout(debounceTimer);
       doSearch(input.value);
     });
   
+    // Búsqueda en tiempo real con debounce
     input.addEventListener("input", () => {
       const q = input.value;
       if (!q.trim()) {
@@ -204,6 +221,7 @@
       scheduleSearch(q);
     });
   
+    // Atajos de teclado: Enter para buscar, Escape para limpiar
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -217,25 +235,26 @@
       }
     });
   
+    // Click en botón de búsqueda
     btnSearch.addEventListener("click", (e) => {
       e.preventDefault();
       clearTimeout(debounceTimer);
       doSearch(input.value);
     });
   
+    // Click en botón de selección aleatoria
     btnRandom.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       loadRandom();
     });
   
-    // --- NUEVO: LISTENER DE NAVEGACIÓN ---
-    // Detecta clicks en las tarjetas generadas dinámicamente y redirige
+    // Navegación mediante clicks en tarjetas de juegos
     resultsGrid.addEventListener("click", (e) => {
       // Busca la tarjeta más cercana al elemento clickeado
       const card = e.target.closest(".game-card");
       
-      // Si existe la tarjeta y tiene ID, navegamos
+      // Si existe la tarjeta y tiene ID, navegar al detalle del juego
       if (card && card.dataset.gameId) {
         window.location.href = `/games/${card.dataset.gameId}`;
       }

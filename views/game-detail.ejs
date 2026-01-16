@@ -1,4 +1,5 @@
 <% 
+  // Mapa de plataformas por id para mostrar iconos y nombres consistentes
   const platformMap = {
     6:  { icon: 'fab fa-windows', name: 'PC (Windows)' },
     14: { icon: 'fab fa-apple', name: 'Mac' },
@@ -17,26 +18,30 @@
 
 <div class="detail-page">
 
+  <!-- Hero con backdrop y overlay para legibilidad -->
   <div class="detail-hero">
     <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
     <div class="detail-hero__overlay"></div>
 
     <div class="container detail-hero__content">
       <div class="detail-header">
-        
+
+        <!-- Portada principal del juego -->
         <div class="detail-cover">
           <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Cover">
         </div>
 
+        <!-- Info basica del juego -->
         <div class="detail-info">
           <h1 class="detail-title"><%= data.name %></h1>
-          
+
           <div class="detail-meta">
             <span class="detail-date"><%= data.year %></span>
             <span class="separator">•</span>
             <span><%= data.companies ? data.companies.split(',')[0] : 'Unknown Dev' %></span>
           </div>
 
+          <!-- Tags de generos -->
           <div class="detail-genres">
             <% if (data.genres) { %>
               <% data.genres.split(', ').forEach(genre => { %>
@@ -45,12 +50,14 @@
             <% } %>
           </div>
 
+          <!-- Acciones principales -->
           <div class="detail-actions">
              <button class="btn btn-primary"><i class="fas fa-plus"></i> Add to Library</button>
              <button class="btn btn-ghost"><i class="far fa-heart"></i> Favorite</button>
           </div>
         </div>
 
+        <!-- Scores del juego -->
         <div class="detail-scores">
           <div class="score-box">
             <div class="score-circle <%= (data.rating >= 80) ? 'good' : ((data.rating >= 50) ? 'mid' : 'bad') %>">
@@ -69,13 +76,15 @@
   </div>
 
   <div class="container detail-body">
-    
+
     <div class="detail-main">
-      
+
+      <!-- Descripcion principal -->
       <section>
         <h3 class="section-title">About</h3>
         <p class="detail-summary"><%= data.summary %></p>
-        
+
+        <!-- Storyline opcional -->
         <% if (data.storyline) { %>
           <div style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;">
             <p>"<%= data.storyline %>"</p>
@@ -83,6 +92,7 @@
         <% } %>
       </section>
 
+      <!-- Trailer opcional -->
       <% if (data.videos && data.videos.length > 0) { %>
         <section style="margin-top: 40px;">
           <h3 class="section-title">Trailer</h3>
@@ -92,6 +102,7 @@
         </section>
       <% } %>
 
+      <!-- Galeria opcional -->
       <% if (data.screenshots && data.screenshots.length > 0) { %>
         <section style="margin-top: 40px;">
           <h3 class="section-title">Gallery</h3>
@@ -103,93 +114,152 @@
         </section>
       <% } %>
 
+      <!-- Reviews -->
       <section style="margin-top: 60px;" id="reviewSection">
         <h3 class="section-title">User Reviews</h3>
 
-        <div class="review-form-card">
-          <div class="review-header">
-            <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo" class="game-logo-small">
-            
-            <span class="review-prompt">What do you think about <strong><%= data.name %></strong>?</span>
+        <!-- Form solo si hay usuario logueado -->
+        <% if (user) { %>
+
+          <div class="review-form-card">
+            <div class="review-header">
+              <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo" class="game-logo-small">
+              <span class="review-prompt">What do you think about <strong><%= data.name %></strong>?</span>
+            </div>
+
+            <!-- Form de review con sliders y textarea -->
+            <form id="gameReviewForm" class="review-grid" data-game-id="<%= data.id %>" data-game-name="<%= data.name %>">
+
+              <div class="rating-sliders">
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Story</span>
+                    <span class="slider-value" id="val-story">80</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Gameplay</span>
+                    <span class="slider-value" id="val-gameplay">75</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Graphics</span>
+                    <span class="slider-value" id="val-graphics">90</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Sound & Music</span>
+                    <span class="slider-value" id="val-sound">85</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()">
+                </div>
+
+                <!-- Media calculada en cliente -->
+                <div class="total-score-display">
+                  <span>Overall Score</span>
+                  <div class="big-score-badge good" id="overall-score">83</div>
+                </div>
+              </div>
+
+              <div class="review-text-area">
+                <textarea placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: auto;">
+                  Submit Review
+                </button>
+              </div>
+
+            </form>
           </div>
 
-          <form id="gameReviewForm" class="review-grid">
-            
-            <div class="rating-sliders">
-              
-              <div class="slider-group">
-                <div class="slider-label">
-                  <span>Story</span>
-                  <span class="slider-value" id="val-story">80</span>
-                </div>
-                <input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()">
-              </div>
+        <% } else { %>
 
-              <div class="slider-group">
-                <div class="slider-label">
-                  <span>Gameplay</span>
-                  <span class="slider-value" id="val-gameplay">75</span>
-                </div>
-                <input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()">
-              </div>
+          <!-- Estado bloqueado si no hay login -->
+          <div class="review-form-card" style="text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1);">
+            <i class="fas fa-lock" style="font-size: 2rem; color: #8b5cf6; margin-bottom: 15px;"></i>
+            <h4 style="color: #fff; margin-bottom: 10px;">Log in to write a review</h4>
+            <p style="color: #9ca3af; margin-bottom: 20px;">Join the community to share your opinion and track your games.</p>
+            <a href="/auth/login" class="btn btn-primary">Sign In / Register</a>
+          </div>
 
-              <div class="slider-group">
-                <div class="slider-label">
-                  <span>Graphics</span>
-                  <span class="slider-value" id="val-graphics">90</span>
-                </div>
-                <input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()">
-              </div>
+        <% } %>
 
-              <div class="slider-group">
-                <div class="slider-label">
-                  <span>Sound & Music</span>
-                  <span class="slider-value" id="val-sound">85</span>
-                </div>
-                <input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()">
-              </div>
-
-              <div class="total-score-display">
-                <span>Overall Score</span>
-                <div class="big-score-badge good" id="overall-score">83</div>
-              </div>
-
-            </div>
-
-            <div class="review-text-area">
-              <textarea placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
-              <button type="submit" class="btn btn-primary btn-block" style="margin-top: auto;">
-                Submit Review
-              </button>
-            </div>
-
-          </form>
-        </div>
-
+        <!-- Listado de reviews o empty state -->
         <div class="reviews-list" style="margin-top: 30px;">
-           <div class="empty-state-review">
-             <i class="far fa-comment-dots"></i>
-             <p>Be the first to review this game!</p>
-           </div>
+           <% if (data.reviews && data.reviews.length > 0) { %>
+             <% data.reviews.forEach(review => { %>
+               <div class="review-card-display">
+                 <div class="review-display-header">
+                   <div class="reviewer-info">
+                     <img src="<%= review.userAvatar || '/images/default-avatar.png' %>" class="reviewer-avatar">
+                     <div>
+                       <span class="reviewer-name"><%= review.userName %></span>
+                       <span class="review-date">
+                         <%= review.createdAt ? new Date(review.createdAt.seconds * 1000).toLocaleDateString() : 'Recently' %>
+                       </span>
+                     </div>
+                   </div>
+
+                   <!-- Score final de la review -->
+                   <div class="review-score-mini <%= (review.average >= 80) ? 'good' : ((review.average >= 50) ? 'mid' : 'bad') %>">
+                     <%= review.average %>
+                   </div>
+                 </div>
+
+                 <div class="review-content">
+                   <p><%= review.text %></p>
+                 </div>
+
+                 <div class="review-breakdown-mini">
+                   <span>Story: <%= review.scores.story %></span>
+                   <span>Gameplay: <%= review.scores.gameplay %></span>
+                   <span>Graphics: <%= review.scores.graphics %></span>
+                   <span>Sound: <%= review.scores.sound %></span>
+                 </div>
+               </div>
+             <% }) %>
+           <% } else { %>
+             <div class="empty-state-review">
+               <i class="far fa-comment-dots"></i>
+               <p>Be the first to review this game!</p>
+             </div>
+           <% } %>
         </div>
 
       </section>
 
-    </div> <aside class="detail-sidebar">
+    </div>
+
+    <!-- Sidebar con informacion rapida -->
+    <aside class="detail-sidebar">
       <div class="sidebar-card">
         <ul class="info-list">
-          
+
+          <!-- Plataformas con iconos -->
           <li style="flex-direction: column; align-items: flex-start; gap: 10px;">
             <span class="sidebar-label">Available on</span>
+
             <% if (data.platforms && data.platforms.length > 0) { %>
               <div class="platform-logos">
                 <% data.platforms.forEach(p => { %>
                   <% const plat = platformMap[p.id]; %>
+
                   <% if (plat) { %>
                     <i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i>
                   <% } else { %>
-                    <span class="platform-text-fallback" title="<%= p.name %>"><%= p.abbreviation || p.name.substring(0,3) %></span>
+                    <span class="platform-text-fallback" title="<%= p.name %>">
+                      <%= p.abbreviation || p.name.substring(0,3) %>
+                    </span>
                   <% } %>
+
                 <% }) %>
               </div>
             <% } else { %>
@@ -201,6 +271,7 @@
             <span class="sidebar-label">Release Year</span>
             <span><%= data.year %></span>
           </li>
+
           <li>
             <span class="sidebar-label">Developer</span>
             <span style="text-align: right;"><%= data.companies ? data.companies.split(',')[0] : 'Unknown' %></span>
@@ -212,31 +283,31 @@
   </div>
 </div>
 
+<!-- Script externo para gestionar envio y carga de reviews -->
+<script src="/javascripts/game-reviews.js"></script>
+
 <script>
+  // Calcula la media de sliders y actualiza el badge visual
   function updateReviewScore() {
-    // Obtener valores
     const story = parseInt(document.getElementById('input-story').value);
     const gameplay = parseInt(document.getElementById('input-gameplay').value);
     const graphics = parseInt(document.getElementById('input-graphics').value);
     const sound = parseInt(document.getElementById('input-sound').value);
 
-    // Actualizar números pequeños
     document.getElementById('val-story').innerText = story;
     document.getElementById('val-gameplay').innerText = gameplay;
     document.getElementById('val-graphics').innerText = graphics;
     document.getElementById('val-sound').innerText = sound;
 
-    // Calcular promedio
     const average = Math.round((story + gameplay + graphics + sound) / 4);
-    
-    // Actualizar nota grande
+
     const badge = document.getElementById('overall-score');
-    badge.innerText = average;
-    
-    // Cambiar color dinámicamente
-    badge.className = 'big-score-badge'; // Limpiar clases
-    if (average >= 80) badge.classList.add('good');
-    else if (average >= 50) badge.classList.add('mid');
-    else badge.classList.add('bad');
+    if (badge) {
+      badge.innerText = average;
+      badge.className = 'big-score-badge';
+      if (average >= 80) badge.classList.add('good');
+      else if (average >= 50) badge.classList.add('mid');
+      else badge.classList.add('bad');
+    }
   }
 </script>

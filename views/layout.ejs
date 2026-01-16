@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Metadatos base -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title %></title>
 
+    <!-- Iconos Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> 
-  
+
+    <!-- CSS global -->
     <link rel="stylesheet" href="/stylesheets/main.css" />
 
+    <!-- CSS por pagina -->
     <% if (page === "login" || page === "register") { %>
       <link rel="stylesheet" href="/stylesheets/auth.css" />
     <% } %>
@@ -16,15 +20,15 @@
     <% if (page === "profile") { %>
       <link rel="stylesheet" href="/stylesheets/profile.css" />
     <% } %>
-  
+
     <% if (page === "index") { %>
       <link rel="stylesheet" href="/stylesheets/home.css" />
     <% } %>
-  
+
     <% if (page === "games") { %>
       <link rel="stylesheet" href="/stylesheets/games.css" />
     <% } %>
-    
+
     <% if (page === "game-detail") { %>
       <link rel="stylesheet" href="/stylesheets/game-detail.css" />
     <% } %>
@@ -33,37 +37,50 @@
       <link rel="stylesheet" href="/stylesheets/features.css" />
     <% } %>
   </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
-  
-  <%- include("partials/navbar", { active: page || "index" }) %>
 
-  <main class="app" id="main" style="flex: 1; display: flex; flex-direction: column;">
+  <!-- Layout base con footer abajo -->
+  <body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+
+    <!-- Navbar compartida -->
+    <%- include("partials/navbar", { active: page || "index" }) %>
+
+    <!-- Contenido principal -->
+    <main class="app" id="main" style="flex: 1; display: flex; flex-direction: column;">
+
+      <!-- Render segun page -->
+      <% if (page === "index") { %>
+        <%- include("index", {
+          heroSlides: (data && data.heroSlides) ? data.heroSlides : [],
+          topGames: (data && data.topGames) ? data.topGames : []
+        }) %>
+
+      <% } else if (page === "games") { %>
+        <%- include("games", { data }) %>
+
+      <% } else if (page === "error") { %>
+        <%- include("error", { data }) %>
+
+      <% } else { %>
+        <%- include(page, { data, user: (typeof user !== 'undefined' ? user : null) }) %>
+      <% } %>
+
+    </main>
+
+    <!-- Footer compartido -->
+    <%- include("partials/footer") %>
+
+    <!-- JS global -->
+    <script src="/javascripts/main.js"></script>
+
+    <!-- JS por pagina -->
     <% if (page === "index") { %>
-      <%- include("index", {
-        heroSlides: (data && data.heroSlides) ? data.heroSlides : [],
-        topGames: (data && data.topGames) ? data.topGames : []
-      }) %>
-    <% } else if (page === "games") { %>
-      <%- include("games", { data }) %>
-    <% } else if (page === "error") { %>
-      <%- include("error", { data }) %>
-    <% } else { %>
-      <%- include(page, { data, user: (typeof user !== 'undefined' ? user : null) }) %>
+      <script src="/javascripts/hero-slider.js"></script>
     <% } %>
-  </main>
 
-  <%- include("partials/footer") %>
-
-  <script src="/javascripts/main.js"></script>
-
-  <% if (page === "index") { %>
-    <script src="/javascripts/hero-slider.js"></script>
-  <% } %>
-
-  <% if (page === "games") { %>
-    <script src="/javascripts/games-sliders.js"></script>
-    <script src="/javascripts/games-actions.js"></script>
-    <script src="/javascripts/games-search.js"></script>
-  <% } %>
-</body>
+    <% if (page === "games") { %>
+      <script src="/javascripts/games-sliders.js"></script>
+      <script src="/javascripts/games-actions.js"></script>
+      <script src="/javascripts/games-search.js"></script>
+    <% } %>
+  </body>
 </html>

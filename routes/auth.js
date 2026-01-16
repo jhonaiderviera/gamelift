@@ -3,52 +3,44 @@ const router = express.Router();
 const admin = require("firebase-admin");
 const { db } = require("../services/firebase");
 const axios = require("axios");
-const { getNewReleasesGames } = require("../services/igdbClient"); // Cliente IGDB para el fondo
+const { getNewReleasesGames } = require("../services/igdbClient");
 
-// --- HELPER: Obtener fondo aleatorio ---
+// Obtener imagen de fondo aleatorio 
 async function getRandomBackground() {
   try {
-    // Pedimos 20 juegos recientes para tener variedad
     const games = await getNewReleasesGames(20);
-    
     if (games && games.length > 0) {
       const randomGame = games[Math.floor(Math.random() * games.length)];
       let bgUrl = randomGame.coverUrl;
-
-      // Intentamos mejorar la calidad de la imagen cambiando el sufijo de IGDB
-      // t_cover_big (aprox 264x374) -> t_1080p (1920x1080) o t_720p
+      // Mejorar calidad: cambiar sufijo IGDB de cover_big a 1080p
       if (bgUrl) {
         bgUrl = bgUrl.replace("t_cover_big", "t_1080p").replace("t_thumb", "t_1080p");
       }
-      
       return bgUrl || "/images/Community.png";
     }
   } catch (error) {
-    console.error("Error obteniendo fondo auth:", error.message);
+    console.error("Error obteniendo fondo:", error.message);
   }
-  // Fallback si falla la API
-  return "/images/Community.png"; 
+  return "/images/Community.png";
 }
 
-// === VISTAS (GET) ===
+// Vistas GET
 
-// GET /auth/login
+// Mostrar página de login
 router.get("/login", async (req, res) => {
   const bgImage = await getRandomBackground();
-
   res.render("layout", {
     title: "Login | GameLift",
     page: "login",
     active: "login",
     error: null,
-    data: { bgImage } // Pasamos la imagen para el CSS
+    data: { bgImage }
   });
 });
 
-// GET /auth/register
+// Mostrar página de registro
 router.get("/register", async (req, res) => {
   const bgImage = await getRandomBackground();
-
   res.render("layout", {
     title: "Register | GameLift",
     page: "register", 
@@ -58,41 +50,36 @@ router.get("/register", async (req, res) => {
   });
 });
 
-// GET /auth/logout
+// Cerrar sesión
 router.get("/logout", (req, res) => {
   res.clearCookie("session");
   res.redirect("/");
 });
 
-// === LÓGICA (POST) ===
+// Lógica POST
 
-// POST /auth/register
 router.post("/register", async (req, res) => {
   const { email, password, username } = req.body;
-
   try {
-    // 1. Crear usuario en Firebase Authentication (Admin SDK)
+    // Crear usuario en Firebase Authentication
     const userRecord = await admin.auth().createUser({
       email: email,
       password: password,
       displayName: username,
     });
-
-    // 2. Guardar datos extra en Firestore
+    // Guardar datos adicionales en Firestore
     await db.collection("users").doc(userRecord.uid).set({
       username: username,
       email: email,
       createdAt: new Date(),
       role: "user"
     });
-
-    // Éxito -> Redirigir a login
     res.redirect("/auth/login");
 
   } catch (error) {
     console.error("Error creating user:", error);
     
-    // Si falla, necesitamos recargar el fondo para mostrar el error bonito
+    // Si falla
     const bgImage = await getRandomBackground();
 
     res.render("layout", {

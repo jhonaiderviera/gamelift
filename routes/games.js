@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-// Importamos Firebase desde el servicio (asegúrate de que services/firebase.js esté bien)
+// Importar Firebase
 const { db, admin } = require("../services/firebase");
 
-// Importamos funciones de IGDB
+// Importar funciones de búsqueda y detalles de juegos
 const { 
   getNewReleasesGames, 
   getTrendingGames, 
@@ -13,9 +13,7 @@ const {
   getGameDetails 
 } = require("../services/igdbClient");
 
-// ==========================================
-// 1. PORTADA PRINCIPAL (/games)
-// ==========================================
+// Mostrar catálogo principal de juegos
 router.get("/", async (req, res) => {
   try {
     const newReleases = await getNewReleasesGames(10);
@@ -45,9 +43,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ==========================================
-// 2. BUSCADOR (/games/search)
-// ==========================================
+// Búsqueda de juegos
 router.get("/search", async (req, res) => {
   const query = req.query.q;
   if (!query) return res.redirect("/games");
@@ -74,9 +70,7 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// ==========================================
-// 3. CATEGORÍAS (/games/category/:type)
-// ==========================================
+// Mostrar categorías por tipo (nuevos, populares, próximos)
 router.get("/category/:type", async (req, res) => {
   const type = req.params.type;
   
@@ -116,14 +110,12 @@ router.get("/category/:type", async (req, res) => {
   }
 });
 
-// ==========================================
-// 4. DETALLE DEL JUEGO (GET) + LEER REVIEWS
-// ==========================================
+// Mostrar detalle del juego y sus reseñas
 router.get("/:id", async (req, res) => {
   try {
     const gameId = req.params.id;
     
-    // A. Pedir datos a IGDB
+    // Obtener datos del juego desde IGDB
     const gameData = await getGameDetails(gameId);
 
     if (!gameData) {
@@ -135,7 +127,7 @@ router.get("/:id", async (req, res) => {
       });
     }
 
-    // B. Pedir Reviews a Firebase
+    // Obtener reseñas de Firebase
     let reviews = [];
     try {
       const snapshot = await db.collection('reviews')
@@ -166,42 +158,34 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ==========================================
-// 5. GUARDAR REVIEW (POST)
-// ==========================================
+// Guardar reseña de juego (solo usuarios autenticados)
 router.post("/:id/reviews", async (req, res) => {
-  console.log("👉 Recibiendo petición POST de Review...");
+  
+  // Verificar que el usuario está autenticado
+  const user = req.user;
 
-  // 1. Obtener usuario (o usar el Tester por defecto)
-  let user = req.user || (req.session && req.session.user);
-
-  // --- MODO PRUEBA ACTIVADO ---
   if (!user) {
-     console.log("⚠️ No hay usuario logueado. Usando usuario 'Tester'.");
-     user = { uid: "guest-123", displayName: "Tester", photoURL: null };
+    console.warn("Intento de reseña sin autenticación bloqueado");
+    return res.status(401).json({ message: "You must be logged in to post a review." });
   }
-  // ----------------------------
 
   const { gameId, gameName, scores, text } = req.body;
 
-  console.log("Datos recibidos:", req.body); // DEBUG
-
-  // 2. Validación
+  // Validar que tenemos los datos necesarios
   if (!gameId || !scores) {
-    console.error("❌ Faltan datos en el body");
     return res.status(400).json({ message: "Missing data" });
   }
 
-  // 3. Calcular promedio
+  // Calcular promedio de puntuaciones
   const average = Math.round((parseInt(scores.story) + parseInt(scores.gameplay) + parseInt(scores.graphics) + parseInt(scores.sound)) / 4);
 
   try {
     const newReview = {
       gameId,
       gameName: gameName || "Unknown Game",
-      userId: user.uid,
-      userName: user.displayName || "Anonymous",
-      userAvatar: user.photoURL || null,
+      userId: user.uid || user.id,
+      userName: user.displayName || user.name || "User",
+      userAvatar: user.photoURL || user.avatar || null,
       scores: {
         story: parseInt(scores.story),
         gameplay: parseInt(scores.gameplay),
@@ -213,13 +197,12 @@ router.post("/:id/reviews", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    // 4. Guardar en Firestore
+    // Guardar en Firestore
     await db.collection('reviews').add(newReview);
-    console.log("✅ Review guardada en Firebase correctamente.");
     
     res.json({ success: true });
   } catch (error) {
-    console.error("❌ Error guardando en Firebase:", error);
+    console.error("Error al guardar reseña:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

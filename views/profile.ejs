@@ -1,68 +1,82 @@
 <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
-  
-    <div class="profile-layout">
-      
-      <div class="profile-card">
-        <div class="profile-banner"></div>
-        
-        <div class="profile-avatar-container">
-          <img 
-            src="<%= (user.avatarUrl) ? user.avatarUrl : 'https://ui-avatars.com/api/?name=' + (user.username || user.email) + '&background=random&size=256' %>" 
-            alt="User Avatar" 
-            class="profile-avatar"
-          >
-        </div>
-  
-        <div class="profile-info">
-          <h1 class="profile-name"><%= user.username %></h1>
-          <p class="profile-email"><%= user.email %></p>
-          
-          <div class="profile-stats">
-            <div class="stat">
-              <span class="stat-value">0</span>
-              <span class="stat-label">Reviews</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">0</span>
-              <span class="stat-label">Lists</span>
-            </div>
+
+  <!-- Layout principal del perfil -->
+  <div class="profile-layout">
+
+    <!-- Card de informacion del usuario -->
+    <div class="profile-card">
+      <div class="profile-banner"></div>
+
+      <!-- Avatar del usuario -->
+      <div class="profile-avatar-container">
+        <img 
+          src="<%= (user.avatarUrl) ? user.avatarUrl : 'https://ui-avatars.com/api/?name=' + (user.username || user.email) + '&background=random&size=256' %>" 
+          alt="User Avatar" 
+          class="profile-avatar"
+        >
+      </div>
+
+      <!-- Datos basicos del perfil -->
+      <div class="profile-info">
+        <h1 class="profile-name"><%= user.username %></h1>
+        <p class="profile-email"><%= user.email %></p>
+
+        <!-- Estadisticas del perfil -->
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Reviews</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Lists</span>
           </div>
         </div>
       </div>
-  
-      <div class="settings-card">
-        <h2 class="h3" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">Edit Profile</h2>
-        
-        <form action="/profile/update" method="POST" class="settings-form">
-          
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-input" value="<%= user.username %>" required>
-          </div>
-  
-          <div class="form-group">
-            <label class="form-label">Avatar Image URL</label>
-            <input type="url" name="avatarUrl" class="form-input" placeholder="https://..." value="<%= user.avatarUrl || '' %>">
-            <small style="color: var(--muted); font-size: 0.8rem; margin-top: 4px; display: block;">
-              Paste a direct link to an image (jpg/png)
-            </small>
-          </div>
-  
-          <div class="form-group">
-            <label class="form-label">Bio</label>
-            <textarea name="bio" class="form-input" rows="4" placeholder="Tell us about your favorite games..."><%= user.bio || '' %></textarea>
-          </div>
-  
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            
-            <a href="/auth/logout" class="btn btn-danger-outline">
-              Log Out
-            </a>
-          </div>
-  
-        </form>
-      </div>
-  
     </div>
+
+    <!-- Card de configuracion del perfil -->
+    <div class="settings-card">
+      <h2 class="h3" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+        Edit Profile
+      </h2>
+
+      <!-- Formulario de edicion -->
+      <form action="/profile/update" method="POST" class="settings-form">
+
+        <!-- Campo username -->
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-input" value="<%= user.username %>" required>
+        </div>
+
+        <!-- Campo avatar -->
+        <div class="form-group">
+          <label class="form-label">Avatar Image URL</label>
+          <input type="url" name="avatarUrl" class="form-input" placeholder="https://..." value="<%= user.avatarUrl || '' %>">
+          <small style="color: var(--muted); font-size: 0.8rem; margin-top: 4px; display: block;">
+            Paste a direct link to an image (jpg/png)
+          </small>
+        </div>
+
+        <!-- Campo bio -->
+        <div class="form-group">
+          <label class="form-label">Bio</label>
+          <textarea name="bio" class="form-input" rows="4" placeholder="Tell us about your favorite games..."><%= user.bio || '' %></textarea>
+        </div>
+
+        <!-- Acciones del formulario -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+
+          <!-- Logout del usuario -->
+          <a href="/auth/logout" class="btn btn-danger-outline">
+            Log Out
+          </a>
+        </div>
+
+      </form>
+    </div>
+
   </div>
+</div>

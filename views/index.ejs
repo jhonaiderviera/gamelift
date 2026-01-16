@@ -1,6 +1,9 @@
 <section class="container section">
+  <!-- Carrusel hero con slides destacados -->
   <div class="hero-frame" data-carousel tabindex="0" aria-label="Featured games carousel">
     <div class="hero-track" data-carousel-track>
+
+      <!-- Slides generados desde heroSlides -->
       <% (heroSlides || []).forEach((s, idx) => { %>
         <article
           class="hero-slide"
@@ -21,11 +24,14 @@
           </div>
         </article>
       <% }) %>
+
     </div>
 
+    <!-- Controles del carrusel -->
     <button class="hero-arrow hero-arrow--left" type="button" data-carousel-prev aria-label="Previous slide">‹</button>
     <button class="hero-arrow hero-arrow--right" type="button" data-carousel-next aria-label="Next slide">›</button>
 
+    <!-- Paginacion del carrusel -->
     <div class="hero-dots" data-carousel-dots aria-label="Carousel pagination">
       <% (heroSlides || []).forEach((s, idx) => { %>
         <button
@@ -41,14 +47,18 @@
 </section>
 
 <section class="section container">
+  <!-- Cabecera de seccion -->
   <div class="section-head">
     <h2 class="h2">Top 10 Games</h2>
     <p class="muted">Community score: coming soon</p>
   </div>
 
+  <!-- Grid de cards -->
   <div class="grid">
     <% (topGames || []).slice(0, 9).forEach(g => { %>
       <article class="game-card">
+
+        <!-- Portada -->
         <div class="game-cover">
           <% if (g.coverUrl) { %>
             <img src="<%= g.coverUrl %>" alt="<%= g.name %> cover">
@@ -56,9 +66,11 @@
             <div class="cover-fallback">No cover</div>
           <% } %>
 
+          <!-- Score placeholder -->
           <span class="score score-mid">—</span>
         </div>
 
+        <!-- Info del juego -->
         <div class="game-body">
           <h3 class="h3"><%= g.name %></h3>
           <p class="muted game-desc"><%= (g.summary || "No description available.").slice(0, 120) %>...</p>
@@ -68,6 +80,7 @@
             <button class="btn btn-ghost btn-sm" disabled>Rate (soon)</button>
           </div>
         </div>
+
       </article>
     <% }) %>
   </div>

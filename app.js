@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 require("dotenv").config();
 
-// --- RUTAS ---
+// Importar rutas
 const indexRouter = require("./routes/index");
 const gamesRouter = require("./routes/games");
 const featuresRouter = require("./routes/features");
@@ -14,37 +14,31 @@ const profileRouter = require("./routes/profile");
 const igdbRouter = require("./routes/igdb");
 const steamGridDbRouter = require("./routes/steamgriddb");
 
-// Firebase Service
+// Importar servicio Firebase
 const { db } = require("./services/firebase");
 
 const app = express();
 
-// Configuración del motor de vistas
+// Configurar motor de vistas EJS
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(logger("dev"));
 
-// --- ¡ESTO ES LO IMPORTANTE PARA QUE FUNCIONEN LOS FORMS! ---
+// Parsear JSON y formularios (necesario para que funcionen los forms)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// -----------------------------------------------------------
 
 app.use(cookieParser()); 
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- MIDDLEWARE DE SESIÓN GLOBAL ---
+// Middleware: Leer sesión desde cookiee
 app.use((req, res, next) => {
   if (req.cookies.session) {
     try {
       const userSession = JSON.parse(req.cookies.session);
-      
-      // 1. Disponible para las vistas (EJS)
-      res.locals.user = userSession;
-      
-      // 2. Disponible para las rutas (games.js, etc.)
-      req.user = userSession; 
-      
+      res.locals.user = userSession; // Para usar en vistas (EJS)
+      req.user = userSession; // Para usar en rutas
     } catch (e) {
       console.error("Error parsing session cookie:", e);
       res.locals.user = null;
@@ -57,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- REGISTRO DE RUTAS ---
+// Registrar rutas
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
@@ -71,14 +65,11 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// Error handler
+// Manejo de errores
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
-
   res.status(err.status || 500);
-  
-  // Renderizado seguro de error
   res.render("error", {
     title: "Error | GameLift",
     page: "error",

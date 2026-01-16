@@ -13,10 +13,12 @@ async function cargarFondo() {
     } catch (e) {}
   }
   
+  // Construir URL de imagen
   function construirImagenCover(imageId) {
     return `https://images.igdb.com/igdb/image/upload/t_cover_big/${imageId}.jpg`;
   }
   
+  // Buscar juego
   async function buscarJuego(q) {
     const res = await fetch(`/api/igdb/search?q=${encodeURIComponent(q)}`);
     const data = await res.json();
@@ -35,6 +37,7 @@ async function cargarFondo() {
     };
   }
   
+  // Mostrar juego encontrado
   function renderJuego(game) {
     const cont = document.querySelector('#resultado');
     cont.innerHTML = `
@@ -52,17 +55,20 @@ async function cargarFondo() {
     `;
   }
   
+  // Mostrar error en búsqueda
   function renderError(msg) {
     const cont = document.querySelector('#resultado');
     cont.innerHTML = `<div class="card error">${msg}</div>`;
   }
   
+  // Inicializar cuando carga la página
   document.addEventListener('DOMContentLoaded', () => {
     cargarFondo();
   
     const input = document.querySelector('#busqueda');
     const btn = document.querySelector('#btnBuscar');
   
+    // Función para ejecutar la búsqueda
     async function ejecutar() {
       const q = input.value.trim();
       if (!q) return renderError('Escribe el nombre de un juego.');
