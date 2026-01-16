@@ -1,13 +1,13 @@
-# --- Dependencias (¡Nunca se suben!) ---
+# --- Dependencias  ---
 node_modules/
 
-# --- Seguridad y Claves (¡CRUCIAL!) ---
+# --- Seguridad y Claves ---
 .env
 config/serviceAccountKey.json
 serviceAccountKey.json
 firebase-debug.log
 
-# --- Archivos de Sistema Operativo (Basura) ---
+# --- Archivos de Sistema Operativo  ---
 .DS_Store
 Thumbs.db
 
@@ -16,6 +16,3 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- Editor / IDE ---
-.vscode/
-.idea/
