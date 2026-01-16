@@ -1,18 +1,30 @@
-const admin = require("firebase-admin");
+const admin = require('firebase-admin');
 
-// IMPORTANTE: Usamos "../" para salir de la carpeta 'services'
-// y buscar en la carpeta 'config'.
-const serviceAccount = require("../config/serviceAccountKey.json");
+// Variable para guardar las credenciales
+let serviceAccount;
 
-// Inicializar Firebase solo si no existe ya una instancia (Evita errores al reiniciar)
+try {
+  // CAMBIO AQUÍ: Ahora buscamos en la carpeta 'config' el archivo 'serviceAccountKey.json'
+  serviceAccount = require('../config/serviceAccountKey.json');
+} catch (error) {
+  console.error("\n❌ ERROR CRÍTICO DE FIREBASE ❌");
+  console.error("No se encontró el archivo 'serviceAccountKey.json' en la carpeta 'config'.");
+  console.error("Asegúrate de que la ruta sea: GAMELIFT/config/serviceAccountKey.json\n");
+  process.exit(1);
+}
+
+// Inicializamos la App solo si no ha sido inicializada antes
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("🔥 Firebase conectado correctamente (desde config).");
+  } catch (error) {
+    console.error("❌ Error al inicializar Firebase:", error.message);
+  }
 }
 
 const db = admin.firestore();
 
-console.log("🔥 Firebase Admin conectado correctamente");
-
-module.exports = { db };
+module.exports = { admin, db };

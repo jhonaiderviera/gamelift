@@ -71,6 +71,7 @@
   <div class="container detail-body">
     
     <div class="detail-main">
+      
       <section>
         <h3 class="section-title">About</h3>
         <p class="detail-summary"><%= data.summary %></p>
@@ -101,9 +102,80 @@
           </div>
         </section>
       <% } %>
-    </div>
 
-    <aside class="detail-sidebar">
+      <section style="margin-top: 60px;" id="reviewSection">
+        <h3 class="section-title">User Reviews</h3>
+
+        <div class="review-form-card">
+          <div class="review-header">
+            <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo" class="game-logo-small">
+            
+            <span class="review-prompt">What do you think about <strong><%= data.name %></strong>?</span>
+          </div>
+
+          <form id="gameReviewForm" class="review-grid">
+            
+            <div class="rating-sliders">
+              
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Story</span>
+                  <span class="slider-value" id="val-story">80</span>
+                </div>
+                <input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Gameplay</span>
+                  <span class="slider-value" id="val-gameplay">75</span>
+                </div>
+                <input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Graphics</span>
+                  <span class="slider-value" id="val-graphics">90</span>
+                </div>
+                <input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Sound & Music</span>
+                  <span class="slider-value" id="val-sound">85</span>
+                </div>
+                <input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()">
+              </div>
+
+              <div class="total-score-display">
+                <span>Overall Score</span>
+                <div class="big-score-badge good" id="overall-score">83</div>
+              </div>
+
+            </div>
+
+            <div class="review-text-area">
+              <textarea placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
+              <button type="submit" class="btn btn-primary btn-block" style="margin-top: auto;">
+                Submit Review
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="reviews-list" style="margin-top: 30px;">
+           <div class="empty-state-review">
+             <i class="far fa-comment-dots"></i>
+             <p>Be the first to review this game!</p>
+           </div>
+        </div>
+
+      </section>
+
+    </div> <aside class="detail-sidebar">
       <div class="sidebar-card">
         <ul class="info-list">
           
@@ -139,3 +211,32 @@
 
   </div>
 </div>
+
+<script>
+  function updateReviewScore() {
+    // Obtener valores
+    const story = parseInt(document.getElementById('input-story').value);
+    const gameplay = parseInt(document.getElementById('input-gameplay').value);
+    const graphics = parseInt(document.getElementById('input-graphics').value);
+    const sound = parseInt(document.getElementById('input-sound').value);
+
+    // Actualizar números pequeños
+    document.getElementById('val-story').innerText = story;
+    document.getElementById('val-gameplay').innerText = gameplay;
+    document.getElementById('val-graphics').innerText = graphics;
+    document.getElementById('val-sound').innerText = sound;
+
+    // Calcular promedio
+    const average = Math.round((story + gameplay + graphics + sound) / 4);
+    
+    // Actualizar nota grande
+    const badge = document.getElementById('overall-score');
+    badge.innerText = average;
+    
+    // Cambiar color dinámicamente
+    badge.className = 'big-score-badge'; // Limpiar clases
+    if (average >= 80) badge.classList.add('good');
+    else if (average >= 50) badge.classList.add('mid');
+    else badge.classList.add('bad');
+  }
+</script>

@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-// Importamos todas las funciones del servicio (incluida la nueva getUpcomingGames)
+
+// Importamos Firebase desde el servicio (asegúrate de que services/firebase.js esté bien)
+const { db, admin } = require("../services/firebase");
+
+// Importamos funciones de IGDB
 const { 
   getNewReleasesGames, 
   getTrendingGames, 
@@ -9,13 +13,14 @@ const {
   getGameDetails 
 } = require("../services/igdbClient");
 
+// ==========================================
 // 1. PORTADA PRINCIPAL (/games)
+// ==========================================
 router.get("/", async (req, res) => {
   try {
-    // Pedimos 10 de cada uno para los sliders de la Home
     const newReleases = await getNewReleasesGames(10);
     const popularGames = await getTrendingGames(10); 
-    const upcomingGames = await getUpcomingGames(10); // <--- Nueva sección
+    const upcomingGames = await getUpcomingGames(10);
 
     res.render("layout", {
       title: "Games Catalog | GameLift",
@@ -25,7 +30,7 @@ router.get("/", async (req, res) => {
         newReleases, 
         popularGames,
         upcomingGames,
-        isCategoryView: false // Estamos en la home, mostramos todos los sliders
+        isCategoryView: false 
       }
     });
   } catch (error) {
@@ -40,10 +45,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 2. BUSCADOR (Resultados completos)
+// ==========================================
+// 2. BUSCADOR (/games/search)
+// ==========================================
 router.get("/search", async (req, res) => {
   const query = req.query.q;
-  
   if (!query) return res.redirect("/games");
 
   try {
@@ -54,11 +60,11 @@ router.get("/search", async (req, res) => {
       page: "games",
       active: "games",
       data: {
-        newReleases: results, // Usamos el grid principal para pintar resultados
-        popularGames: [],     // Ocultamos otros sliders
+        newReleases: results,
+        popularGames: [],
         upcomingGames: [],
         sectionTitle: `Results for "${query}"`,
-        isCategoryView: true, // Activamos modo vista única (muestra botón volver)
+        isCategoryView: true, 
         searchQuery: query
       }
     });
@@ -68,7 +74,9 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// 3. CATEGORÍAS "VER TODO" (/games/category/:type)
+// ==========================================
+// 3. CATEGORÍAS (/games/category/:type)
+// ==========================================
 router.get("/category/:type", async (req, res) => {
   const type = req.params.type;
   
@@ -76,7 +84,6 @@ router.get("/category/:type", async (req, res) => {
     let games = [];
     let title = "";
 
-    // Aumentamos el límite a 24 para llenar la pantalla en "Ver todo"
     if (type === "new") {
       games = await getNewReleasesGames(24);
       title = "All New Releases";
@@ -95,11 +102,11 @@ router.get("/category/:type", async (req, res) => {
       page: "games",
       active: "games",
       data: {
-        newReleases: games, // Usamos el grid principal
-        popularGames: [],   // Vaciamos los secundarios
+        newReleases: games,
+        popularGames: [],
         upcomingGames: [],
         sectionTitle: title,
-        isCategoryView: true // <--- Esto activa el botón "Back" y oculta los otros sliders
+        isCategoryView: true
       }
     });
 
@@ -109,10 +116,14 @@ router.get("/category/:type", async (req, res) => {
   }
 });
 
-// 4. DETALLE DEL JUEGO (/games/:id)
+// ==========================================
+// 4. DETALLE DEL JUEGO (GET) + LEER REVIEWS
+// ==========================================
 router.get("/:id", async (req, res) => {
   try {
     const gameId = req.params.id;
+    
+    // A. Pedir datos a IGDB
     const gameData = await getGameDetails(gameId);
 
     if (!gameData) {
@@ -124,16 +135,92 @@ router.get("/:id", async (req, res) => {
       });
     }
 
+    // B. Pedir Reviews a Firebase
+    let reviews = [];
+    try {
+      const snapshot = await db.collection('reviews')
+        .where('gameId', '==', gameId)
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      if (!snapshot.empty) {
+        reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      }
+    } catch (firebaseError) {
+      console.warn("Firebase warning: Could not fetch reviews:", firebaseError.message);
+    }
+
     res.render("layout", {
       title: `${gameData.name} | GameLift`,
       page: "game-detail",
       active: "games",
-      data: gameData
+      data: {
+        ...gameData,
+        reviews: reviews
+      }
     });
 
   } catch (error) {
     console.error("Error loading game details:", error);
     res.redirect("/games");
+  }
+});
+
+// ==========================================
+// 5. GUARDAR REVIEW (POST)
+// ==========================================
+router.post("/:id/reviews", async (req, res) => {
+  console.log("👉 Recibiendo petición POST de Review...");
+
+  // 1. Obtener usuario (o usar el Tester por defecto)
+  let user = req.user || (req.session && req.session.user);
+
+  // --- MODO PRUEBA ACTIVADO ---
+  if (!user) {
+     console.log("⚠️ No hay usuario logueado. Usando usuario 'Tester'.");
+     user = { uid: "guest-123", displayName: "Tester", photoURL: null };
+  }
+  // ----------------------------
+
+  const { gameId, gameName, scores, text } = req.body;
+
+  console.log("Datos recibidos:", req.body); // DEBUG
+
+  // 2. Validación
+  if (!gameId || !scores) {
+    console.error("❌ Faltan datos en el body");
+    return res.status(400).json({ message: "Missing data" });
+  }
+
+  // 3. Calcular promedio
+  const average = Math.round((parseInt(scores.story) + parseInt(scores.gameplay) + parseInt(scores.graphics) + parseInt(scores.sound)) / 4);
+
+  try {
+    const newReview = {
+      gameId,
+      gameName: gameName || "Unknown Game",
+      userId: user.uid,
+      userName: user.displayName || "Anonymous",
+      userAvatar: user.photoURL || null,
+      scores: {
+        story: parseInt(scores.story),
+        gameplay: parseInt(scores.gameplay),
+        graphics: parseInt(scores.graphics),
+        sound: parseInt(scores.sound)
+      },
+      average,
+      text: text || "",
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    // 4. Guardar en Firestore
+    await db.collection('reviews').add(newReview);
+    console.log("✅ Review guardada en Firebase correctamente.");
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("❌ Error guardando en Firebase:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

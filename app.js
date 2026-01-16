@@ -10,11 +10,11 @@ const indexRouter = require("./routes/index");
 const gamesRouter = require("./routes/games");
 const featuresRouter = require("./routes/features");
 const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/profile"); // <--- NUEVO: Ruta de Perfil
+const profileRouter = require("./routes/profile"); 
 const igdbRouter = require("./routes/igdb");
 const steamGridDbRouter = require("./routes/steamgriddb");
 
-// Firebase Service (Para test de conexión opcional)
+// Firebase Service
 const { db } = require("./services/firebase");
 
 const app = express();
@@ -24,24 +24,35 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(logger("dev"));
+
+// --- ¡ESTO ES LO IMPORTANTE PARA QUE FUNCIONEN LOS FORMS! ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser()); // Vital para leer la cookie de sesión
+// -----------------------------------------------------------
+
+app.use(cookieParser()); 
 app.use(express.static(path.join(__dirname, "public")));
 
 // --- MIDDLEWARE DE SESIÓN GLOBAL ---
-// Revisa si hay cookie "session". Si la hay, pone al usuario en 'res.locals.user'
-// para que esté disponible en el Navbar y en todas las vistas.
 app.use((req, res, next) => {
   if (req.cookies.session) {
     try {
-      res.locals.user = JSON.parse(req.cookies.session);
+      const userSession = JSON.parse(req.cookies.session);
+      
+      // 1. Disponible para las vistas (EJS)
+      res.locals.user = userSession;
+      
+      // 2. Disponible para las rutas (games.js, etc.)
+      req.user = userSession; 
+      
     } catch (e) {
       console.error("Error parsing session cookie:", e);
       res.locals.user = null;
+      req.user = null;
     }
   } else {
     res.locals.user = null;
+    req.user = null;
   }
   next();
 });
@@ -49,7 +60,7 @@ app.use((req, res, next) => {
 // --- REGISTRO DE RUTAS ---
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
-app.use("/profile", profileRouter); // <--- NUEVO: Habilitamos /profile
+app.use("/profile", profileRouter);
 app.use("/games", gamesRouter);
 app.use("/features", featuresRouter);
 app.use("/api/igdb", igdbRouter);
@@ -66,12 +77,14 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   res.status(err.status || 500);
+  
+  // Renderizado seguro de error
   res.render("error", {
     title: "Error | GameLift",
     page: "error",
     status: err.status || 500,
     details: req.app.get("env") === "development" ? err.stack : null,
-    data: {}
+    data: {} 
   });
 });
 
