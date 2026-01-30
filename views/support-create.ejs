@@ -1,0 +1,156 @@
+<div class="create-page-container">
+  
+  <div class="create-wrapper">
+    
+    <div class="create-info">
+      <a href="/support-developers" class="back-link"><i class="fas fa-arrow-left"></i> Back to Hub</a>
+      
+      <div class="hero-text-block">
+        <h1 class="create-title">Build the <br><span class="text-gradient">Extraordinary.</span></h1>
+        <p class="create-desc">
+          Every legend starts with an idea. Define your project, set your goals, and let the GameLift community fuel your journey.
+        </p>
+      </div>
+
+      <div class="floating-decor">
+        <div class="decor-row" style="margin-left: 0px;">
+          <div class="decor-card"><i class="fas fa-code"></i> Indie Dev</div>
+          <div class="decor-card"><i class="fas fa-paint-brush"></i> Art</div>
+        </div>
+        <div class="decor-row" style="margin-left: 40px;">
+          <div class="decor-card"><i class="fas fa-rocket"></i> Launch</div>
+          <div class="decor-card"><i class="fas fa-users"></i> Community</div>
+        </div>
+        <div class="decor-row" style="margin-left: 10px;">
+          <div class="decor-card"><i class="fas fa-gamepad"></i> Gameplay</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="create-form-card">
+      <div class="form-header">
+        <h2>Project Details</h2>
+        <p>Tell us about your next big hit</p>
+      </div>
+
+      <form action="/support-developers/create" method="POST" id="createForm" onkeydown="return event.key != 'Enter';">
+        
+        <div class="form-group">
+          <label>Game Title</label>
+          <div class="input-wrapper">
+            <i class="fas fa-gamepad input-icon"></i>
+            <input type="text" name="title" class="input-field" placeholder="e.g. Neon Horizon" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Cover Image URL</label>
+          <div class="input-wrapper">
+            <i class="fas fa-image input-icon"></i>
+            <input type="url" name="imageUrl" class="input-field" placeholder="https://..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Funding Goal ($)</label>
+          <div class="input-wrapper">
+            <i class="fas fa-dollar-sign input-icon"></i>
+            <input type="number" name="goal" class="input-field no-spin" placeholder="5000" min="100" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Genres & Tags</label>
+          
+          <div class="tags-input-container" onclick="document.getElementById('tagInput').focus()">
+            <div id="tagsList" style="display:contents;"></div>
+            
+            <input type="text" id="tagInput" class="tag-input-text" placeholder="Type genre + Enter..." autocomplete="off">
+          </div>
+
+          <div class="tags-suggestions">
+            <small style="width: 100%; color:#64748b; margin-bottom: 4px;">Popular Suggestions:</small>
+            <span class="suggestion-chip" onclick="addTag('Action')"><i class="fas fa-plus"></i> Action</span>
+            <span class="suggestion-chip" onclick="addTag('Adventure')"><i class="fas fa-plus"></i> Adventure</span>
+            <span class="suggestion-chip" onclick="addTag('RPG')"><i class="fas fa-plus"></i> RPG</span>
+            <span class="suggestion-chip" onclick="addTag('Horror')"><i class="fas fa-plus"></i> Horror</span>
+            <span class="suggestion-chip" onclick="addTag('Indie')"><i class="fas fa-plus"></i> Indie</span>
+            <span class="suggestion-chip" onclick="addTag('Strategy')"><i class="fas fa-plus"></i> Strategy</span>
+          </div>
+
+          <input type="hidden" name="tags" id="hiddenTagsInput" value="">
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="desc" class="textarea-field" placeholder="What is the story? Key mechanics?..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit-project">
+          Launch Campaign <i class="fas fa-rocket"></i>
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let tags = []; // Array para guardar los tags
+  const tagInput = document.getElementById('tagInput');
+  const tagsList = document.getElementById('tagsList');
+  const hiddenInput = document.getElementById('hiddenTagsInput');
+
+  // 1. Escuchar cuando se pulsa ENTER en el input de tags
+  tagInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Evitar que envíe el formulario
+      const val = tagInput.value.trim();
+      if (val.length > 0) {
+        addTag(val);
+        tagInput.value = ''; // Limpiar input
+      }
+    }
+  });
+
+  // 2. Función para añadir un Tag
+  function addTag(text) {
+    // Evitar duplicados
+    if (tags.includes(text)) return; 
+    
+    // Capitalizar primera letra (opcional, estética)
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+
+    tags.push(text);
+    renderTags();
+    updateHiddenInput();
+  }
+
+  // 3. Función para borrar un Tag
+  function removeTag(text) {
+    tags = tags.filter(t => t !== text);
+    renderTags();
+    updateHiddenInput();
+  }
+
+  // 4. Renderizar (Dibujar) los tags en pantalla
+  function renderTags() {
+    tagsList.innerHTML = ''; // Limpiar visualmente
+    tags.forEach(tag => {
+      // Crear el HTML de la "Pildora"
+      const pill = document.createElement('div');
+      pill.className = 'tag-pill';
+      pill.innerHTML = `
+        ${tag} 
+        <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
+      `;
+      tagsList.appendChild(pill);
+    });
+  }
+
+  // 5. Actualizar el input oculto (para que el Backend lo reciba)
+  function updateHiddenInput() {
+    hiddenInput.value = tags.join(', ');
+  }
+</script>

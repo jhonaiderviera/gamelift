@@ -38,21 +38,27 @@ router.get("/", async (req, res, next) => {
     for (const g of featured) {
       // Obtener imagen héroe de mejor calidad
       const heroMeta = await getHeroMetaByGameName(g.name);
-
       const heroUrl = isHeroSharpEnough(heroMeta) ? heroMeta.url : null;
+      const imageUrl = heroUrl || g.heroFallbackUrl || g.coverUrl || "/images/Community.png";
 
-      const imageUrl =
-        heroUrl ||
-        g.heroFallbackUrl ||
-        g.coverUrl ||
-        "/images/Community.png";
+      // LÓGICA DE PUNTUACIONES:
+      // 1. Global Rating (IGDB): Viene de la API externa
+      const globalRating = g.rating ? Math.round(g.rating) : null;
+      
+      // 2. GameLift Score (Tu plataforma):
+      // SIMULACIÓN: Variamos un poco la nota para que se vea diferente visualmente.
+      // (En el futuro, aquí harás: await getAverageScoreFromFirebase(g.id))
+      const gameliftRating = globalRating ? Math.max(10, Math.min(100, Math.round(globalRating + (Math.random() * 10 - 5)))) : null;
 
       heroSlides.push({
+        id: g.id,
         title: g.name,
-        subtitle: "Título destacado",
+        subtitle: g.genres && g.genres.length > 0 ? g.genres[0] : "Featured Game",
         imageUrl,
         ctaText: "Más información",
-        ctaHref: "/games",
+        ctaHref: "/games/" + g.id,
+        globalRating,
+        gameliftRating
       });
     }
 

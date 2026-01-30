@@ -1,0 +1,219 @@
+/* Ubicación: /public/stylesheets/support.css */
+
+/* --- HERO SECTION --- */
+.support-hero { margin-bottom: 50px; }
+
+.hero-tag {
+  display: inline-block; background: rgba(236, 72, 153, 0.2);
+  color: #f472b6; padding: 4px 12px; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+  margin-bottom: 15px; border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+/* --- GRID DE PROYECTOS --- */
+.projects-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* --- TARJETA DE PROYECTO --- */
+.project-card {
+  background: #0f1020; /* Fondo oscuro base */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  border-color: rgba(139, 92, 246, 0.5); /* Borde morado al hover */
+}
+
+/* En public/stylesheets/support.css */
+.card-link-wrapper {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.card-link-wrapper:hover .project-title {
+  color: var(--primary); /* Efecto hover en el título */
+  transition: color 0.3s;
+}
+
+/* Imagen */
+.project-media {
+  position: relative; height: 200px; overflow: hidden;
+}
+.project-media img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.project-card:hover .project-media img { transform: scale(1.05); }
+
+.category-badges {
+  position: absolute; top: 12px; left: 12px; display: flex; flex-wrap: wrap; gap: 6px;
+}
+.badge {
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  color: #fff; font-size: 0.7rem; padding: 4px 10px; border-radius: 6px;
+  font-weight: 600; border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Cuerpo de la Tarjeta */
+.project-body { padding: 25px; flex: 1; display: flex; flex-direction: column; }
+
+.project-author {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.project-author img {
+  width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
+}
+.project-author span {
+  font-size: 0.85rem; color: #d1d5db; font-weight: 500;
+}
+
+.project-title { font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0 0 8px 0; }
+.project-desc {
+  font-size: 0.95rem; color: #9ca3af; line-height: 1.5; margin-bottom: 25px;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Barra de Progreso */
+.funding-section { margin-top: auto; margin-bottom: 20px; }
+.funding-info {
+  display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;
+}
+.raised { color: #fff; font-weight: 700; font-size: 1rem; }
+.raised small { color: #6b7280; font-weight: 400; font-size: 0.85rem; margin-left: 4px; }
+.percent { color: #34d399; font-weight: 700; font-size: 0.9rem; }
+
+.progress-bar-track {
+  width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; background: linear-gradient(90deg, #34d399, #10b981);
+  border-radius: 10px;
+}
+
+/* Botón Support (en la tarjeta) */
+.btn-donate {
+  width: 100%; padding: 12px; border-radius: 10px; border: none;
+  background: rgba(139, 92, 246, 0.1); color: #a78bfa;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-donate:hover {
+  background: var(--primary); color: #fff;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+/* --- ESTILOS DEL MODAL DE DONACIÓN --- */
+
+/* Fondo oscuro (Overlay) */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.modal-overlay.visible { opacity: 1; pointer-events: all; }
+
+/* Tarjeta del Modal */
+.donation-card {
+  background: #1f2937; width: 90%; max-width: 480px;
+  border-radius: 20px; padding: 35px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+  transform: translateY(20px); transition: transform 0.3s ease;
+}
+.modal-overlay.visible .donation-card { transform: translateY(0); }
+
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+.modal-header h3 { margin: 0; color: #fff; font-size: 1.4rem; }
+.close-modal-btn { background: none; border: none; color: #9ca3af; font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+.close-modal-btn:hover { color: #fff; }
+
+.donation-label { display: block; color: #d1d5db; font-size: 0.9rem; margin-bottom: 12px; font-weight: 600; }
+
+/* Grid de Cantidades */
+.amount-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+.amount-option {
+  background: #111827; border: 1px solid #374151; color: #fff;
+  padding: 14px 0; text-align: center; border-radius: 12px; cursor: pointer;
+  font-weight: 600; transition: all 0.2s; user-select: none;
+}
+.amount-option:hover { background: #374151; border-color: #4b5563; }
+.amount-option.active {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+/* Input Custom (Other) */
+.amount-input-wrapper {
+  background: #111827; border: 1px solid #374151; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; padding: 0 8px;
+  transition: border-color 0.2s;
+}
+.amount-input-wrapper.active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.amount-input-wrapper span { color: #6b7280; font-size: 0.9rem; margin-right: 2px; }
+.amount-input-wrapper input {
+  width: 100%; background: transparent; border: none; color: #fff;
+  font-weight: 600; outline: none; text-align: center; padding: 5px 0;
+  font-size: 1rem;
+}
+
+/* Métodos de Pago */
+.payment-methods { display: flex; gap: 12px; margin-bottom: 25px; }
+.payment-option {
+  flex: 1; background: #111827; border: 1px solid #374151;
+  padding: 15px; border-radius: 12px; text-align: center;
+  color: #9ca3af; cursor: pointer; font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s;
+}
+.payment-option i { font-size: 1.3rem; }
+.payment-option:hover { color: #fff; border-color: #6b7280; }
+.payment-option.active {
+  background: rgba(139, 92, 246, 0.15); border-color: var(--primary); color: #fff;
+}
+
+/* Botón Confirmar Donación */
+.btn-confirm-donation {
+  width: 100%; padding: 16px; margin-top: 10px;
+  background: linear-gradient(135deg, #10b981, #059669); /* Verde éxito */
+  border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 1.1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-confirm-donation:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+}
+
+.secure-text { font-size: 0.8rem; color: #6b7280; text-align: center; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* --- QUITAR FLECHAS (SPINNERS) DEL INPUT NUMBER --- */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Estado vacío */
+.state-container {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 20px;
+  color: #9ca3af;
+}

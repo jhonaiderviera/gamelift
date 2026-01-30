@@ -1,28 +1,55 @@
 /* 1. Asegurar que el body ocupe toda la altura */
+
 body {
+
   min-height: 100vh;
+  
   display: flex;
+  
   flex-direction: column;
+  
   margin: 0;
-}
-
-/* 2. Hacer que el contenido principal empuje el footer hacia abajo */
-/* Asumiendo que todo tu contenido está dentro de un <main> o un div wrapper */
-main, .site-content { 
-  flex: 1; 
-}
-
-/* 3. Estilizar el Footer para que no sea tan alto */
-footer {
+  
+  }
+  
+  
+  
+  /* 2. Hacer que el contenido principal empuje el footer hacia abajo */
+  
+  /* Asumiendo que todo tu contenido está dentro de un <main> o un div wrapper */
+  
+  main, .site-content {
+  
+  flex: 1;
+  
+  }
+  
+  
+  
+  /* 3. Estilizar el Footer para que no sea tan alto */
+  
+  footer {
+  
   background: #0a0a12; /* O el color oscuro que uses */
+  
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  
   padding: 20px 0; /* Reducir padding si es muy alto */
+  
   text-align: center;
+  
   margin-top: auto; /* Esto también ayuda a empujarlo abajo */
-}
-
-footer p {
+  
+  }
+  
+  
+  
+  footer p {
+  
   color: var(--muted);
+  
   font-size: 0.85rem;
+  
   margin: 0;
-}
+  
+  }

@@ -1,73 +1,66 @@
-<!-- Seccion de nuevos lanzamientos -->
-<section class="container section">
+<link rel="stylesheet" href="/stylesheets/games.css">
 
-  <!-- Cabecera de la seccion -->
-  <div class="features-header">
-    <h1 class="h1">New Releases</h1>
-    <p class="muted">
-      Fresh from the oven. Explore the latest titles added to our database.
-    </p>
+<div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+
+  <div class="section-header" style="margin-bottom: 40px;">
+    <div>
+      <span class="hero-tag" style="margin-bottom: 10px; display:inline-block;">Fresh Content</span>
+      <h1 class="h1">New <span class="text-gradient">Features</span> & Releases</h1>
+      <p class="muted" style="max-width: 600px; margin-top: 10px;">
+        Discover the latest titles added to our database. Rate them, review them, and add them to your collection.
+      </p>
+    </div>
   </div>
 
-  <!-- Grid de juegos -->
-  <div class="features-grid">
-
-    <!-- Estado vacio si no hay juegos -->
-    <% if (!data.games || data.games.length === 0) { %>
-      <div
-        class="empty-state"
-        style="grid-column: 1 / -1; text-align: center; padding: 40px;"
-      >
-        <p class="muted">No new releases found at the moment.</p>
-      </div>
-
-    <!-- Listado de juegos -->
-    <% } else { %>
+  <div class="games-grid">
+    <% if (data.games && data.games.length > 0) { %>
       <% data.games.forEach(game => { %>
+        
+        <article class="game-card" tabindex="0">
+          <a href="/games/<%= game.id %>" class="card-link-wrapper">
+            
+            <div class="game-card__media">
+              <img src="<%= game.coverUrl || '/images/Community.png' %>" alt="<%= game.name %>" loading="lazy">
+              
+              <div class="card-overlay-actions">
+                <button class="action-btn library" data-game-id="<%= game.id %>" data-name="<%= game.name %>" data-cover="<%= game.coverUrl %>" title="Add to Library">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button class="action-btn favorite" data-game-id="<%= game.id %>" data-name="<%= game.name %>" data-cover="<%= game.coverUrl %>" title="Favorite">
+                  <i class="far fa-heart"></i>
+                </button>
+              </div>
 
-        <!-- Card del juego -->
-        <a href="/games/<%= game.id %>" class="game-card card-hoverable">
-
-          <!-- Portada del juego -->
-          <div class="game-cover">
-            <% if (game.coverUrl) { %>
-              <img
-                src="<%= game.coverUrl %>"
-                alt="<%= game.name %> cover"
-                loading="lazy"
-              >
-            <% } else { %>
-              <div class="cover-fallback">No Image</div>
-            <% } %>
-
-            <!-- Overlay con rating -->
-            <div class="card-overlay">
-              <% if (game.rating) { %>
-                <span class="rating-badge">
-                  <%= Math.round(game.rating) %>
+              <% if (game.gameliftScore) { %>
+                <span class="rating-badge-float <%= game.gameliftScore >= 75 ? 'rating-good' : (game.gameliftScore >= 50 ? 'rating-mid' : 'rating-bad') %>">
+                  <%= game.gameliftScore %>
                 </span>
               <% } %>
             </div>
-          </div>
 
-          <!-- Informacion del juego -->
-          <div class="game-body">
-            <h3 class="game-title"><%= game.name %></h3>
-
-            <div class="game-meta">
-              <% if (game.ratingCount) { %>
-                <span class="muted-sm">
-                  <%= game.ratingCount.toLocaleString() %> votes
-                </span>
-              <% } else { %>
-                <span class="muted-sm">Just added</span>
-              <% } %>
+            <div class="game-card__body">
+              <h3 class="game-card__title"><%= game.name %></h3>
+              
+              <div class="game-card__sub">
+                 <span class="muted"><%= game.year || '' %></span>
+                 <% if(game.genres && game.genres.length > 0) { %>
+                   <span style="float: right; opacity: 0.7; font-size: 0.75rem;"><%= game.genres.split(',')[0] %></span>
+                 <% } %>
+              </div>
             </div>
-          </div>
 
-        </a>
+          </a>
+        </article>
+
       <% }) %>
+    <% } else { %>
+      <div class="state-container">
+        <i class="fas fa-ghost" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+        <p>No new features found at the moment.</p>
+      </div>
     <% } %>
-
   </div>
-</section>
+
+</div>
+
+<script src="/javascripts/games-actions.js"></script>

@@ -1,0 +1,186 @@
+<div class="detail-bg-backdrop" style="background-image: url('<%= data.project.image %>');"></div>
+<div class="detail-bg-overlay"></div>
+
+<div class="container project-detail-container">
+  
+  <div class="detail-header">
+    <a href="/support-developers" class="back-link"><i class="fas fa-arrow-left"></i> Back to Hub</a>
+    
+    <div class="header-content">
+      <div class="header-badges">
+        <% if(data.project.tags) { %>
+          <% data.project.tags.forEach(tag => { %>
+            <span class="badge"><%= tag %></span>
+          <% }) %>
+        <% } %>
+      </div>
+      <h1 class="project-title-large"><%= data.project.title %></h1>
+      
+      <div class="creator-mini-profile">
+        <img src="<%= data.project.authorAvatar %>" alt="<%= data.project.author %>">
+        <div class="creator-info">
+          <span class="label">Created by</span>
+          <span class="name"><%= data.project.author %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    
+    <div class="detail-left">
+      <div class="main-image-wrapper">
+        <img src="<%= data.project.image %>" alt="<%= data.project.title %>" class="main-image">
+      </div>
+
+      <div class="description-section">
+        <h3>About this Project</h3>
+        <div class="text-content">
+          <p><%= data.project.desc %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-right">
+      <div class="funding-card sticky-card">
+        
+        <% const percent = Math.min(100, Math.round((data.project.raised / data.project.goal) * 100)); %>
+        <div class="progress-section">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: <%= percent %>%"></div>
+          </div>
+          <span class="percent-badge"><%= percent %>% Funded</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value">$<%= data.project.raised %></span>
+            <span class="stat-label">raised of $<%= data.project.goal %></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value"><%= data.project.backers %></span>
+            <span class="stat-label">backers</span>
+          </div>
+        </div>
+
+        <button class="btn-donate-large" onclick="openDonationModal('<%= data.project.id %>', '<%= data.project.title %>')">
+          Support this Project
+        </button>
+
+        <p class="disclaimer">
+          All donations go directly to the developer to support the creation of this game.
+        </p>
+
+        <hr class="divider">
+
+        <div class="creator-card-profile">
+          <div class="avatar-wrapper">
+            <img src="<%= data.project.authorAvatar %>" alt="Creator">
+          </div>
+          <div>
+            <strong><%= data.project.author %></strong>
+            <p>Indie Developer</p>
+          </div>
+
+          <% 
+            let isFollowing = false;
+            // Verificar si el usuario actual tiene el ID del creador en su lista 'following'
+            if (user && user.following && data.project.authorId && user.following.includes(data.project.authorId)) {
+              isFollowing = true;
+            }
+            // Verificar si soy yo mismo (para no mostrar el botón)
+            const myId = user ? (user.uid || user.id) : null;
+            const isMe = (myId && data.project.authorId && myId === data.project.authorId);
+          %>
+
+          <% if (!isMe && data.project.authorId) { %>
+            <button 
+              id="followBtn" 
+              class="btn-follow <%= isFollowing ? 'active' : '' %>"
+              onclick="toggleFollow('<%= data.project.authorId %>')"
+            >
+              <%= isFollowing ? 'Unfollow' : 'Follow' %>
+            </button>
+          <% } %>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="donationModal" class="modal-overlay">
+  <div class="donation-card">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalProjectTitle">Support Project</h3>
+        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Make a difference today</p>
+      </div>
+      <button onclick="closeDonationModal()" class="close-modal-btn"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="donationForm" action="" method="POST">
+      <label class="donation-label">Select Amount</label>
+      <div class="amount-grid">
+        <div class="amount-option" onclick="selectAmount(5, this)">$5</div>
+        <div class="amount-option active" onclick="selectAmount(15, this)">$15</div>
+        <div class="amount-option" onclick="selectAmount(50, this)">$50</div>
+        <div class="amount-input-wrapper">
+          <span>$</span>
+          <input type="number" id="customAmount" placeholder="Other" oninput="selectCustomAmount(this)">
+        </div>
+      </div>
+      <input type="hidden" name="amount" id="finalAmount" value="15">
+      <label class="donation-label" style="margin-top: 20px;">Payment Method</label>
+      <div class="payment-methods">
+        <div class="payment-option active"><i class="fab fa-cc-visa"></i> Card</div>
+        <div class="payment-option"><i class="fab fa-paypal"></i> PayPal</div>
+        <div class="payment-option"><i class="fab fa-google-pay"></i> Pay</div>
+      </div>
+      <button type="submit" class="btn-confirm-donation">
+        Donate Now <i class="fas fa-arrow-right"></i>
+      </button>
+      <p class="secure-text"><i class="fas fa-lock"></i> Secure SSL Encrypted Transaction</p>
+    </form>
+  </div>
+</div>
+
+<script src="/javascripts/support-modal.js"></script>
+
+<script>
+  // Lógica AJAX para Seguir/Dejar de seguir
+  async function toggleFollow(targetId) {
+    const btn = document.getElementById('followBtn');
+    if(!btn) return;
+
+    // Estado de carga optimista
+    const originalText = btn.innerText;
+    btn.innerText = "...";
+    
+    try {
+      const response = await fetch(`/users/follow/${targetId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        if (result.action === "followed") {
+          btn.innerText = "Unfollow";
+          btn.classList.add("active");
+        } else {
+          btn.innerText = "Follow";
+          btn.classList.remove("active");
+        }
+      } else {
+        alert("Error: " + result.message);
+        btn.innerText = originalText;
+      }
+    } catch (error) {
+      console.error(error);
+      btn.innerText = originalText;
+    }
+  }
+</script>

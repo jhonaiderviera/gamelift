@@ -1,5 +1,4 @@
 <% 
-  // Mapa de plataformas por id para mostrar iconos y nombres consistentes
   const platformMap = {
     6:  { icon: 'fab fa-windows', name: 'PC (Windows)' },
     14: { icon: 'fab fa-apple', name: 'Mac' },
@@ -18,30 +17,22 @@
 
 <div class="detail-page">
 
-  <!-- Hero con backdrop y overlay para legibilidad -->
   <div class="detail-hero">
     <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
     <div class="detail-hero__overlay"></div>
 
     <div class="container detail-hero__content">
-      <div class="detail-header">
-
-        <!-- Portada principal del juego -->
+      <div class="detail-header" data-game-id="<%= data.id %>" data-name="<%= data.name %>" data-cover="<%= data.coverUrl %>">
         <div class="detail-cover">
           <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Cover">
         </div>
-
-        <!-- Info basica del juego -->
         <div class="detail-info">
           <h1 class="detail-title"><%= data.name %></h1>
-
           <div class="detail-meta">
             <span class="detail-date"><%= data.year %></span>
             <span class="separator">•</span>
             <span><%= data.companies ? data.companies.split(',')[0] : 'Unknown Dev' %></span>
           </div>
-
-          <!-- Tags de generos -->
           <div class="detail-genres">
             <% if (data.genres) { %>
               <% data.genres.split(', ').forEach(genre => { %>
@@ -49,265 +40,217 @@
               <% }) %>
             <% } %>
           </div>
-
-          <!-- Acciones principales -->
           <div class="detail-actions">
-             <button class="btn btn-primary"><i class="fas fa-plus"></i> Add to Library</button>
-             <button class="btn btn-ghost"><i class="far fa-heart"></i> Favorite</button>
+             <button class="btn btn-primary js-manage-library"><i class="fas fa-plus"></i> Add to Library</button>
+             <button class="btn btn-ghost js-manage-favorite"><i class="far fa-heart"></i> Favorite</button>
           </div>
         </div>
 
-        <!-- Scores del juego -->
         <div class="detail-scores">
-          <div class="score-box">
-            <div class="score-circle <%= (data.rating >= 80) ? 'good' : ((data.rating >= 50) ? 'mid' : 'bad') %>">
-              <%= data.rating ? Math.round(data.rating) : '-' %>
+          <div class="score-box gamelift">
+            <div class="score-circle <%= data.gameliftScore ? ((data.gameliftScore >= 75) ? 'good' : ((data.gameliftScore >= 50) ? 'mid' : 'bad')) : 'mid' %>">
+              <%= data.gameliftScore || '—' %>
             </div>
-            <span class="score-label">Rating</span>
+            <div class="score-meta">
+              <span class="score-label main">GameLift</span>
+              <span class="score-label sub"><%= data.reviewCount > 0 ? `Based on ${data.reviewCount} ratings` : 'No ratings yet' %></span>
+            </div>
           </div>
-          <div class="score-box">
-             <div class="score-circle mid">?</div>
-             <span class="score-label">Community</span>
+          <div class="score-divider"></div>
+          <div class="score-box global">
+            <div class="score-circle <%= (data.rating >= 75) ? 'good' : ((data.rating >= 50) ? 'mid' : 'bad') %>">
+              <%= data.rating ? Math.round(data.rating) : '—' %>
+            </div>
+             <div class="score-meta"><span class="score-label main">Global</span><span class="score-label sub">Critic Score</span></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
   <div class="container detail-body">
-
     <div class="detail-main">
-
-      <!-- Descripcion principal -->
       <section>
         <h3 class="section-title">About</h3>
         <p class="detail-summary"><%= data.summary %></p>
-
-        <!-- Storyline opcional -->
-        <% if (data.storyline) { %>
-          <div style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;">
-            <p>"<%= data.storyline %>"</p>
-          </div>
-        <% } %>
+        <% if (data.storyline) { %><div style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;"><p>"<%= data.storyline %>"</p></div><% } %>
       </section>
 
-      <!-- Trailer opcional -->
       <% if (data.videos && data.videos.length > 0) { %>
-        <section style="margin-top: 40px;">
-          <h3 class="section-title">Trailer</h3>
-          <div class="video-wrapper">
-            <iframe src="https://www.youtube.com/embed/<%= data.videos[0].video_id %>" frameborder="0" allowfullscreen></iframe>
-          </div>
-        </section>
+        <section style="margin-top: 40px;"><h3 class="section-title">Trailer</h3><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/<%= data.videos[0].video_id %>" frameborder="0" allowfullscreen></iframe></div></section>
       <% } %>
 
-      <!-- Galeria opcional -->
       <% if (data.screenshots && data.screenshots.length > 0) { %>
-        <section style="margin-top: 40px;">
-          <h3 class="section-title">Gallery</h3>
-          <div class="detail-gallery">
-            <% data.screenshots.forEach(img => { %>
-              <img src="<%= img %>" alt="Screenshot" loading="lazy">
-            <% }) %>
-          </div>
-        </section>
+        <section style="margin-top: 40px;"><h3 class="section-title">Gallery</h3><div class="detail-gallery"><% data.screenshots.forEach(img => { %><img src="<%= img %>" alt="Screenshot" loading="lazy"><% }) %></div></section>
       <% } %>
 
-      <!-- Reviews -->
       <section style="margin-top: 60px;" id="reviewSection">
         <h3 class="section-title">User Reviews</h3>
-
-        <!-- Form solo si hay usuario logueado -->
+        
         <% if (user) { %>
-
           <div class="review-form-card">
             <div class="review-header">
               <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo" class="game-logo-small">
               <span class="review-prompt">What do you think about <strong><%= data.name %></strong>?</span>
             </div>
-
-            <!-- Form de review con sliders y textarea -->
             <form id="gameReviewForm" class="review-grid" data-game-id="<%= data.id %>" data-game-name="<%= data.name %>">
-
               <div class="rating-sliders">
-                <div class="slider-group">
-                  <div class="slider-label">
-                    <span>Story</span>
-                    <span class="slider-value" id="val-story">80</span>
-                  </div>
-                  <input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()">
-                </div>
-
-                <div class="slider-group">
-                  <div class="slider-label">
-                    <span>Gameplay</span>
-                    <span class="slider-value" id="val-gameplay">75</span>
-                  </div>
-                  <input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()">
-                </div>
-
-                <div class="slider-group">
-                  <div class="slider-label">
-                    <span>Graphics</span>
-                    <span class="slider-value" id="val-graphics">90</span>
-                  </div>
-                  <input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()">
-                </div>
-
-                <div class="slider-group">
-                  <div class="slider-label">
-                    <span>Sound & Music</span>
-                    <span class="slider-value" id="val-sound">85</span>
-                  </div>
-                  <input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()">
-                </div>
-
-                <!-- Media calculada en cliente -->
-                <div class="total-score-display">
-                  <span>Overall Score</span>
-                  <div class="big-score-badge good" id="overall-score">83</div>
-                </div>
+                <div class="slider-group"><div class="slider-label"><span>Story</span><span class="slider-value" id="val-story">80</span></div><input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()"></div>
+                <div class="slider-group"><div class="slider-label"><span>Gameplay</span><span class="slider-value" id="val-gameplay">75</span></div><input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()"></div>
+                <div class="slider-group"><div class="slider-label"><span>Graphics</span><span class="slider-value" id="val-graphics">90</span></div><input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()"></div>
+                <div class="slider-group"><div class="slider-label"><span>Sound & Music</span><span class="slider-value" id="val-sound">85</span></div><input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()"></div>
+                <div class="total-score-display"><span>Overall Score</span><div class="big-score-badge good" id="overall-score">83</div></div>
               </div>
-
               <div class="review-text-area">
-                <textarea placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
-                <button type="submit" class="btn btn-primary btn-block" style="margin-top: auto;">
-                  Submit Review
-                </button>
+                <textarea id="reviewText" placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
+                <button type="submit" id="submitReviewBtn" class="btn btn-primary btn-block" style="margin-top: auto;">Submit Review</button>
               </div>
-
             </form>
           </div>
-
         <% } else { %>
-
-          <!-- Estado bloqueado si no hay login -->
           <div class="review-form-card" style="text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1);">
             <i class="fas fa-lock" style="font-size: 2rem; color: #8b5cf6; margin-bottom: 15px;"></i>
             <h4 style="color: #fff; margin-bottom: 10px;">Log in to write a review</h4>
-            <p style="color: #9ca3af; margin-bottom: 20px;">Join the community to share your opinion and track your games.</p>
             <a href="/auth/login" class="btn btn-primary">Sign In / Register</a>
           </div>
-
         <% } %>
 
-        <!-- Listado de reviews o empty state -->
         <div class="reviews-list" style="margin-top: 30px;">
            <% if (data.reviews && data.reviews.length > 0) { %>
              <% data.reviews.forEach(review => { %>
                <div class="review-card-display">
                  <div class="review-display-header">
                    <div class="reviewer-info">
-                     <img src="<%= review.userAvatar || '/images/default-avatar.png' %>" class="reviewer-avatar">
+                     <img src="<%= review.userAvatar || 'https://ui-avatars.com/api/?name=User' %>" class="reviewer-avatar">
                      <div>
-                       <span class="reviewer-name"><%= review.userName %></span>
-                       <span class="review-date">
-                         <%= review.createdAt ? new Date(review.createdAt.seconds * 1000).toLocaleDateString() : 'Recently' %>
-                       </span>
+                       <span class="reviewer-name"><%= review.userName || 'Anonymous' %></span>
+                       <span class="review-date"><%= review.createdAt ? new Date(review.createdAt.seconds * 1000).toLocaleDateString() : 'Recently' %></span>
                      </div>
                    </div>
-
-                   <!-- Score final de la review -->
-                   <div class="review-score-mini <%= (review.average >= 80) ? 'good' : ((review.average >= 50) ? 'mid' : 'bad') %>">
-                     <%= review.average %>
-                   </div>
+                   <div class="review-score-mini <%= (review.average >= 80) ? 'good' : ((review.average >= 50) ? 'mid' : 'bad') %>"><%= review.average %></div>
                  </div>
-
-                 <div class="review-content">
-                   <p><%= review.text %></p>
-                 </div>
-
-                 <div class="review-breakdown-mini">
-                   <span>Story: <%= review.scores.story %></span>
-                   <span>Gameplay: <%= review.scores.gameplay %></span>
-                   <span>Graphics: <%= review.scores.graphics %></span>
-                   <span>Sound: <%= review.scores.sound %></span>
+                 <div class="review-content"><p><%= review.text %></p></div>
+                 <div class="review-breakdown-visual">
+                   <% const s = review.scores || {story:0, gameplay:0, graphics:0, sound:0}; %>
+                   <div class="stat-row"><span class="stat-label">Story</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.story %>%"></div></div><span class="stat-value"><%= s.story %></span></div>
+                   <div class="stat-row"><span class="stat-label">Gameplay</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.gameplay %>%"></div></div><span class="stat-value"><%= s.gameplay %></span></div>
+                   <div class="stat-row"><span class="stat-label">Graphics</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.graphics %>%"></div></div><span class="stat-value"><%= s.graphics %></span></div>
+                   <div class="stat-row"><span class="stat-label">Sound</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.sound %>%"></div></div><span class="stat-value"><%= s.sound %></span></div>
                  </div>
                </div>
              <% }) %>
            <% } else { %>
-             <div class="empty-state-review">
-               <i class="far fa-comment-dots"></i>
-               <p>Be the first to review this game!</p>
-             </div>
+             <div class="empty-state-review"><i class="far fa-comment-dots"></i><p>Be the first to review this game!</p></div>
            <% } %>
         </div>
-
       </section>
-
     </div>
 
-    <!-- Sidebar con informacion rapida -->
     <aside class="detail-sidebar">
       <div class="sidebar-card">
         <ul class="info-list">
-
-          <!-- Plataformas con iconos -->
           <li style="flex-direction: column; align-items: flex-start; gap: 10px;">
             <span class="sidebar-label">Available on</span>
-
             <% if (data.platforms && data.platforms.length > 0) { %>
               <div class="platform-logos">
                 <% data.platforms.forEach(p => { %>
                   <% const plat = platformMap[p.id]; %>
-
-                  <% if (plat) { %>
-                    <i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i>
-                  <% } else { %>
-                    <span class="platform-text-fallback" title="<%= p.name %>">
-                      <%= p.abbreviation || p.name.substring(0,3) %>
-                    </span>
-                  <% } %>
-
+                  <% if (plat) { %><i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i><% } else { %><span class="platform-text-fallback" title="<%= p.name %>"><%= p.abbreviation || p.name.substring(0,3) %></span><% } %>
                 <% }) %>
               </div>
-            <% } else { %>
-              <span class="text-muted">N/A</span>
-            <% } %>
+            <% } else { %><span class="text-muted">N/A</span><% } %>
           </li>
-
-          <li>
-            <span class="sidebar-label">Release Year</span>
-            <span><%= data.year %></span>
-          </li>
-
-          <li>
-            <span class="sidebar-label">Developer</span>
-            <span style="text-align: right;"><%= data.companies ? data.companies.split(',')[0] : 'Unknown' %></span>
-          </li>
+          <li><span class="sidebar-label">Release Year</span><span><%= data.year %></span></li>
+          <li><span class="sidebar-label">Developer</span><span style="text-align: right;"><%= data.companies ? data.companies.split(',')[0] : 'Unknown' %></span></li>
         </ul>
       </div>
     </aside>
-
   </div>
 </div>
 
-<!-- Script externo para gestionar envio y carga de reviews -->
-<script src="/javascripts/game-reviews.js"></script>
-
 <script>
-  // Calcula la media de sliders y actualiza el badge visual
+  // 1. Lógica Visual de los Sliders (Sin cambios)
   function updateReviewScore() {
-    const story = parseInt(document.getElementById('input-story').value);
-    const gameplay = parseInt(document.getElementById('input-gameplay').value);
-    const graphics = parseInt(document.getElementById('input-graphics').value);
-    const sound = parseInt(document.getElementById('input-sound').value);
+    const s = parseInt(document.getElementById('input-story').value) || 0;
+    const g = parseInt(document.getElementById('input-gameplay').value) || 0;
+    const gr = parseInt(document.getElementById('input-graphics').value) || 0;
+    const so = parseInt(document.getElementById('input-sound').value) || 0;
 
-    document.getElementById('val-story').innerText = story;
-    document.getElementById('val-gameplay').innerText = gameplay;
-    document.getElementById('val-graphics').innerText = graphics;
-    document.getElementById('val-sound').innerText = sound;
+    document.getElementById('val-story').innerText = s; 
+    document.getElementById('val-gameplay').innerText = g;
+    document.getElementById('val-graphics').innerText = gr; 
+    document.getElementById('val-sound').innerText = so;
 
-    const average = Math.round((story + gameplay + graphics + sound) / 4);
+    const avg = Math.round((s + g + gr + so) / 4);
 
     const badge = document.getElementById('overall-score');
     if (badge) {
-      badge.innerText = average;
+      badge.innerText = avg;
       badge.className = 'big-score-badge';
-      if (average >= 80) badge.classList.add('good');
-      else if (average >= 50) badge.classList.add('mid');
+      if (avg >= 80) badge.classList.add('good');
+      else if (avg >= 50) badge.classList.add('mid');
       else badge.classList.add('bad');
     }
+  }
+
+  // 2. Lógica de Envío (ANTI-DUPLICADOS)
+  const reviewForm = document.getElementById('gameReviewForm');
+  
+  if (reviewForm) {
+    // Usamos una bandera para saber si ya se está enviando
+    let isSubmitting = false;
+
+    reviewForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation(); // Detiene otros scripts que intenten enviar
+
+      if (isSubmitting) return; // Si ya está enviando, no hace nada
+      isSubmitting = true;
+
+      // 1. Bloquear botón visualmente
+      const btn = document.getElementById('submitReviewBtn');
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+      btn.style.opacity = "0.7";
+
+      const gameId = reviewForm.getAttribute('data-game-id');
+      const gameName = reviewForm.getAttribute('data-game-name');
+      const text = document.getElementById('reviewText').value;
+
+      const scores = {
+        story: document.getElementById('input-story').value,
+        gameplay: document.getElementById('input-gameplay').value,
+        graphics: document.getElementById('input-graphics').value,
+        sound: document.getElementById('input-sound').value
+      };
+
+      try {
+        const response = await fetch(`/games/${gameId}/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameId, gameName, scores, text })
+        });
+
+        if (response.ok) {
+          // Éxito: Recargar página
+          window.location.reload();
+        } else {
+          // Error: Restaurar botón
+          alert("Error submitting review.");
+          isSubmitting = false;
+          btn.disabled = false;
+          btn.innerText = originalText;
+          btn.style.opacity = "1";
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Server error.");
+        isSubmitting = false;
+        btn.disabled = false;
+        btn.innerText = originalText;
+        btn.style.opacity = "1";
+      }
+    });
   }
 </script>

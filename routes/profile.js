@@ -1,64 +1,166 @@
-const express = require("express");
+/* Ubicación: /routes/profile.js */
+const express = require('express');
 const router = express.Router();
-const { db } = require("../services/firebase");
+const { db, admin } = require("../services/firebase");
 
-// Verificar que el usuario está autenticado
+/* Middleware de autenticación */
 const isAuthenticated = (req, res, next) => {
-  if (res.locals.user) {
-    return next();
+  if (req.user) {
+    next();
+  } else {
+    res.redirect('/auth/login');
   }
-  res.redirect("/auth/login");
 };
 
-// Mostrar perfil del usuario
-router.get("/", isAuthenticated, async (req, res) => {
+/* GET: PÁGINA DE PERFIL */
+router.get('/', isAuthenticated, async function(req, res, next) {
   try {
-    const uid = res.locals.user.uid; 
+    const uid = req.user.uid || req.user.id;
     
-    // Obtener datos actuales del usuario desde Firestore
-    const userDoc = await db.collection("users").doc(uid).get();
+    // 1. Obtener datos reales de Firebase
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
     
-    if (!userDoc.exists) {
-      return res.redirect("/auth/logout"); 
+    // Prioridad de nombres
+    const realUsername = userData.username || userData.name || req.user.username || req.user.displayName || "Indie Dev";
+    const realAvatar = userData.photoUrl || userData.picture || req.user.photoUrl || req.user.picture;
+    
+    // --- CAMBIO AQUÍ: QUITAMOS EL TEXTO POR DEFECTO ---
+    const realBio = userData.bio || ""; 
+    // --------------------------------------------------
+
+    const followersCount = userData.followers ? userData.followers.length : 0;
+    const followingCount = userData.following ? userData.following.length : 0;
+
+    // 2. Mis Proyectos
+    const myProjectsRef = db.collection('indie_games').where('authorId', '==', uid);
+    const myProjectsSnap = await myProjectsRef.get();
+    let myProjects = [];
+    let totalRaised = 0;
+    if (!myProjectsSnap.empty) {
+      myProjectsSnap.forEach(doc => {
+        const d = doc.data();
+        myProjects.push({ id: doc.id, ...d });
+        totalRaised += (d.raised || 0);
+      });
     }
 
-    const userData = userDoc.data();
+    // 3. Library & Favorites
+    const librarySnap = await db.collection('users').doc(uid).collection('library').orderBy('addedAt', 'desc').get();
+    const favoritesSnap = await db.collection('users').doc(uid).collection('favorites').orderBy('addedAt', 'desc').get();
 
-    res.render("layout", {
-      title: "Mi Perfil | GameLift",
-      page: "profile", 
-      active: "profile",
-      user: { ...res.locals.user, ...userData }, 
-      data: {} 
+    const library = librarySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const favorites = favoritesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 4. Mis Reviews
+    let myReviews = [];
+    try {
+      const reviewsSnap = await db.collection('reviews').where('userId', '==', uid).get();
+      if (!reviewsSnap.empty) {
+        myReviews = reviewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      }
+    } catch (err) { console.error("Error fetching reviews:", err); }
+
+    res.render('layout', {
+      title: 'My Profile | GameLift',
+      page: 'profile',
+      active: 'profile',
+      user: req.user,
+      error: req.query.error || null,
+      success: req.query.success || null,
+      data: {
+        username: realUsername,
+        photoUrl: realAvatar,
+        bio: realBio, // Enviamos la bio (vacía o con texto)
+        followers: followersCount,
+        following: followingCount,
+        myProjects,
+        totalRaised,
+        library,
+        favorites,
+        myReviews
+      }
     });
 
   } catch (error) {
-    console.error("Error cargando perfil:", error);
-    res.redirect("/");
+    console.error("Error loading profile:", error);
+    res.render('error', { message: "Error loading profile", error });
   }
 });
 
-// Actualizar datos del perfil
-router.post("/update", isAuthenticated, async (req, res) => {
+/* --- RUTAS POST --- */
+
+// 1. ACTUALIZAR BIO (NUEVO)
+router.post('/update-bio', isAuthenticated, async (req, res) => {
   try {
-    const uid = res.locals.user.uid;
-    const { username, bio, avatarUrl } = req.body;
-
-    // Actualizar en Firestore
-    await db.collection("users").doc(uid).update({
-      username: username,
-      bio: bio,
-      // Si no ponen URL, generamos un avatar automático
-      avatarUrl: avatarUrl || "https://ui-avatars.com/api/?name=" + username + "&background=random"
-    });
-
-    res.redirect("/profile");
-
+    const { bio } = req.body;
+    const uid = req.user.uid || req.user.id;
+    await db.collection('users').doc(uid).update({ bio: bio });
+    res.redirect('/profile');
   } catch (error) {
-    console.error("Error actualizando perfil:", error);
-    res.redirect("/profile?error=true");
+    console.error("Error updating bio:", error);
+    res.redirect('/profile');
   }
 });
 
-// ESTA LÍNEA ES CRUCIAL. SI FALTA, EXPRESS DA EL ERROR QUE TIENES.
+// 2. ACTUALIZAR USERNAME
+router.post('/update-username', isAuthenticated, async (req, res) => {
+  try {
+    const { newUsername } = req.body;
+    const uid = req.user.uid || req.user.id;
+    await db.collection('users').doc(uid).update({ username: newUsername });
+    req.user.username = newUsername; 
+    res.redirect('/profile');
+  } catch (error) { console.error(error); res.redirect('/profile'); }
+});
+
+// 3. ACTUALIZAR FOTO
+router.post('/update-photo', isAuthenticated, async (req, res) => {
+  try {
+    const { photoUrl } = req.body;
+    const uid = req.user.uid || req.user.id;
+    await db.collection('users').doc(uid).update({ photoUrl: photoUrl });
+    req.user.photoUrl = photoUrl; // Actualizar sesión
+    res.redirect('/profile');
+  } catch (error) { console.error(error); res.redirect('/profile'); }
+});
+
+// 4. CAMBIAR PASSWORD
+router.post('/change-password', isAuthenticated, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const uid = req.user.uid || req.user.id;
+    const userEmail = req.user.email; 
+
+    if (!currentPassword || !newPassword) return res.redirect('/profile?error=Missing+fields');
+    if (newPassword.length < 6) return res.redirect('/profile?error=Password+too+short');
+
+    const apiKey = process.env.FIREBASE_API_KEY; 
+    const verifyUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+    
+    const response = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail, password: currentPassword, returnSecureToken: false })
+    });
+
+    const data = await response.json();
+    if (data.error) return res.redirect('/profile?error=Incorrect+current+password');
+
+    await admin.auth().updateUser(uid, { password: newPassword });
+    res.redirect('/profile?success=Password+Changed');
+  } catch (error) { console.error(error); res.redirect('/profile?error=Server+Error'); }
+});
+
+// 5. BORRAR CUENTA
+router.post('/delete-account', isAuthenticated, async (req, res) => {
+  try {
+    const uid = req.user.uid || req.user.id;
+    await admin.auth().deleteUser(uid);
+    await db.collection('users').doc(uid).delete();
+    res.clearCookie('session'); 
+    res.redirect('/');
+  } catch (error) { console.error(error); res.redirect('/profile'); }
+});
+
 module.exports = router;

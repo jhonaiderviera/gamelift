@@ -2,94 +2,247 @@
    HOME.CSS - Index Page Styles
    ========================================= */
 
-   .hero { padding-top: 18px; }
+/* === HERO SECTION === */
+.hero-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(480px, 65vh, 650px);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.05);
+  background: #000;
+  margin-top: 10px;
+}
 
-   /* Carousel Frame */
-   .hero-frame {
-     position: relative;
-     width: 100%;
-     height: clamp(420px, 62vh, 620px);
-     border-radius: 22px;
-     overflow: hidden;
-     border: 1px solid rgba(255,255,255,0.10);
-     box-shadow: 0 28px 70px rgba(0,0,0,0.55);
-     isolation: isolate;
-   }
-   
-   .hero-track {
-     display: flex;
-     width: 100%;
-     height: 100%;
-     transition: transform .55s ease;
-     will-change: transform;
-   }
-   
-   .hero-slide {
-     flex: 0 0 100%;
-     height: 100%;
-     position: relative;
-   }
-   
-   .hero-bg {
-     position: absolute; inset: 0;
-     background-size: cover; background-position: center;
-     background-color: #000;
-   }
-   .hero-bg::before {
-     content: ""; position: absolute; inset: -20%;
-     background-image: inherit; background-size: cover; background-position: center;
-     filter: blur(40px) brightness(0.6); z-index: -1;
-   }
-   
-   .hero-overlay {
-     position: absolute; inset: 0;
-     background: radial-gradient(900px 420px at 20% 30%, rgba(139,92,246,0.35), transparent 60%),
-                 linear-gradient(90deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.50) 55%, rgba(0,0,0,0.15) 100%),
-                 linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 100%);
-   }
-   
-   .hero-content {
-     position: absolute; left: 28px; bottom: 26px; z-index: 2;
-     max-width: min(620px, 92%);
-     padding: 22px; border-radius: 18px;
-     border: 1px solid rgba(255,255,255,0.10);
-     background: rgba(0,0,0,0.38); backdrop-filter: blur(10px);
-     box-shadow: 0 20px 45px rgba(0,0,0,0.55);
-   }
-   
-   .hero-title { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-   .hero-subtitle { margin: 0 0 14px; color: rgba(255,255,255,0.72); text-shadow: 0 8px 24px rgba(0,0,0,0.7); }
-   .hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-   .hero-chip { display: inline-flex; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.28); color: rgba(255,255,255,0.78); font-size: 0.9rem; }
-   
-   /* Controls */
-   .hero-arrow {
-     position: absolute; top: 50%; transform: translateY(-50%);
-     width: 44px; height: 44px; border-radius: 50%;
-     border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.55); color: #fff;
-     font-size: 24px; cursor: pointer; z-index: 3;
-     transition: all .18s ease;
-   }
-   .hero-arrow:hover { transform: translateY(-50%) scale(1.06); background: rgba(0,0,0,0.75); border-color: rgba(139,92,246,0.55); }
-   .hero-arrow--left { left: 14px; }
-   .hero-arrow--right { right: 14px; }
-   
-   .hero-dots {
-     position: absolute; left: 50%; transform: translateX(-50%); bottom: 14px;
-     display: flex; gap: 10px; z-index: 3;
-     padding: 8px 12px; border-radius: 999px;
-     background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(10px);
-   }
-   .hero-dot { width: 38px; height: 6px; border-radius: 999px; border: none; background: rgba(255,255,255,0.18); cursor: pointer; transition: all .2s ease; }
-   .hero-dot.is-active { background: var(--primary); transform: scaleX(1.05); }
-   
-   /* Home Grid Layout */
-   .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-   .game-actions { display: flex; gap: 10px; margin-top: 10px; }
-   
-   @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-   @media (max-width: 520px) {
-     .grid { grid-template-columns: 1fr; }
-     .hero-content { left: 14px; right: 14px; bottom: 16px; }
-     .hero-arrow { width: 40px; height: 40px; }
-   }
+.hero-track {
+  display: flex; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.hero-slide {
+  min-width: 100%; height: 100%;
+  position: relative;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform 6s ease;
+  transform: scale(1);
+}
+.hero-slide[aria-hidden="false"] .hero-bg {
+  transform: scale(1.08);
+}
+
+.hero-overlay {
+  position: absolute; inset: 0;
+  /* Degradado asimétrico: más oscuro a la derecha para que los scores se lean bien */
+  background: linear-gradient(90deg, rgba(6,6,10,0.8) 0%, rgba(6,6,10,0.4) 50%, rgba(6,6,10,0.85) 100%),
+              linear-gradient(0deg, #06060a 0%, transparent 60%);
+  z-index: 1;
+}
+
+/* === LAYOUT DEL HERO CONTENT (Split Izquierda/Derecha) === */
+.hero-content {
+  position: absolute; bottom: 60px; left: 50px; right: 50px;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between; /* Separa Info a la izq y Scores a la derecha */
+  align-items: flex-end; /* Alineados abajo */
+  gap: 40px;
+}
+
+/* Columna Izquierda */
+.hero-info {
+  max-width: 650px;
+  flex: 1;
+}
+
+/* Columna Derecha (Scores) */
+.hero-scores {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  padding: 16px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Animación de entrada desde la derecha */
+  opacity: 0; transform: translateX(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.6s;
+}
+
+/* Animaciones de entrada (Texto) */
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05; margin-bottom: 16px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.3s;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem; color: #e5e7eb; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.4s;
+}
+
+.hero-actions {
+  display: flex; gap: 12px; align-items: center;
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.5s;
+}
+
+/* Trigger animaciones */
+.hero-slide[aria-hidden="false"] .hero-title,
+.hero-slide[aria-hidden="false"] .hero-subtitle,
+.hero-slide[aria-hidden="false"] .hero-actions,
+.hero-slide[aria-hidden="false"] .hero-scores {
+  opacity: 1; transform: translateY(0) translateX(0);
+}
+
+.hero-chip {
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);
+  padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.85rem; color: #ccc;
+}
+
+/* === DISEÑO DE SCORES (Círculos y Texto) === */
+.score-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-ring {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem;
+  border: 3px solid;
+  position: relative;
+}
+
+.score-label {
+  display: flex; flex-direction: column;
+  line-height: 1.1;
+}
+
+.label-main { font-weight: 700; font-size: 0.9rem; color: #fff; text-transform: uppercase; letter-spacing: 0.02em; }
+.label-sub { font-size: 0.75rem; color: var(--muted); }
+
+/* Estilo Específico GameLift (Morado/Primario) */
+.score-card.gamelift .score-ring {
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+/* Estilo Específico Global (Verde/Teal) */
+.score-card.global .score-ring {
+  border-color: #34d399; 
+  color: #fff;
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.25);
+  background: rgba(52, 211, 153, 0.15);
+}
+
+.score-divider {
+  width: 1px; height: 36px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* === CONTROLES === */
+.hero-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 20; transition: all 0.2s ease;
+}
+.hero-arrow:hover {
+  background: #fff; color: #000; transform: translateY(-50%) scale(1.1);
+}
+.hero-arrow--left { left: 20px; }
+.hero-arrow--right { right: 20px; }
+
+/* === PUNTOS === */
+.hero-dots {
+  position: absolute; bottom: 30px; 
+  left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  display: flex; gap: 8px;
+  padding: 8px 16px; background: rgba(0,0,0,0.3); border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
+}
+.hero-dot {
+  width: 10px; height: 10px; border-radius: 50%; padding: 0;
+  background: rgba(255,255,255,0.3); border: none; cursor: pointer; transition: 0.3s;
+}
+.hero-dot.is-active { background: var(--primary); transform: scale(1.3); }
+
+/* === GAME CARDS (GRID) === */
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+}
+.game-card {
+  background: var(--card-bg); border-radius: 16px; overflow: hidden; border: 1px solid var(--border);
+  transition: all 0.3s ease; display: flex; flex-direction: column;
+}
+.game-card:hover {
+  transform: translateY(-8px); background: var(--card-hover); border-color: rgba(139, 92, 246, 0.4); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+}
+.game-cover { position: relative; aspect-ratio: 16/9; overflow: hidden; background: #1a1a2e; }
+.game-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.game-card:hover .game-cover img { transform: scale(1.1); }
+.score {
+  position: absolute; top: 10px; right: 10px; font-weight: 700; font-size: 0.85rem; padding: 4px 10px; border-radius: 8px;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+}
+.score-good { color: #34d399; border-color: #34d399; }
+.game-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+
+/* CORRECCIÓN APLICADA AQUÍ: line-clamp estándar */
+.game-desc { 
+  font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px; flex: 1; color: var(--muted); 
+  display: -webkit-box; 
+  -webkit-line-clamp: 3; 
+  line-clamp: 3; /* Estándar */
+  -webkit-box-orient: vertical; 
+  overflow: hidden; 
+}
+
+.game-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .hero-content { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    justify-content: flex-end; 
+    gap: 20px; 
+    bottom: 50px;
+  }
+  .hero-scores { 
+    width: 100%; 
+    justify-content: space-around; 
+    transform: translateY(20px); 
+    background: rgba(0,0,0,0.6);
+  }
+}
+@media (max-width: 600px) {
+  .hero-content { bottom: 20px; left: 20px; right: 20px; }
+  .hero-title { font-size: 2rem; }
+  .grid { grid-template-columns: 1fr; }
+  .hero-arrow { width: 40px; height: 40px; }
+  .hero-scores { padding: 12px; gap: 10px; }
+  .score-ring { width: 44px; height: 44px; font-size: 1rem; }
+}

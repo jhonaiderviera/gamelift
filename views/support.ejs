@@ -1,0 +1,186 @@
+<link rel="stylesheet" href="/stylesheets/support.css">
+
+<div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+
+  <div class="support-hero">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+      <div>
+        <span class="hero-tag">Indie Community</span>
+        <h1 class="h1">Support <span class="text-gradient">Indie Creativity</span></h1>
+        <p class="muted" style="max-width: 600px; margin-top: 10px;">
+          Discover unique projects from our community. Donate directly to developers to help them bring their dreams to life.
+        </p>
+      </div>
+
+      <% if (user) { %>
+        <a href="/support-developers/create" class="btn btn-primary" style="height: fit-content; margin-top: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+          <i class="fas fa-rocket"></i> Start Campaign
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-ghost" style="margin-top: 20px;">Log in to Create</a>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="projects-grid">
+    <% if (data.projects && data.projects.length > 0) { %>
+      <% data.projects.forEach(project => { %>
+        
+        <article class="project-card">
+          
+          <a href="/support-developers/<%= project.id %>" class="card-link-wrapper">
+            <div class="project-media">
+              <img src="<%= project.image %>" alt="<%= project.title %>" loading="lazy">
+              <div class="category-badges">
+                <% if(project.tags) { %>
+                  <% project.tags.forEach(tag => { %>
+                    <span class="badge"><%= tag %></span>
+                  <% }) %>
+                <% } %>
+              </div>
+            </div>
+          </a>
+
+          <div class="project-body">
+            
+            <div class="project-author">
+              <img src="<%= project.authorAvatar %>" alt="Author">
+              <span><%= project.author %></span>
+            </div>
+
+            <a href="/support-developers/<%= project.id %>" class="card-link-wrapper" style="text-decoration: none;">
+              <h3 class="project-title"><%= project.title %></h3>
+            </a>
+
+            <p class="project-desc"><%= project.desc %></p>
+
+            <% const percent = Math.min(100, Math.round((project.raised / project.goal) * 100)); %>
+            
+            <div class="funding-section">
+              <div class="funding-info">
+                <span class="raised">$<%= project.raised %> <small>of $<%= project.goal %></small></span>
+                <span class="percent"><%= percent %>%</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" style="width: <%= percent %>%"></div>
+              </div>
+              <div style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">
+                <%= project.backers %> backers
+              </div>
+            </div>
+
+            <button class="btn-donate" onclick="openDonationModal('<%= project.id %>', '<%= project.title %>')">
+              <i class="fas fa-heart"></i> Support this Project
+            </button>
+
+          </div>
+        </article>
+
+      <% }) %>
+    <% } else { %>
+      <div class="state-container">
+        <i class="fas fa-gamepad" style="font-size: 3rem; color: #4b5563; margin-bottom: 20px;"></i>
+        <p>No projects launched yet. Be the first to create one!</p>
+      </div>
+    <% } %>
+  </div>
+
+</div>
+
+<div id="donationModal" class="modal-overlay">
+  <div class="donation-card">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalProjectTitle">Support Project</h3>
+        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Make a difference today</p>
+      </div>
+      <button onclick="closeDonationModal()" class="close-modal-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form id="donationForm" action="" method="POST">
+      
+      <label class="donation-label">Select Amount</label>
+      <div class="amount-grid">
+        <div class="amount-option" onclick="selectAmount(5, this)">$5</div>
+        <div class="amount-option active" onclick="selectAmount(15, this)">$15</div> <div class="amount-option" onclick="selectAmount(50, this)">$50</div>
+        <div class="amount-input-wrapper">
+          <span>$</span>
+          <input type="number" id="customAmount" placeholder="Other" oninput="selectCustomAmount(this)">
+        </div>
+      </div>
+
+      <input type="hidden" name="amount" id="finalAmount" value="15">
+
+      <label class="donation-label" style="margin-top: 20px;">Payment Method</label>
+      <div class="payment-methods">
+        <div class="payment-option active"><i class="fab fa-cc-visa"></i> Card</div>
+        <div class="payment-option"><i class="fab fa-paypal"></i> PayPal</div>
+        <div class="payment-option"><i class="fab fa-google-pay"></i> Pay</div>
+      </div>
+
+      <button type="submit" class="btn-confirm-donation">
+        Donate Now <i class="fas fa-arrow-right"></i>
+      </button>
+      
+      <p class="secure-text"><i class="fas fa-lock"></i> Secure SSL Encrypted Transaction (Simulation)</p>
+    </form>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('donationModal');
+  const form = document.getElementById('donationForm');
+  const title = document.getElementById('modalProjectTitle');
+  const amountInput = document.getElementById('finalAmount');
+  const customInput = document.getElementById('customAmount');
+
+  // Abrir Modal
+  function openDonationModal(id, projectName) {
+    // Configura la ruta del formulario dinámicamente según el ID del proyecto
+    form.action = `/support-developers/donate/${id}`;
+    title.innerText = `Support "${projectName}"`;
+    modal.classList.add('visible');
+  }
+
+  // Cerrar Modal
+  function closeDonationModal() {
+    modal.classList.remove('visible');
+  }
+
+  // Cerrar al hacer clic fuera
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeDonationModal();
+  });
+
+  // Selección de botones ($5, $15...)
+  function selectAmount(val, element) {
+    amountInput.value = val;
+    customInput.value = ''; // Limpiar campo custom
+    
+    // Reset visual
+    document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.amount-input-wrapper').forEach(el => el.classList.remove('active'));
+    
+    // Activar seleccionado
+    element.classList.add('active');
+  }
+
+  // Escribir cantidad personalizada
+  function selectCustomAmount(input) {
+    const val = input.value;
+    amountInput.value = val;
+
+    // Quitar selección de botones predefinidos
+    document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
+    // Activar borde del input
+    input.parentElement.classList.add('active');
+  }
+
+  // Efecto visual en métodos de pago
+  document.querySelectorAll('.payment-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+</script>

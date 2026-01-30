@@ -1,0 +1,149 @@
+/* Ubicación: /public/stylesheets/support-create.css */
+
+/* --- FONDO NUEVO (Clean & Premium) --- */
+.create-page-container {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    /* Fondo Abstracto "Deep Gaming" */
+    background-color: #0f172a;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+  }
+  
+  /* Efecto de ruido suave para textura (Opcional) */
+  .create-page-container::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  
+  .create-wrapper {
+    position: relative; z-index: 10;
+    display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px;
+    align-items: start; padding: 60px 0;
+    width: 90%; max-width: 1200px; margin: 0 auto;
+  }
+  
+  /* LADO IZQUIERDO (Inspiración) */
+  .back-link {
+    color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 40px; font-weight: 500; transition: 0.3s;
+    background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px;
+  }
+  .back-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  
+  .create-title { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; color: #fff; }
+  .create-desc { color: #cbd5e1; font-size: 1.15rem; line-height: 1.6; max-width: 90%; margin-bottom: 40px; }
+  
+  /* Tarjetas Flotantes Decorativas */
+  .floating-decor { display: flex; flex-direction: column; gap: 20px; perspective: 1000px; }
+  .decor-row { display: flex; gap: 20px; }
+  
+  .decor-card {
+    background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08);
+    padding: 15px 25px; border-radius: 16px; backdrop-filter: blur(10px);
+    display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transform: rotateY(-10deg) rotateX(5deg); transition: transform 0.5s;
+  }
+  .decor-card:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.05); background: rgba(139, 92, 246, 0.2); border-color: var(--primary); }
+  .decor-card i { font-size: 1.2rem; color: #a78bfa; }
+  
+  /* LADO DERECHO (FORMULARIO) */
+  .create-form-card {
+    background: #1e293b; /* Color sólido oscuro */
+    border: 1px solid #334155;
+    padding: 40px; border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  }
+  
+  .form-header { margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
+  .form-header h2 { font-size: 1.8rem; margin: 0; color: #fff; }
+  .form-header p { color: #64748b; margin-top: 5px; font-size: 0.9rem; }
+  
+  /* INPUTS */
+  .form-group { margin-bottom: 24px; }
+  .form-group label { display: block; color: #e2e8f0; margin-bottom: 8px; font-size: 0.95rem; font-weight: 500; }
+  
+  .input-wrapper { position: relative; }
+  .input-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: #64748b; transition: 0.3s; z-index: 2;
+  }
+  
+  .input-field, .textarea-field {
+    width: 100%; background: #0f172a; border: 1px solid #334155;
+    color: #fff; padding: 14px 16px 14px 48px; border-radius: 12px;
+    font-size: 1rem; transition: all 0.3s;
+  }
+  .textarea-field { padding: 16px; height: 120px; resize: none; }
+  
+  .input-field:focus, .textarea-field:focus {
+    border-color: var(--primary); background: #020617; outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  }
+  .input-field:focus + .input-icon { color: var(--primary); }
+  
+  /* --- NUEVO SISTEMA DE TAGS --- */
+  .tags-input-container {
+    background: #0f172a; border: 1px solid #334155;
+    border-radius: 12px; padding: 8px 12px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    min-height: 50px;
+  }
+  .tags-input-container:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+  
+  /* Los tags ya creados */
+  .tag-pill {
+    background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tag-remove { cursor: pointer; font-size: 1rem; opacity: 0.7; }
+  .tag-remove:hover { opacity: 1; color: #fff; }
+  
+  /* El input donde escribes */
+  .tag-input-text {
+    background: transparent; border: none; color: #fff; flex: 1;
+    min-width: 120px; outline: none; font-size: 0.95rem; padding: 4px 0;
+  }
+  
+  /* Sugerencias abajo */
+  .tags-suggestions { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .suggestion-chip {
+    background: #334155; color: #94a3b8; padding: 6px 12px;
+    border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
+    border: 1px solid transparent;
+  }
+  .suggestion-chip:hover { background: #475569; color: #fff; border-color: #64748b; }
+  .suggestion-chip i { margin-right: 5px; font-size: 0.75rem; }
+  
+  
+  /* BOTÓN FINAL */
+  .btn-submit-project {
+    width: 100%; padding: 16px; margin-top: 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+    border: none; border-radius: 12px; color: white;
+    font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-submit-project:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);
+  }
+  
+  .no-spin::-webkit-outer-spin-button, .no-spin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .no-spin { -moz-appearance: textfield; }
+  
+  /* Responsive */
+  @media (max-width: 900px) {
+    .create-wrapper { grid-template-columns: 1fr; }
+    .create-info { display: none; }
+  }
