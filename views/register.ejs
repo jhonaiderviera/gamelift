@@ -1,175 +1,158 @@
 <div class="auth-wrapper">
 
-  <!-- Columna izquierda con el formulario -->
   <div class="auth-left">
     <div class="auth-card">
 
-      <!-- Cabecera del registro -->
       <div class="auth-header">
         <span class="auth-logo">GAMELIFT</span>
         <h1 class="auth-title">Create Account</h1>
         <p class="auth-subtitle">Join us to review, vote, and save your game list.</p>
       </div>
 
-      <!-- Error del servidor -->
       <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-error"><%= error %></div>
+        <div style="background: rgba(239,68,68,0.15); color: #fca5a5; padding: 12px; border-radius: 10px; margin-bottom: 20px; display:flex; align-items:center; gap:10px; font-size:0.9rem; border: 1px solid rgba(239,68,68,0.2);">
+          <i class="fas fa-exclamation-triangle"></i> <%= error %>
+        </div>
       <% } %>
 
-      <!-- Formulario de registro -->
-      <form class="auth-form" action="/auth/register" method="POST" id="registerForm">
+      <form class="auth-form" action="/auth/register" method="POST" id="registerForm" autocomplete="off">
 
-        <!-- Username -->
         <div class="form-group">
-          <input type="text" name="username" class="form-input" placeholder="Username" required>
+          <input type="text" name="username" class="form-input" placeholder="Username" required autocomplete="off">
         </div>
 
-        <!-- Email -->
         <div class="form-group">
-          <input type="email" name="email" class="form-input" placeholder="Email Address" required>
+          <input type="email" name="email" class="form-input" placeholder="Email Address" required autocomplete="email">
         </div>
 
-        <!-- Password -->
         <div class="form-group">
-          <input type="password" name="password" id="passwordInput" class="form-input" placeholder="Password" required>
+          <input type="password" name="password" id="passwordInput" class="form-input" placeholder="Password" required autocomplete="new-password">
         </div>
 
-        <!-- Requisitos de la contraseña -->
         <div class="password-requirements">
-          <div class="req-item invalid" id="req-length"><i></i> 8+ characters</div>
-          <div class="req-item invalid" id="req-upper"><i></i> 1 uppercase</div>
-          <div class="req-item invalid" id="req-number"><i></i> 1 number</div>
-          <div class="req-item invalid" id="req-special"><i></i> 1 symbol</div>
+          <div class="req-item invalid" id="req-length"><i></i> 8+ chars</div>
+          <div class="req-item invalid" id="req-upper"><i></i> Uppercase</div>
+          <div class="req-item invalid" id="req-num"><i></i> Number</div>
+          <div class="req-item invalid" id="req-special"><i></i> Symbol</div>
         </div>
 
-        <!-- Confirmacion de contraseña -->
         <div class="form-group">
-          <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm Password" required>
-
-          <!-- Mensaje de no coincidencia -->
-          <div id="matchMessage" class="alert-error" style="display:none; margin-top: 10px; padding: 8px; font-size: 0.85rem; text-align: center;">
-            Passwords do not match
+          <input type="password" id="confirmInput" class="form-input" placeholder="Confirm Password" required>
+          <div id="matchMessage" style="display: none; color: #f87171; font-size: 0.8rem; margin-top: 8px; padding-left: 5px;">
+            <i class="fas fa-times-circle"></i> Passwords do not match
           </div>
         </div>
 
-        <!-- Aceptacion de terminos -->
-        <div class="form-options">
+        <label class="role-card">
+          <input type="checkbox" name="isDeveloper" value="true">
+          <div class="role-content">
+            <div class="role-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="role-text">
+              <span class="role-title">I am an Indie Developer</span>
+              <span class="role-desc">I plan to publish my own games on GameLift.</span>
+            </div>
+            <div class="role-check">
+              <i class="fas fa-check"></i>
+            </div>
+          </div>
+        </label>
+
+        <div class="terms-options">
           <label class="custom-check">
-            <input type="checkbox" name="terms" required>
-            <span>I accept the terms & conditions</span>
+            <input type="checkbox" id="termsInput">
+            <span>I agree to the <a href="#">Terms of Service</a> & <a href="#">Privacy Policy</a></span>
           </label>
         </div>
 
-        <!-- Boton submit bloqueado hasta cumplir requisitos -->
-        <button
-          type="submit"
-          class="btn btn-primary btn-block"
-          id="submitBtn"
-          disabled
-          style="opacity: 0.5; cursor: not-allowed;"
-        >
-          Create Account
+        <button type="submit" class="btn-block" id="submitBtn" disabled>
+          Sign Up
         </button>
+
       </form>
 
-      <!-- Footer -->
       <div class="form-footer">
         Already have an account?
-        <a href="/auth/login" class="auth-link">Log in</a>
+        <a href="/auth/login" class="auth-link">Sign In</a>
       </div>
+
     </div>
   </div>
 
-  <!-- Columna derecha decorativa -->
-  <div class="auth-right" style="background-image: url('<%= data.bgImage %>');"></div>
+  <div class="auth-right" style="background-image: url('<%= data.bgImage %>');">
+    <div class="auth-overlay">
+      <h2>Join the Community</h2>
+      <p>Discover games, support developers, and track your collection.</p>
+    </div>
+  </div>
 
 </div>
 
 <script>
-  // Inputs principales
-  const passwordInput = document.getElementById('passwordInput');
-  const confirmInput = document.getElementById('confirmPassword');
+  const passInput = document.getElementById('passwordInput');
+  const confirmInput = document.getElementById('confirmInput');
+  const termsInput = document.getElementById('termsInput');
   const submitBtn = document.getElementById('submitBtn');
   const matchMsg = document.getElementById('matchMessage');
-  const termsInput = document.querySelector('input[name="terms"]');
-
-  // Elementos visuales de requisitos
+  
   const reqs = {
     length: document.getElementById('req-length'),
     upper: document.getElementById('req-upper'),
-    number: document.getElementById('req-number'),
+    num: document.getElementById('req-num'),
     special: document.getElementById('req-special')
   };
 
-  // Expresiones regulares para validar password
-  const patterns = {
-    length: /.{8,}/,
-    upper: /[A-Z]/,
-    number: /[0-9]/,
-    special: /[!@#$%^&*(),.?":{}|<>_]/
-  };
+  function validateForm() {
+    const val = passInput.value;
+    const confirmVal = confirmInput.value;
+    let isValid = true;
 
-  // Valida complejidad de la contraseña
-  function validateComplexity() {
-    const val = passwordInput.value;
-    let validCount = 0;
+    // Reglas Regex
+    const rules = [
+      { regex: /.{8,}/, el: reqs.length },
+      { regex: /[A-Z]/, el: reqs.upper },
+      { regex: /[0-9]/, el: reqs.num },
+      { regex: /[^A-Za-z0-9]/, el: reqs.special }
+    ];
 
-    for (const key in patterns) {
-      if (patterns[key].test(val)) {
-        reqs[key].classList.remove('invalid');
-        reqs[key].classList.add('valid');
-        validCount++;
+    // Validar contraseña
+    rules.forEach(rule => {
+      if (rule.regex.test(val)) {
+        rule.el.classList.add('valid');
+        rule.el.classList.remove('invalid');
       } else {
-        reqs[key].classList.remove('valid');
-        reqs[key].classList.add('invalid');
+        rule.el.classList.remove('valid');
+        rule.el.classList.add('invalid');
+        isValid = false;
       }
-    }
+    });
 
-    return validCount === 4;
-  }
-
-  // Valida coincidencia de contraseñas
-  function validateMatch() {
-    const pass = passwordInput.value;
-    const confirm = confirmInput.value;
-
-    if (confirm.length > 0 && pass !== confirm) {
+    // Validar coincidencia
+    if (confirmVal.length > 0 && val !== confirmVal) {
       matchMsg.style.display = 'block';
-      return false;
+      isValid = false;
     } else {
       matchMsg.style.display = 'none';
-      return pass === confirm && pass.length > 0;
+      if(val !== confirmVal) isValid = false;
     }
-  }
 
-  // Comprueba todos los requisitos y habilita el submit
-  function checkAll() {
-    const isComplex = validateComplexity();
-    const isMatch = validateMatch();
-    const isTerms = termsInput.checked;
+    // Validar términos
+    if (!termsInput.checked) isValid = false;
 
-    if (isComplex && isMatch && isTerms) {
+    // Activar botón
+    if (isValid) {
       submitBtn.removeAttribute('disabled');
       submitBtn.style.opacity = "1";
       submitBtn.style.cursor = "pointer";
     } else {
       submitBtn.setAttribute('disabled', 'true');
-      submitBtn.style.opacity = "0.5";
+      submitBtn.style.opacity = "0.7";
       submitBtn.style.cursor = "not-allowed";
     }
   }
 
-  // Listeners de validacion en tiempo real
-  passwordInput.addEventListener('input', () => {
-    validateComplexity();
-    if (confirmInput.value.length > 0) validateMatch();
-    checkAll();
-  });
-
-  confirmInput.addEventListener('input', () => {
-    validateMatch();
-    checkAll();
-  });
-
-  termsInput.addEventListener('change', checkAll);
+  passInput.addEventListener('input', validateForm);
+  confirmInput.addEventListener('input', validateForm);
+  termsInput.addEventListener('change', validateForm);
 </script>

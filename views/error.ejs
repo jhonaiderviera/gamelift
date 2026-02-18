@@ -1,13 +1,26 @@
-<section class="container section">
-    <div class="card">
-      <h1 class="h1"><%= status || 500 %></h1>
-      <p class="muted"><%= message || "Unexpected error." %></p>
-  
-      <% if (details) { %>
-        <pre class="error-details"><%= details %></pre>
+<link rel="stylesheet" href="/stylesheets/style.css">
+
+<section class="container section" style="padding-top: 100px; text-align: center;">
+  <div class="card" style="max-width: 600px; margin: 0 auto; padding: 40px;">
+
+    <h1 class="h1" style="font-size: 4rem; color: var(--primary);">
+      <%= (typeof status !=='undefined' ? status : 500) %>
+    </h1>
+
+    <p class="muted" style="font-size: 1.2rem; margin-bottom: 20px;">
+      <%= (typeof message !=='undefined' ? message : "Unexpected error." ) %>
+    </p>
+
+    <% if (typeof details !=='undefined' && details) { %>
+      <div
+        style="text-align: left; background: #1f2937; padding: 15px; border-radius: 8px; overflow: auto; margin-top: 20px; color: #fca5a5;">
+        <pre style="font-size: 0.8rem;"><%= details %></pre>
+      </div>
+      <p style="margin-top: 10px; font-size: 0.9rem; color: #9ca3af;">
+        Check your terminal for more details (like Firebase Indexes).
+      </p>
       <% } %>
-  
-      <a class="btn btn-primary" href="/">Go Home</a>
-    </div>
-  </section>
-  
+
+        <a href="/" class="btn btn-primary" style="margin-top: 30px; display: inline-block;">Go Home</a>
+  </div>
+</section>

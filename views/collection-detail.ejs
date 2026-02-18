@@ -1,0 +1,81 @@
+<link rel="stylesheet" href="/stylesheets/profile.css">
+<link rel="stylesheet" href="/stylesheets/games.css">
+
+<div class="container" style="padding: 60px 0;">
+
+  <div class="collection-header"
+    style="background: #1f2937; padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 40px; position: relative; overflow: hidden;">
+    <div
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(139,92,246,0.1), transparent); z-index: 0;">
+    </div>
+
+    <div
+      style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <span class="badge"
+          style="background: var(--primary); margin-bottom: 10px; display: inline-block;">Collection</span>
+        <h1 style="font-size: 2.5rem; margin: 10px 0; color: #fff;">
+          <%= data.collection.title %>
+        </h1>
+        <p style="color: #9ca3af; font-size: 1.1rem; max-width: 600px;">
+          <%= data.collection.description || "A curated list of games." %>
+        </p>
+
+        <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
+          <img src="<%= data.collection.userAvatar || 'https://ui-avatars.com/api/?name=User' %>"
+            style="width: 32px; height: 32px; border-radius: 50%;">
+          <span style="color: #d1d5db;">Created by <strong style="color: #fff;">
+              <%= data.collection.username %>
+            </strong></span>
+          <span style="color: #6b7280;">• <%= data.collection.games ? data.collection.games.length : 0 %> items</span>
+        </div>
+      </div>
+
+      <% if (data.isOwner) { %>
+        <form action="/collections/<%= data.collection.id %>/delete" method="POST"
+          onsubmit="return confirm('Are you sure you want to delete this collection?');">
+          <button class="btn btn-ghost" style="color: #ef4444; border-color: rgba(239,68,68,0.5);"><i
+              class="fas fa-trash"></i> Delete Collection</button>
+        </form>
+        <% } %>
+    </div>
+  </div>
+
+  <% if (data.collection.games && data.collection.games.length> 0) { %>
+    <div class="grid">
+      <% data.collection.games.forEach(g=> { %>
+        <article class="game-card" style="position: relative;">
+          <div class="game-cover">
+            <img src="<%= g.cover %>" alt="<%= g.name %>" loading="lazy">
+          </div>
+          <div class="game-body">
+            <h3 class="h3">
+              <%= g.name %>
+            </h3>
+            <div class="game-actions">
+              <a class="btn btn-primary btn-sm" href="/games/<%= g.id %>">View</a>
+
+              <% if (data.isOwner) { %>
+                <form action="/collections/<%= data.collection.id %>/remove" method="POST" style="display:inline;">
+                  <input type="hidden" name="gameId" value="<%= g.id %>">
+                  <button type="submit" class="btn btn-ghost btn-sm" title="Remove from list"
+                    style="padding: 5px 10px;">
+                    <i class="fas fa-times" style="color: #ef4444;"></i>
+                  </button>
+                </form>
+                <% } %>
+
+            </div>
+          </div>
+        </article>
+        <% }) %>
+    </div>
+    <% } else { %>
+      <div style="text-align: center; padding: 80px; color: #6b7280; border: 2px dashed #374151; border-radius: 20px;">
+        <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+        <h3 style="color: #fff;">This collection is empty</h3>
+        <p>Go to any game page and click "Add to List" to populate it!</p>
+        <a href="/games" class="btn btn-primary" style="margin-top: 20px; display: inline-block;">Browse Games</a>
+      </div>
+      <% } %>
+</div>

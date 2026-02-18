@@ -265,7 +265,7 @@
   .slider-value { color: #8b5cf6; font-weight: 700; }
   
   .range-input {
-    -webkit-appearance: none; appearance: none; /* CORRECCIÓN AÑADIDA AQUÍ */
+    -webkit-appearance: none; appearance: none;
     width: 100%; height: 6px; background: rgba(255,255,255,0.1);
     border-radius: 5px; outline: none; cursor: pointer;
   }
@@ -294,6 +294,21 @@
     border-radius: 12px; padding: 15px; color: #fff; font-family: inherit; resize: vertical;
   }
   .review-text-area textarea:focus { outline: none; border-color: #8b5cf6; }
+  
+  /* === CHECKBOX Y BOTÓN REVIEW === */
+  .review-form-footer {
+    display: flex; justify-content: space-between; align-items: center; margin-top: 15px;
+  }
+  
+  .spoiler-checkbox {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    color: #ef4444; /* Rojo alerta */
+    font-weight: 600; font-size: 0.9rem; user-select: none;
+  }
+  .spoiler-checkbox input {
+    width: 16px; height: 16px; accent-color: #ef4444; cursor: pointer;
+  }
+  .spoiler-checkbox:hover { opacity: 0.8; }
   
   /* =========================
      USER REVIEWS LIST (VISUAL)
@@ -329,7 +344,70 @@
   .review-score-mini.mid { background: #eab308; }
   .review-score-mini.bad { background: #ef4444; }
   
-  .review-content p { color: #d1d5db; line-height: 1.6; font-size: 0.95rem; margin: 0; }
+  /* === LÓGICA VISUAL DE SPOILERS (CORREGIDA) === */
+  
+  /* Contenedor del texto */
+  .review-content {
+    position: relative;
+    margin-top: 15px;
+    line-height: 1.6;
+    color: #d1d5db;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+  
+  /* Estado: ES UN SPOILER (Activo) */
+  .review-content.is-spoiler {
+    cursor: pointer;
+    user-select: none;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 60px; /* Para asegurar que el aviso cabe */
+  }
+  
+  /* Texto borroso */
+  .review-content.is-spoiler p {
+    filter: blur(8px);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  
+  /* Capa de aviso */
+  .spoiler-overlay {
+    display: none;
+  }
+  
+  /* Mostrar la capa solo si tiene la clase .is-spoiler */
+  .review-content.is-spoiler .spoiler-overlay {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 24, 39, 0.7);
+    color: #ef4444;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    z-index: 10;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    border-radius: 8px;
+  }
+  
+  .review-content.is-spoiler .spoiler-overlay i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  /* Hover effect */
+  .review-content.is-spoiler:hover .spoiler-overlay {
+    background: rgba(17, 24, 39, 0.5);
+    color: #fca5a5;
+    transform: scale(1.02);
+    transition: transform 0.2s;
+  }
   
   /* Barras visuales */
   .review-breakdown-visual {
@@ -344,10 +422,27 @@
   }
   .stat-bar-fill { height: 100%; border-radius: 10px; background: #8b5cf6; }
   .stat-value { width: 25px; text-align: right; font-weight: 700; color: #fff; }
-  
-  .stat-bar-fill.high { background: #34d399; }
-  .stat-bar-fill.med { background: #fbbf24; }
-  .stat-bar-fill.low { background: #ef4444; }
+
+  .reviewer-info-link {
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s;
+  }
+  .reviewer-info-link:hover {
+    opacity: 0.8;
+  }
+
+  /* Enlace del perfil en reviews */
+.reviewer-link {
+  text-decoration: none;
+  color: inherit; /* Hereda el color blanco */
+  transition: opacity 0.2s;
+  display: block; /* Para que ocupe espacio */
+}
+
+.reviewer-link:hover {
+  opacity: 0.7; /* Efecto visual al pasar el ratón */
+}
   
   /* Responsive */
   @media (max-width: 900px) {
@@ -368,4 +463,6 @@
     .detail-scores { width: 100%; justify-content: space-between; padding: 15px; gap: 10px; }
     .score-circle { width: 48px; height: 48px; font-size: 1.1rem; }
     .score-label.main { font-size: 0.75rem; }
+    .review-form-footer { flex-direction: column; gap: 15px; align-items: flex-start; }
+    .btn-block { width: 100%; }
   }

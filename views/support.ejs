@@ -1,27 +1,46 @@
 <link rel="stylesheet" href="/stylesheets/support.css">
 
-<div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+<div class="support-hero">
+  <div class="container" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; padding-top: 40px;">
+    <div style="max-width: 600px;">
+      <span class="hero-tag">Indie Community</span>
+      <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.1; margin: 15px 0; color: #fff;">
+        Support <span style="background: linear-gradient(90deg, #a78bfa 0%, #f472b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Indie Creativity</span>
+      </h1>
+      <p style="color: #9ca3af; font-size: 1.1rem; line-height: 1.6;">
+        Discover unique projects from our community. Donate directly to developers to help them bring their dreams to life.
+      </p>
+    </div>
 
-  <div class="support-hero">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
-      <div>
-        <span class="hero-tag">Indie Community</span>
-        <h1 class="h1">Support <span class="text-gradient">Indie Creativity</span></h1>
-        <p class="muted" style="max-width: 600px; margin-top: 10px;">
-          Discover unique projects from our community. Donate directly to developers to help them bring their dreams to life.
-        </p>
-      </div>
-
+    <div style="margin-top: 20px;">
       <% if (user) { %>
-        <a href="/support-developers/create" class="btn btn-primary" style="height: fit-content; margin-top: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-          <i class="fas fa-rocket"></i> Start Campaign
+        <a href="/support-developers/create" class="btn-donate" style="text-decoration: none; display: inline-flex; width: auto; background: var(--primary); color: white; padding: 12px 24px; font-size: 1rem;">
+          <i class="fas fa-rocket"></i> Launch Project
         </a>
       <% } else { %>
-        <a href="/auth/login" class="btn btn-ghost" style="margin-top: 20px;">Log in to Create</a>
+        <a href="/auth/login" class="btn-donate" style="text-decoration: none; display: inline-flex; width: auto; background: rgba(255,255,255,0.1); color: #fff;">
+          Log in to Create
+        </a>
       <% } %>
     </div>
   </div>
+</div>
 
+<div class="container" style="padding-bottom: 80px;">
+
+  <% if (messages && messages.success) { %>
+    <div class="alert alert-success" style="margin-bottom: 30px; padding: 15px; background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; color: #6ee7b7; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.5s ease;">
+      <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i> 
+      <span style="font-weight: 500;"><%= messages.success %></span>
+    </div>
+  <% } %>
+
+  <% if (messages && messages.error) { %>
+    <div class="alert alert-error" style="margin-bottom: 30px; padding: 15px; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; color: #fca5a5; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.5s ease;">
+      <i class="fas fa-exclamation-circle" style="font-size: 1.2rem;"></i> 
+      <span style="font-weight: 500;"><%= messages.error %></span>
+    </div>
+  <% } %>
   <div class="projects-grid">
     <% if (data.projects && data.projects.length > 0) { %>
       <% data.projects.forEach(project => { %>
@@ -31,11 +50,14 @@
           <a href="/support-developers/<%= project.id %>" class="card-link-wrapper">
             <div class="project-media">
               <img src="<%= project.image %>" alt="<%= project.title %>" loading="lazy">
+              
               <div class="category-badges">
-                <% if(project.tags) { %>
-                  <% project.tags.forEach(tag => { %>
+                <% if(project.tags && project.tags.length > 0) { %>
+                  <% project.tags.slice(0, 2).forEach(tag => { %>
                     <span class="badge"><%= tag %></span>
                   <% }) %>
+                <% } else { %>
+                  <span class="badge">Indie</span>
                 <% } %>
               </div>
             </div>
@@ -43,44 +65,69 @@
 
           <div class="project-body">
             
-            <div class="project-author">
-              <img src="<%= project.authorAvatar %>" alt="Author">
-              <span><%= project.author %></span>
-            </div>
+            <a href="/profile/u/<%= project.authorId %>" style="text-decoration: none; width: fit-content;">
+              <div class="project-author">
+                <img 
+                  src="<%= (project.authorAvatar && project.authorAvatar.startsWith('http')) ? project.authorAvatar : 'https://ui-avatars.com/api/?name=' + (project.author || 'User') + '&background=random&color=fff' %>" 
+                  alt="Author"
+                >
+                <span><%= project.author || 'Anonymous' %></span>
+              </div>
+            </a>
 
-            <a href="/support-developers/<%= project.id %>" class="card-link-wrapper" style="text-decoration: none;">
+            <a href="/support-developers/<%= project.id %>" class="card-link-wrapper">
               <h3 class="project-title"><%= project.title %></h3>
             </a>
 
-            <p class="project-desc"><%= project.desc %></p>
+            <p class="project-desc">
+              <%= (project.desc || "").substring(0, 100) %><%= (project.desc && project.desc.length > 100) ? '...' : '' %>
+            </p>
 
-            <% const percent = Math.min(100, Math.round((project.raised / project.goal) * 100)); %>
+            <% 
+              const goal = project.goal || 1; 
+              const raised = project.raised || 0;
+              const percent = Math.min(100, Math.round((raised / goal) * 100));
+            %>
             
             <div class="funding-section">
               <div class="funding-info">
-                <span class="raised">$<%= project.raised %> <small>of $<%= project.goal %></small></span>
+                <span class="raised">$<%= raised.toLocaleString() %> <small>of $<%= goal.toLocaleString() %></small></span>
                 <span class="percent"><%= percent %>%</span>
               </div>
               <div class="progress-bar-track">
-                <div class="progress-bar-fill" style="width: <%= percent %>%"></div>
+                <div class="progress-bar-fill" style="width: <%= percent %>%;"></div>
               </div>
-              <div style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">
-                <%= project.backers %> backers
+              <div style="font-size: 0.8rem; color: #6b7280; margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-users" style="font-size: 0.75rem;"></i> <%= project.backers || 0 %> backers
               </div>
             </div>
 
-            <button class="btn-donate" onclick="openDonationModal('<%= project.id %>', '<%= project.title %>')">
-              <i class="fas fa-heart"></i> Support this Project
-            </button>
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+              <a href="/support-developers/<%= project.id %>" class="btn-donate" style="background: rgba(255,255,255,0.05); color: #fff; flex: 1;">
+                Details
+              </a>
+              
+              <% if (user) { %>
+                <button class="btn-donate" onclick="openDonationModal('<%= project.id %>', '<%= project.title %>')" style="flex: 1;">
+                  <i class="fas fa-heart"></i> Support
+                </button>
+              <% } else { %>
+                <a href="/auth/login" class="btn-donate" style="flex: 1;">Login</a>
+              <% } %>
+            </div>
 
           </div>
         </article>
 
       <% }) %>
     <% } else { %>
-      <div class="state-container">
+      <div class="state-container" style="grid-column: 1 / -1; text-align: center; padding: 80px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1);">
         <i class="fas fa-gamepad" style="font-size: 3rem; color: #4b5563; margin-bottom: 20px;"></i>
-        <p>No projects launched yet. Be the first to create one!</p>
+        <h3 style="color: #fff; margin-bottom: 10px;">No projects yet</h3>
+        <p style="color: #9ca3af; margin-bottom: 25px;">Be the first developer to launch an indie game campaign!</p>
+        <% if (user) { %>
+          <a href="/support-developers/create" class="btn-donate" style="background: var(--primary); color: white; display: inline-block; width: auto; padding: 10px 25px;">Start Campaign</a>
+        <% } %>
       </div>
     <% } %>
   </div>
@@ -102,7 +149,8 @@
       <label class="donation-label">Select Amount</label>
       <div class="amount-grid">
         <div class="amount-option" onclick="selectAmount(5, this)">$5</div>
-        <div class="amount-option active" onclick="selectAmount(15, this)">$15</div> <div class="amount-option" onclick="selectAmount(50, this)">$50</div>
+        <div class="amount-option active" onclick="selectAmount(15, this)">$15</div> 
+        <div class="amount-option" onclick="selectAmount(50, this)">$50</div>
         <div class="amount-input-wrapper">
           <span>$</span>
           <input type="number" id="customAmount" placeholder="Other" oninput="selectCustomAmount(this)">
@@ -136,7 +184,6 @@
 
   // Abrir Modal
   function openDonationModal(id, projectName) {
-    // Configura la ruta del formulario dinámicamente según el ID del proyecto
     form.action = `/support-developers/donate/${id}`;
     title.innerText = `Support "${projectName}"`;
     modal.classList.add('visible');
@@ -155,24 +202,16 @@
   // Selección de botones ($5, $15...)
   function selectAmount(val, element) {
     amountInput.value = val;
-    customInput.value = ''; // Limpiar campo custom
-    
-    // Reset visual
+    customInput.value = ''; 
     document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.amount-input-wrapper').forEach(el => el.classList.remove('active'));
-    
-    // Activar seleccionado
     element.classList.add('active');
   }
 
   // Escribir cantidad personalizada
   function selectCustomAmount(input) {
-    const val = input.value;
-    amountInput.value = val;
-
-    // Quitar selección de botones predefinidos
+    amountInput.value = input.value;
     document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
-    // Activar borde del input
     input.parentElement.classList.add('active');
   }
 

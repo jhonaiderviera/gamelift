@@ -33,7 +33,7 @@
         <p>Tell us about your next big hit</p>
       </div>
 
-      <form action="/support-developers/create" method="POST" id="createForm" onkeydown="return event.key != 'Enter';">
+      <form action="/support-developers/create" method="POST" id="createProjectForm" onkeydown="return event.key != 'Enter';">
         
         <div class="form-group">
           <label>Game Title</label>
@@ -47,7 +47,7 @@
           <label>Cover Image URL</label>
           <div class="input-wrapper">
             <i class="fas fa-image input-icon"></i>
-            <input type="url" name="imageUrl" class="input-field" placeholder="https://..." required>
+            <input type="url" name="image" class="input-field" placeholder="https://..." required>
           </div>
         </div>
 
@@ -86,7 +86,7 @@
           <textarea name="desc" class="textarea-field" placeholder="What is the story? Key mechanics?..." required></textarea>
         </div>
 
-        <button type="submit" class="btn-submit-project">
+        <button type="submit" class="btn-submit-project" id="btnSubmit">
           Launch Campaign <i class="fas fa-rocket"></i>
         </button>
 
@@ -96,61 +96,73 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="/stylesheets/support-create.css">
+
 <script>
-  let tags = []; // Array para guardar los tags
+  /* --- LÓGICA DE TAGS (Tu código original) --- */
+  let tags = []; 
   const tagInput = document.getElementById('tagInput');
   const tagsList = document.getElementById('tagsList');
   const hiddenInput = document.getElementById('hiddenTagsInput');
 
-  // 1. Escuchar cuando se pulsa ENTER en el input de tags
   tagInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Evitar que envíe el formulario
+      e.preventDefault(); 
       const val = tagInput.value.trim();
       if (val.length > 0) {
         addTag(val);
-        tagInput.value = ''; // Limpiar input
+        tagInput.value = ''; 
       }
     }
   });
 
-  // 2. Función para añadir un Tag
   function addTag(text) {
-    // Evitar duplicados
     if (tags.includes(text)) return; 
-    
-    // Capitalizar primera letra (opcional, estética)
     text = text.charAt(0).toUpperCase() + text.slice(1);
-
     tags.push(text);
     renderTags();
     updateHiddenInput();
   }
 
-  // 3. Función para borrar un Tag
   function removeTag(text) {
     tags = tags.filter(t => t !== text);
     renderTags();
     updateHiddenInput();
   }
 
-  // 4. Renderizar (Dibujar) los tags en pantalla
   function renderTags() {
-    tagsList.innerHTML = ''; // Limpiar visualmente
+    tagsList.innerHTML = ''; 
     tags.forEach(tag => {
-      // Crear el HTML de la "Pildora"
       const pill = document.createElement('div');
       pill.className = 'tag-pill';
-      pill.innerHTML = `
-        ${tag} 
-        <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
-      `;
+      pill.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>`;
       tagsList.appendChild(pill);
     });
   }
 
-  // 5. Actualizar el input oculto (para que el Backend lo reciba)
   function updateHiddenInput() {
     hiddenInput.value = tags.join(', ');
   }
+
+  /* --- LÓGICA ANTI DOBLE CLICK (Lo nuevo) --- */
+  const form = document.getElementById('createProjectForm');
+  const btn = document.getElementById('btnSubmit');
+
+  form.addEventListener('submit', function(e) {
+    // Si ya está deshabilitado, paramos
+    if (btn.disabled) {
+      e.preventDefault();
+      return;
+    }
+
+    // 1. Cambiar texto para feedback visual
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Launching...';
+    
+    // 2. Deshabilitar botón
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
+    
+    // El formulario se enviará ahora al servidor
+  });
 </script>

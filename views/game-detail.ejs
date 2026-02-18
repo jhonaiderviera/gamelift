@@ -1,59 +1,66 @@
-<% 
-  const platformMap = {
-    6:  { icon: 'fab fa-windows', name: 'PC (Windows)' },
-    14: { icon: 'fab fa-apple', name: 'Mac' },
-    3:  { icon: 'fab fa-linux', name: 'Linux' },
-    48: { icon: 'fab fa-playstation', name: 'PS4' },
-    167:{ icon: 'fab fa-playstation', name: 'PS5' },
-    9:  { icon: 'fab fa-playstation', name: 'PS3' },
-    49: { icon: 'fab fa-xbox', name: 'Xbox One' },
-    169:{ icon: 'fab fa-xbox', name: 'Xbox Series' },
-    12: { icon: 'fab fa-xbox', name: 'Xbox 360' },
-    130:{ icon: 'fas fa-gamepad', name: 'Nintendo Switch' },
-    34: { icon: 'fab fa-android', name: 'Android' },
-    39: { icon: 'fab fa-app-store-ios', name: 'iOS' }
-  };
-%>
+<% const platformMap={ 6: { icon: 'fab fa-windows' , name: 'PC (Windows)' }, 14: { icon: 'fab fa-apple' , name: 'Mac' },
+  3: { icon: 'fab fa-linux' , name: 'Linux' }, 48: { icon: 'fab fa-playstation' , name: 'PS4' }, 167:{
+  icon: 'fab fa-playstation' , name: 'PS5' }, 9: { icon: 'fab fa-playstation' , name: 'PS3' }, 49: { icon: 'fab fa-xbox'
+  , name: 'Xbox One' }, 169:{ icon: 'fab fa-xbox' , name: 'Xbox Series' }, 12: { icon: 'fab fa-xbox' , name: 'Xbox 360'
+  }, 130:{ icon: 'fas fa-gamepad' , name: 'Nintendo Switch' }, 34: { icon: 'fab fa-android' , name: 'Android' }, 39: {
+  icon: 'fab fa-app-store-ios' , name: 'iOS' } }; %>
 
-<div class="detail-page">
+  <div class="detail-page">
 
-  <div class="detail-hero">
-    <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
-    <div class="detail-hero__overlay"></div>
+    <div class="detail-hero">
+      <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
+      <div class="detail-hero__overlay"></div>
 
-    <div class="container detail-hero__content">
-      <div class="detail-header" data-game-id="<%= data.id %>" data-name="<%= data.name %>" data-cover="<%= data.coverUrl %>">
-        <div class="detail-cover">
-          <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Cover">
-        </div>
-        <div class="detail-info">
-          <h1 class="detail-title"><%= data.name %></h1>
-          <div class="detail-meta">
-            <span class="detail-date"><%= data.year %></span>
-            <span class="separator">•</span>
-            <span><%= data.companies ? data.companies.split(',')[0] : 'Unknown Dev' %></span>
+      <div class="container detail-hero__content">
+        <div class="detail-header" data-game-id="<%= data.id %>" data-name="<%= data.name %>"
+          data-cover="<%= data.coverUrl %>">
+
+          <div class="detail-cover">
+            <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Cover">
           </div>
-          <div class="detail-genres">
-            <% if (data.genres) { %>
-              <% data.genres.split(', ').forEach(genre => { %>
+
+          <div class="detail-info">
+            <h1 class="detail-title">
+              <%= data.name %>
+            </h1>
+            <div class="detail-meta">
+              <span class="detail-date">
+                <%= data.year %>
+              </span>
+              <span class="separator">•</span>
+              <span>
+                <%= data.companies ? data.companies.split(',')[0] : 'Unknown Dev' %>
+              </span>
+            </div>
+            <div class="detail-genres">
+              <% if (data.genres) { %>
+                <% data.genres.split(', ').forEach(genre => { %>
                 <span class="detail-tag"><%= genre %></span>
               <% }) %>
             <% } %>
           </div>
+          
           <div class="detail-actions">
              <button class="btn btn-primary js-manage-library"><i class="fas fa-plus"></i> Add to Library</button>
              <button class="btn btn-ghost js-manage-favorite"><i class="far fa-heart"></i> Favorite</button>
+             
+             <button class="btn btn-ghost" type="button" onclick="openCollectionModal()">
+               <i class="fas fa-list"></i> Add to List
+             </button>
           </div>
         </div>
 
         <div class="detail-scores">
           <div class="score-box gamelift">
-            <div class="score-circle <%= data.gameliftScore ? ((data.gameliftScore >= 75) ? 'good' : ((data.gameliftScore >= 50) ? 'mid' : 'bad')) : 'mid' %>">
-              <%= data.gameliftScore || '—' %>
+            <div class="score-circle <%= data.gameliftScore ? ((data.gameliftScore >= 75) ? ' good' :
+                  ((data.gameliftScore>= 50) ? 'mid' : 'bad')) : 'mid' %>">
+                  <%= data.gameliftScore || '—' %>
             </div>
             <div class="score-meta">
               <span class="score-label main">GameLift</span>
-              <span class="score-label sub"><%= data.reviewCount > 0 ? `Based on ${data.reviewCount} ratings` : 'No ratings yet' %></span>
+              <span class="score-label sub">
+                <%= data.reviewCount> 0 ? `Based on ${data.reviewCount} ratings` : 'No ratings yet' %>
+              </span>
             </div>
           </div>
           <div class="score-divider"></div>
@@ -61,89 +68,178 @@
             <div class="score-circle <%= (data.rating >= 75) ? 'good' : ((data.rating >= 50) ? 'mid' : 'bad') %>">
               <%= data.rating ? Math.round(data.rating) : '—' %>
             </div>
-             <div class="score-meta"><span class="score-label main">Global</span><span class="score-label sub">Critic Score</span></div>
+            <div class="score-meta"><span class="score-label main">Global</span><span class="score-label sub">Critic
+                Score</span></div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <div class="container detail-body">
     <div class="detail-main">
+
       <section>
         <h3 class="section-title">About</h3>
-        <p class="detail-summary"><%= data.summary %></p>
-        <% if (data.storyline) { %><div style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;"><p>"<%= data.storyline %>"</p></div><% } %>
+        <p class="detail-summary">
+          <%= data.summary %>
+        </p>
+        <% if (data.storyline) { %>
+          <div
+            style="margin-top: 20px; font-style: italic; color: var(--muted); border-left: 3px solid var(--primary); padding-left: 15px;">
+            <p>"<%= data.storyline %>"</p>
+          </div>
+          <% } %>
       </section>
 
-      <% if (data.videos && data.videos.length > 0) { %>
-        <section style="margin-top: 40px;"><h3 class="section-title">Trailer</h3><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/<%= data.videos[0].video_id %>" frameborder="0" allowfullscreen></iframe></div></section>
-      <% } %>
-
-      <% if (data.screenshots && data.screenshots.length > 0) { %>
-        <section style="margin-top: 40px;"><h3 class="section-title">Gallery</h3><div class="detail-gallery"><% data.screenshots.forEach(img => { %><img src="<%= img %>" alt="Screenshot" loading="lazy"><% }) %></div></section>
-      <% } %>
-
-      <section style="margin-top: 60px;" id="reviewSection">
-        <h3 class="section-title">User Reviews</h3>
-        
-        <% if (user) { %>
-          <div class="review-form-card">
-            <div class="review-header">
-              <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo" class="game-logo-small">
-              <span class="review-prompt">What do you think about <strong><%= data.name %></strong>?</span>
-            </div>
-            <form id="gameReviewForm" class="review-grid" data-game-id="<%= data.id %>" data-game-name="<%= data.name %>">
-              <div class="rating-sliders">
-                <div class="slider-group"><div class="slider-label"><span>Story</span><span class="slider-value" id="val-story">80</span></div><input type="range" min="0" max="100" value="80" class="range-input" id="input-story" oninput="updateReviewScore()"></div>
-                <div class="slider-group"><div class="slider-label"><span>Gameplay</span><span class="slider-value" id="val-gameplay">75</span></div><input type="range" min="0" max="100" value="75" class="range-input" id="input-gameplay" oninput="updateReviewScore()"></div>
-                <div class="slider-group"><div class="slider-label"><span>Graphics</span><span class="slider-value" id="val-graphics">90</span></div><input type="range" min="0" max="100" value="90" class="range-input" id="input-graphics" oninput="updateReviewScore()"></div>
-                <div class="slider-group"><div class="slider-label"><span>Sound & Music</span><span class="slider-value" id="val-sound">85</span></div><input type="range" min="0" max="100" value="85" class="range-input" id="input-sound" oninput="updateReviewScore()"></div>
-                <div class="total-score-display"><span>Overall Score</span><div class="big-score-badge good" id="overall-score">83</div></div>
-              </div>
-              <div class="review-text-area">
-                <textarea id="reviewText" placeholder="Share your experience with this game... (Optional)" rows="8"></textarea>
-                <button type="submit" id="submitReviewBtn" class="btn btn-primary btn-block" style="margin-top: auto;">Submit Review</button>
-              </div>
-            </form>
+      <% if (data.videos && data.videos.length> 0) { %>
+        <section style="margin-top: 40px;">
+          <h3 class="section-title">Trailer</h3>
+          <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/<%= data.videos[0].video_id %>" frameborder="0"
+              allowfullscreen></iframe>
           </div>
-        <% } else { %>
-          <div class="review-form-card" style="text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1);">
-            <i class="fas fa-lock" style="font-size: 2rem; color: #8b5cf6; margin-bottom: 15px;"></i>
-            <h4 style="color: #fff; margin-bottom: 10px;">Log in to write a review</h4>
-            <a href="/auth/login" class="btn btn-primary">Sign In / Register</a>
-          </div>
+        </section>
         <% } %>
 
-        <div class="reviews-list" style="margin-top: 30px;">
-           <% if (data.reviews && data.reviews.length > 0) { %>
-             <% data.reviews.forEach(review => { %>
-               <div class="review-card-display">
-                 <div class="review-display-header">
-                   <div class="reviewer-info">
-                     <img src="<%= review.userAvatar || 'https://ui-avatars.com/api/?name=User' %>" class="reviewer-avatar">
-                     <div>
-                       <span class="reviewer-name"><%= review.userName || 'Anonymous' %></span>
-                       <span class="review-date"><%= review.createdAt ? new Date(review.createdAt.seconds * 1000).toLocaleDateString() : 'Recently' %></span>
-                     </div>
-                   </div>
-                   <div class="review-score-mini <%= (review.average >= 80) ? 'good' : ((review.average >= 50) ? 'mid' : 'bad') %>"><%= review.average %></div>
-                 </div>
-                 <div class="review-content"><p><%= review.text %></p></div>
-                 <div class="review-breakdown-visual">
-                   <% const s = review.scores || {story:0, gameplay:0, graphics:0, sound:0}; %>
-                   <div class="stat-row"><span class="stat-label">Story</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.story %>%"></div></div><span class="stat-value"><%= s.story %></span></div>
-                   <div class="stat-row"><span class="stat-label">Gameplay</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.gameplay %>%"></div></div><span class="stat-value"><%= s.gameplay %></span></div>
-                   <div class="stat-row"><span class="stat-label">Graphics</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.graphics %>%"></div></div><span class="stat-value"><%= s.graphics %></span></div>
-                   <div class="stat-row"><span class="stat-label">Sound</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= s.sound %>%"></div></div><span class="stat-value"><%= s.sound %></span></div>
-                 </div>
-               </div>
-             <% }) %>
-           <% } else { %>
-             <div class="empty-state-review"><i class="far fa-comment-dots"></i><p>Be the first to review this game!</p></div>
-           <% } %>
-        </div>
-      </section>
+          <% if (data.screenshots && data.screenshots.length> 0) { %>
+            <section style="margin-top: 40px;">
+              <h3 class="section-title">Gallery</h3>
+              <div class="detail-gallery">
+                <% data.screenshots.forEach(img=> { %>
+                  <img src="<%= img %>" alt="Screenshot" loading="lazy">
+                  <% }) %>
+              </div>
+            </section>
+            <% } %>
+
+              <section style="margin-top: 60px;" id="reviewSection">
+                <h3 class="section-title">User Reviews</h3>
+
+                <% if (user) { %>
+                  <div class="review-form-card">
+                    <div class="review-header">
+                      <img src="<%= data.coverUrl || '/images/no-cover.png' %>" alt="<%= data.name %> Logo"
+                        class="game-logo-small">
+                      <span class="review-prompt">What do you think about <strong>
+                          <%= data.name %>
+                        </strong>?</span>
+                    </div>
+
+                    <form id="gameReviewForm" class="review-grid" data-game-id="<%= data.id %>"
+                      data-game-name="<%= data.name %>">
+                      <div class="rating-sliders">
+                        <div class="slider-group">
+                          <div class="slider-label"><span>Story</span><span class="slider-value"
+                              id="val-story">80</span></div><input type="range" min="0" max="100" value="80"
+                            class="range-input" id="input-story" oninput="updateReviewScore()">
+                        </div>
+                        <div class="slider-group">
+                          <div class="slider-label"><span>Gameplay</span><span class="slider-value"
+                              id="val-gameplay">75</span></div><input type="range" min="0" max="100" value="75"
+                            class="range-input" id="input-gameplay" oninput="updateReviewScore()">
+                        </div>
+                        <div class="slider-group">
+                          <div class="slider-label"><span>Graphics</span><span class="slider-value"
+                              id="val-graphics">90</span></div><input type="range" min="0" max="100" value="90"
+                            class="range-input" id="input-graphics" oninput="updateReviewScore()">
+                        </div>
+                        <div class="slider-group">
+                          <div class="slider-label"><span>Sound & Music</span><span class="slider-value"
+                              id="val-sound">85</span></div><input type="range" min="0" max="100" value="85"
+                            class="range-input" id="input-sound" oninput="updateReviewScore()">
+                        </div>
+                        <div class="total-score-display"><span>Overall Score</span>
+                          <div class="big-score-badge good" id="overall-score">83</div>
+                        </div>
+                      </div>
+
+                      <div class="review-text-area">
+                        <textarea id="reviewText" placeholder="Share your experience with this game... (Optional)"
+                          rows="8"></textarea>
+                        <div class="review-form-footer"
+                          style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                          <label class="spoiler-checkbox"
+                            style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ef4444; font-weight:600; font-size:0.9rem; user-select:none;">
+                            <input type="checkbox" id="spoilerCheck"
+                              style="width:16px; height:16px; accent-color:#ef4444; cursor:pointer;">
+                            <span><i class="fas fa-exclamation-triangle"></i> Contains Spoilers</span>
+                          </label>
+                          <button type="submit" id="submitReviewBtn" class="btn btn-primary">Submit Review</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <% } else { %>
+                    <div class="review-form-card"
+                      style="text-align: center; padding: 40px; border: 1px dashed rgba(255,255,255,0.1);">
+                      <i class="fas fa-lock" style="font-size: 2rem; color: #8b5cf6; margin-bottom: 15px;"></i>
+                      <h4 style="color: #fff; margin-bottom: 10px;">Log in to write a review</h4>
+                      <a href="/auth/login" class="btn btn-primary">Sign In / Register</a>
+                    </div>
+                    <% } %>
+
+                      <div class="reviews-list" style="margin-top: 30px;">
+                        <% if (data.reviews && data.reviews.length> 0) { %>
+                          <% data.reviews.forEach(review=> { %>
+                            <div class="review-card-display">
+                              <div class="review-display-header">
+                                <% if (review.userId) { %>
+                                  <a href="/profile/u/<%= review.userId %>" class="reviewer-info"
+                                    style="text-decoration: none; color: inherit;">
+                                    <img src="<%= review.userAvatar || 'https://ui-avatars.com/api/?name=User' %>"
+                                      class="reviewer-avatar">
+                                    <div>
+                                      <span class="reviewer-name">
+                                        <%= review.userName || 'Anonymous' %>
+                                      </span>
+                                      <span class="review-date">
+                                        <%= review.createdAt ? new Date(review.createdAt.seconds *
+                                          1000).toLocaleDateString() : 'Recently' %>
+                                      </span>
+                                    </div>
+                                  </a>
+                                  <% } else { %>
+                                    <div class="reviewer-info">
+                                      <img src="<%= review.userAvatar || 'https://ui-avatars.com/api/?name=User' %>"
+                                        class="reviewer-avatar">
+                                      <div>
+                                        <span class="reviewer-name">
+                                          <%= review.userName || 'Anonymous' %>
+                                        </span>
+                                        <span class="review-date">
+                                          <%= review.createdAt ? new Date(review.createdAt.seconds *
+                                            1000).toLocaleDateString() : 'Recently' %>
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <% } %>
+                                      <div
+                                        class="review-score-mini <%= (review.average >= 80) ? 'good' : ((review.average >= 50) ? 'mid' : 'bad') %>">
+                                        <%= review.average %>
+                                      </div>
+                              </div>
+
+                              <div class="review-content <%= review.hasSpoilers ? 'is-spoiler' : '' %>"
+                                onclick="this.classList.remove('is-spoiler')">
+                                <% if (review.hasSpoilers) { %>
+                                  <div class="spoiler-overlay"><i class="fas fa-eye-slash"></i><span>Spoiler Alert!
+                                      Click to reveal</span></div>
+                                  <% } %>
+                                    <p>
+                                      <%= review.text %>
+                                    </p>
+                              </div>
+                            </div>
+                            <% }) %>
+                              <% } else { %>
+                                <div class="empty-state-review"><i class="far fa-comment-dots"></i>
+                                  <p>Be the first to review this game!</p>
+                                </div>
+                                <% } %>
+                      </div>
+              </section>
     </div>
 
     <aside class="detail-sidebar">
@@ -151,106 +247,365 @@
         <ul class="info-list">
           <li style="flex-direction: column; align-items: flex-start; gap: 10px;">
             <span class="sidebar-label">Available on</span>
-            <% if (data.platforms && data.platforms.length > 0) { %>
+            <% if (data.platforms && data.platforms.length> 0) { %>
               <div class="platform-logos">
-                <% data.platforms.forEach(p => { %>
-                  <% const plat = platformMap[p.id]; %>
-                  <% if (plat) { %><i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i><% } else { %><span class="platform-text-fallback" title="<%= p.name %>"><%= p.abbreviation || p.name.substring(0,3) %></span><% } %>
-                <% }) %>
+                <% data.platforms.forEach(p=> { %>
+                  <% const plat=platformMap[p.id]; %>
+                    <% if (plat) { %><i class="<%= plat.icon %> platform-icon" title="<%= p.name %>"></i>
+                      <% } else { %><span class="platform-text-fallback" title="<%= p.name %>">
+                          <%= p.abbreviation || p.name.substring(0,3) %>
+                        </span>
+                        <% } %>
+                          <% }) %>
               </div>
-            <% } else { %><span class="text-muted">N/A</span><% } %>
+              <% } else { %><span class="text-muted">N/A</span>
+                <% } %>
           </li>
-          <li><span class="sidebar-label">Release Year</span><span><%= data.year %></span></li>
-          <li><span class="sidebar-label">Developer</span><span style="text-align: right;"><%= data.companies ? data.companies.split(',')[0] : 'Unknown' %></span></li>
+          <li><span class="sidebar-label">Release Year</span><span>
+              <%= data.year %>
+            </span></li>
+          <li><span class="sidebar-label">Developer</span><span style="text-align: right;">
+              <%= data.companies ? data.companies.split(',')[0] : 'Unknown' %>
+            </span></li>
         </ul>
       </div>
     </aside>
   </div>
-</div>
+  </div>
 
-<script>
-  // 1. Lógica Visual de los Sliders (Sin cambios)
-  function updateReviewScore() {
-    const s = parseInt(document.getElementById('input-story').value) || 0;
-    const g = parseInt(document.getElementById('input-gameplay').value) || 0;
-    const gr = parseInt(document.getElementById('input-graphics').value) || 0;
-    const so = parseInt(document.getElementById('input-sound').value) || 0;
+  <div id="collectionModal" class="modal-wrapper">
+    <div class="modal-backdrop" onclick="closeCollectionModal()"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Add to Collection</h3>
+        <button onclick="closeCollectionModal()" class="btn-close"><i class="fas fa-times"></i></button>
+      </div>
 
-    document.getElementById('val-story').innerText = s; 
-    document.getElementById('val-gameplay').innerText = g;
-    document.getElementById('val-graphics').innerText = gr; 
-    document.getElementById('val-sound').innerText = so;
+      <div class="modal-content">
+        <% if (user) { %>
 
-    const avg = Math.round((s + g + gr + so) / 4);
+          <div id="collections-list-container" class="list-options">
+            <% if (data.userCollections && data.userCollections.length> 0) { %>
+              <% data.userCollections.forEach(col=> { %>
+                <button onclick="addToCollection('<%= col.id %>')" class="list-btn">
+                  <i class="fas fa-folder"></i> <span class="col-title">
+                    <%= col.title %>
+                  </span>
+                </button>
+                <% }) %>
+                  <% } else { %>
+                    <div id="empty-state-msg" class="empty-modal" style="padding: 10px;">
+                      <p>No collections yet.</p>
+                    </div>
+                    <% } %>
+          </div>
 
-    const badge = document.getElementById('overall-score');
-    if (badge) {
-      badge.innerText = avg;
-      badge.className = 'big-score-badge';
-      if (avg >= 80) badge.classList.add('good');
-      else if (avg >= 50) badge.classList.add('mid');
-      else badge.classList.add('bad');
+          <div class="create-collection-mini"
+            style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="newCollectionName" placeholder="New collection name..."
+                style="flex:1; background: #111827; border: 1px solid #374151; color: #fff; padding: 10px; border-radius: 6px; outline: none;">
+              <button onclick="createCollectionAjax()" class="btn-save"
+                style="padding: 0 15px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <% } else { %>
+            <div class="empty-modal">
+              <p>Login to use collections</p>
+              <a href="/auth/login" class="btn btn-primary">Login</a>
+            </div>
+            <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-notification" class="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <span id="toast-message">Success!</span>
+  </div>
+
+  <style>
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      font-weight: 600;
+      z-index: 100001;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-  }
 
-  // 2. Lógica de Envío (ANTI-DUPLICADOS)
-  const reviewForm = document.getElementById('gameReviewForm');
-  
-  if (reviewForm) {
-    // Usamos una bandera para saber si ya se está enviando
-    let isSubmitting = false;
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
 
-    reviewForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation(); // Detiene otros scripts que intenten enviar
+    .toast.error {
+      background: #ef4444;
+    }
 
-      if (isSubmitting) return; // Si ya está enviando, no hace nada
-      isSubmitting = true;
+    .toast-icon {
+      font-size: 1.2rem;
+    }
 
-      // 1. Bloquear botón visualmente
-      const btn = document.getElementById('submitReviewBtn');
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-      btn.style.opacity = "0.7";
+    /* MODAL */
+    .modal-wrapper {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99999;
+      justify-content: center;
+      align-items: center;
+    }
 
-      const gameId = reviewForm.getAttribute('data-game-id');
-      const gameName = reviewForm.getAttribute('data-game-name');
-      const text = document.getElementById('reviewText').value;
+    .modal-wrapper.show {
+      display: flex !important;
+    }
 
-      const scores = {
-        story: document.getElementById('input-story').value,
-        gameplay: document.getElementById('input-gameplay').value,
-        graphics: document.getElementById('input-graphics').value,
-        sound: document.getElementById('input-sound').value
-      };
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-box {
+      position: relative;
+      background: #1f2937;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      z-index: 100000;
+      overflow: hidden;
+      animation: modalPop 0.3s ease-out;
+    }
+
+    @keyframes modalPop {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-head {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.2rem;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .btn-close:hover {
+      color: #fff;
+    }
+
+    .modal-content {
+      padding: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .list-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .list-btn {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.05);
+      color: #e5e7eb;
+      border: 1px solid transparent;
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+
+    .list-btn:hover {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .list-btn i {
+      color: var(--primary);
+    }
+
+    .empty-modal {
+      text-align: center;
+      color: #9ca3af;
+      padding: 10px;
+    }
+  </style>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast-notification');
+      const msgSpan = document.getElementById('toast-message');
+      msgSpan.innerText = message;
+      if (type === 'error') { toast.classList.add('error'); toast.querySelector('i').className = 'fas fa-exclamation-circle toast-icon'; }
+      else { toast.classList.remove('error'); toast.querySelector('i').className = 'fas fa-check-circle toast-icon'; }
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function openCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.add('show'); }
+    function closeCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.remove('show'); }
+
+    // 1. REVIEWS (Sliders)
+    function updateReviewScore() {
+      const s = parseInt(document.getElementById('input-story').value) || 0;
+      const g = parseInt(document.getElementById('input-gameplay').value) || 0;
+      const gr = parseInt(document.getElementById('input-graphics').value) || 0;
+      const so = parseInt(document.getElementById('input-sound').value) || 0;
+      document.getElementById('val-story').innerText = s;
+      document.getElementById('val-gameplay').innerText = g;
+      document.getElementById('val-graphics').innerText = gr;
+      document.getElementById('val-sound').innerText = so;
+      const avg = Math.round((s + g + gr + so) / 4);
+      const badge = document.getElementById('overall-score');
+      if (badge) { badge.innerText = avg; badge.className = 'big-score-badge ' + (avg >= 80 ? 'good' : avg >= 50 ? 'mid' : 'bad'); }
+    }
+
+    const reviewForm = document.getElementById('gameReviewForm');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitReviewBtn');
+        const originalText = btn.innerText;
+        btn.disabled = true; btn.innerText = 'Posting...';
+        try {
+          const gameId = reviewForm.getAttribute('data-game-id');
+          const res = await fetch(`/games/${gameId}/reviews`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              gameId, gameName: reviewForm.getAttribute('data-game-name'),
+              text: document.getElementById('reviewText').value,
+              hasSpoilers: document.getElementById('spoilerCheck').checked,
+              scores: {
+                story: document.getElementById('input-story').value,
+                gameplay: document.getElementById('input-gameplay').value,
+                graphics: document.getElementById('input-graphics').value,
+                sound: document.getElementById('input-sound').value
+              }
+            })
+          });
+          if (res.ok) window.location.reload();
+          else { showToast("Error submitting review", 'error'); btn.disabled = false; btn.innerText = originalText; }
+        } catch (e) { console.error(e); showToast("Server error", 'error'); btn.disabled = false; btn.innerText = originalText; }
+      });
+    }
+
+    // 2. AÑADIR A COLECCIÓN EXISTENTE
+    async function addToCollection(listId) {
+      try {
+        const res = await fetch(`/collections/${listId}/add`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: '<%= data.id %>',
+            gameName: '<%= data.name %>',
+            gameCover: '<%= data.coverUrl %>'
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          closeCollectionModal();
+          showToast("Added to collection! 💾");
+        } else {
+          showToast(json.msg || 'Error adding to list', 'error');
+        }
+      } catch (e) { console.error(e); showToast('Network error', 'error'); }
+    }
+
+    // 3. NUEVO: CREAR COLECCIÓN RÁPIDA (AJAX)
+    async function createCollectionAjax() {
+      const input = document.getElementById('newCollectionName');
+      const title = input.value;
+
+      if (!title || title.trim() === "") {
+        showToast("Please enter a name", 'error');
+        return;
+      }
 
       try {
-        const response = await fetch(`/games/${gameId}/reviews`, {
+        const res = await fetch('/collections/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gameId, gameName, scores, text })
+          body: JSON.stringify({ title: title })
         });
+        const json = await res.json();
 
-        if (response.ok) {
-          // Éxito: Recargar página
-          window.location.reload();
+        if (json.success) {
+          showToast("Collection created! 🎉");
+          input.value = ""; // Limpiar input
+
+          // Eliminar mensaje de "vacío" si existe
+          const emptyMsg = document.getElementById('empty-state-msg');
+          if (emptyMsg) emptyMsg.style.display = 'none';
+
+          // Crear el nuevo botón dinámicamente
+          const listContainer = document.getElementById('collections-list-container');
+          const newBtn = document.createElement('button');
+          newBtn.className = 'list-btn';
+          newBtn.onclick = function () { addToCollection(json.id); };
+          newBtn.innerHTML = `<i class="fas fa-folder"></i> <span class="col-title">${json.title}</span>`;
+
+          // Añadir al principio de la lista
+          listContainer.insertBefore(newBtn, listContainer.firstChild);
+
+          // Opcional: Auto-click para añadir el juego directamente
+          // addToCollection(json.id); 
+
         } else {
-          // Error: Restaurar botón
-          alert("Error submitting review.");
-          isSubmitting = false;
-          btn.disabled = false;
-          btn.innerText = originalText;
-          btn.style.opacity = "1";
+          showToast(json.msg || "Error creating", 'error');
         }
-      } catch (error) {
-        console.error(error);
-        alert("Server error.");
-        isSubmitting = false;
-        btn.disabled = false;
-        btn.innerText = originalText;
-        btn.style.opacity = "1";
+      } catch (e) {
+        console.error(e);
+        showToast("Server Error", 'error');
       }
-    });
-  }
-</script>
+    }
+  </script>

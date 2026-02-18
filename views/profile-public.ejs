@@ -1,0 +1,107 @@
+<link rel="stylesheet" href="/stylesheets/profile.css">
+
+<div class="profile-container">
+
+  <div class="profile-header-card">
+    <div class="profile-banner"></div>
+    <div class="profile-identity">
+      <div class="avatar-container">
+        <img src="<%= data.photoUrl || 'https://ui-avatars.com/api/?background=random&color=fff&name=' + data.username %>" alt="<%= data.username %>">
+      </div>
+      
+      <div class="user-details">
+        <div class="name-row">
+          <h1><%= data.username %></h1>
+          <span class="user-role-badge <%= data.roleClass %>"><%= data.roleLabel %></span>
+          
+          <% if (data.tags && data.tags.length > 0) { %>
+            <div class="user-tags-list">
+              <% data.tags.forEach(tag => { %>
+                <span class="user-tag"><%= tag %></span>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+        
+        <div class="bio-display">
+          <p class="user-bio-text"><%= data.bio || "No bio yet." %></p>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat-box">
+            <span class="stat-number"><%= data.followersCount %></span>
+            <span class="stat-label">Followers</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number"><%= data.followingCount %></span>
+            <span class="stat-label">Following</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <% if (user) { %>
+          <form action="/profile/u/<%= data.uid %>/follow" method="POST">
+            <% if (data.amIFollowing) { %>
+              <button type="submit" class="btn-action" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.5);">
+                <i class="fas fa-user-minus"></i> Unfollow
+              </button>
+            <% } else { %>
+              <button type="submit" class="btn-action" style="background: #8b5cf6; color: #fff; border: none;">
+                <i class="fas fa-user-plus"></i> Follow
+              </button>
+            <% } %>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-tabs">
+    <button class="tab-btn active">Reviews (<%= data.reviews.length %>)</button>
+    <% if (data.projects.length > 0) { %>
+      <button class="tab-btn">Projects (<%= data.projects.length %>)</button>
+    <% } %>
+  </div>
+
+  <div class="tab-content active" style="display:block;">
+    <% if (data.reviews.length > 0) { %>
+      <div class="grid-layout">
+        <% data.reviews.forEach(review => { %>
+          <div class="review-card-profile">
+            <div class="review-header">
+              <h4><%= review.gameName %></h4>
+              <div class="score-badge"><%= review.average %></div>
+            </div>
+            <p class="review-text">"<%= review.text %>"</p>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-comment-slash"></i>
+        <h3>No public reviews.</h3>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (data.projects.length > 0) { %>
+    <div class="tab-content" style="margin-top: 30px;">
+      <h3 style="color:#fff; margin-bottom:15px;">Projects</h3>
+      <div class="grid-layout">
+        <% data.projects.forEach(project => { %>
+          <div class="mini-project-card">
+            <div class="mini-cover">
+              <img src="<%= project.image %>" loading="lazy">
+            </div>
+            <div class="mini-info">
+              <h3><%= project.title %></h3>
+              <a href="/support-developers/<%= project.id %>" class="btn-view">View</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+</div>

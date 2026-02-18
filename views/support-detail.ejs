@@ -1,8 +1,29 @@
+<link rel="stylesheet" href="/stylesheets/support-detail.css">
+<link rel="stylesheet" href="/stylesheets/support.css"> 
+
 <div class="detail-bg-backdrop" style="background-image: url('<%= data.project.image %>');"></div>
 <div class="detail-bg-overlay"></div>
 
 <div class="container project-detail-container">
+
+  <% if (messages && messages.success) { %>
+    <div class="alert alert-success" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <i class="fas fa-check-circle"></i> <%= messages.success %>
+    </div>
+  <% } %>
   
+  <% 
+    const myId = user ? (user.uid || user.id) : null;
+    // Verificamos si soy el dueño
+    const isMe = (myId && data.project.authorId && myId === data.project.authorId);
+    
+    // Verificamos si sigo a este usuario
+    let isFollowing = false;
+    if (user && user.following && Array.isArray(user.following) && data.project.authorId && user.following.includes(data.project.authorId)) {
+      isFollowing = true;
+    }
+  %>
+
   <div class="detail-header">
     <a href="/support-developers" class="back-link"><i class="fas fa-arrow-left"></i> Back to Hub</a>
     
@@ -16,13 +37,13 @@
       </div>
       <h1 class="project-title-large"><%= data.project.title %></h1>
       
-      <div class="creator-mini-profile">
-        <img src="<%= data.project.authorAvatar %>" alt="<%= data.project.author %>">
+      <a href="/profile/u/<%= data.project.authorId %>" class="creator-mini-profile profile-link">
+        <img src="<%= (data.project.authorAvatar && data.project.authorAvatar.startsWith('http')) ? data.project.authorAvatar : 'https://ui-avatars.com/api/?name=' + (data.project.author || 'User') + '&background=random&color=fff' %>" alt="Creator">
         <div class="creator-info">
           <span class="label">Created by</span>
           <span class="name"><%= data.project.author %></span>
         </div>
-      </div>
+      </a>
     </div>
   </div>
 
@@ -33,78 +54,93 @@
         <img src="<%= data.project.image %>" alt="<%= data.project.title %>" class="main-image">
       </div>
 
-      <div class="description-section">
-        <h3>About this Project</h3>
-        <div class="text-content">
-          <p><%= data.project.desc %></p>
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <button class="tab-link active" onclick="openTab(event, 'tab-about')">About</button>
+          <button class="tab-link" onclick="openTab(event, 'tab-updates')">
+            Devlogs <span class="counter-badge"><%= data.updates ? data.updates.length : 0 %></span>
+          </button>
+        </div>
+
+        <div id="tab-about" class="tab-content active">
+          <div class="text-content">
+            <p><%= data.project.desc %></p>
+          </div>
+        </div>
+
+        <div id="tab-updates" class="tab-content">
+          <% if (isMe) { %>
+            <div class="post-update-card">
+              <h4><i class="fas fa-bullhorn"></i> Post a Devlog</h4>
+              <form action="/support-developers/<%= data.project.id %>/post-update" method="POST">
+                <input type="text" name="title" class="update-input" placeholder="Update Title" required>
+                <textarea name="content" class="update-textarea" rows="4" placeholder="Share updates..." required></textarea>
+                <button type="submit" class="btn-post-update">Publish</button>
+              </form>
+            </div>
+          <% } %>
+
+          <div class="updates-timeline">
+            <% if (data.updates && data.updates.length > 0) { %>
+              <% data.updates.forEach(update => { %>
+                <div class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <span class="update-date"><%= update.dateFormatted %></span>
+                    <h3 class="update-title"><%= update.title %></h3>
+                    <div class="update-body"><%= update.content %></div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="empty-updates"><i class="fas fa-scroll"></i><p>No updates yet.</p></div>
+            <% } %>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="detail-right">
       <div class="funding-card sticky-card">
+        <% const percent = data.project.goal > 0 ? Math.min(100, Math.round((data.project.raised / data.project.goal) * 100)) : 0; %>
         
-        <% const percent = Math.min(100, Math.round((data.project.raised / data.project.goal) * 100)); %>
         <div class="progress-section">
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" style="width: <%= percent %>%"></div>
-          </div>
+          <div class="progress-bar-track"><div class="progress-bar-fill" style="width: <%= percent %>%"></div></div>
           <span class="percent-badge"><%= percent %>% Funded</span>
         </div>
 
         <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value">$<%= data.project.raised %></span>
-            <span class="stat-label">raised of $<%= data.project.goal %></span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value"><%= data.project.backers %></span>
-            <span class="stat-label">backers</span>
-          </div>
+          <div class="stat-item"><span class="stat-value">$<%= data.project.raised ? data.project.raised.toLocaleString() : 0 %></span><span class="stat-label">raised</span></div>
+          <div class="stat-item"><span class="stat-value"><%= data.project.backers || 0 %></span><span class="stat-label">backers</span></div>
         </div>
 
-        <button class="btn-donate-large" onclick="openDonationModal('<%= data.project.id %>', '<%= data.project.title %>')">
-          Support this Project
-        </button>
+        <% if (isMe) { %>
+          <button class="btn-donate-large" disabled style="background: #334155; color: #94a3b8; cursor: default;">
+            <i class="fas fa-user-check"></i> This is your project
+          </button>
+        <% } else if (user) { %>
+          <button class="btn-donate-large" onclick="openDonationModal('<%= data.project.id %>', '<%= data.project.title %>')">
+            Support this Project
+          </button>
+        <% } else { %>
+          <a href="/auth/login" class="btn-donate-large" style="text-align:center; text-decoration:none; display:block;">
+            Log in to Support
+          </a>
+        <% } %>
 
-        <p class="disclaimer">
-          All donations go directly to the developer to support the creation of this game.
-        </p>
-
+        <p class="disclaimer">All donations go directly to the developer.</p>
         <hr class="divider">
 
         <div class="creator-card-profile">
-          <div class="avatar-wrapper">
-            <img src="<%= data.project.authorAvatar %>" alt="Creator">
-          </div>
-          <div>
-            <strong><%= data.project.author %></strong>
-            <p>Indie Developer</p>
-          </div>
-
-          <% 
-            let isFollowing = false;
-            // Verificar si el usuario actual tiene el ID del creador en su lista 'following'
-            if (user && user.following && data.project.authorId && user.following.includes(data.project.authorId)) {
-              isFollowing = true;
-            }
-            // Verificar si soy yo mismo (para no mostrar el botón)
-            const myId = user ? (user.uid || user.id) : null;
-            const isMe = (myId && data.project.authorId && myId === data.project.authorId);
-          %>
-
+          <a href="/profile/u/<%= data.project.authorId %>" class="profile-link" style="flex: 1; gap: 15px;">
+            <div class="avatar-wrapper"><img src="<%= (data.project.authorAvatar && data.project.authorAvatar.startsWith('http')) ? data.project.authorAvatar : 'https://ui-avatars.com/api/?name=' + (data.project.author || 'User') + '&background=random&color=fff' %>" alt="Creator"></div>
+            <div><strong><%= data.project.author %></strong><p>Indie Developer</p></div>
+          </a>
+          
           <% if (!isMe && data.project.authorId) { %>
-            <button 
-              id="followBtn" 
-              class="btn-follow <%= isFollowing ? 'active' : '' %>"
-              onclick="toggleFollow('<%= data.project.authorId %>')"
-            >
-              <%= isFollowing ? 'Unfollow' : 'Follow' %>
-            </button>
+            <button id="followBtn" class="btn-follow <%= isFollowing ? 'active' : '' %>" onclick="toggleFollow('<%= data.project.authorId %>')"><%= isFollowing ? 'Unfollow' : 'Follow' %></button>
           <% } %>
-
         </div>
-
       </div>
     </div>
 
@@ -114,10 +150,7 @@
 <div id="donationModal" class="modal-overlay">
   <div class="donation-card">
     <div class="modal-header">
-      <div>
-        <h3 id="modalProjectTitle">Support Project</h3>
-        <p style="font-size:0.9rem; color:#9ca3af; margin:0;">Make a difference today</p>
-      </div>
+      <div><h3 id="modalProjectTitle">Support Project</h3><p style="font-size:0.9rem; color:#9ca3af; margin:0;">Make a difference today</p></div>
       <button onclick="closeDonationModal()" class="close-modal-btn"><i class="fas fa-times"></i></button>
     </div>
     <form id="donationForm" action="" method="POST">
@@ -126,61 +159,70 @@
         <div class="amount-option" onclick="selectAmount(5, this)">$5</div>
         <div class="amount-option active" onclick="selectAmount(15, this)">$15</div>
         <div class="amount-option" onclick="selectAmount(50, this)">$50</div>
-        <div class="amount-input-wrapper">
-          <span>$</span>
-          <input type="number" id="customAmount" placeholder="Other" oninput="selectCustomAmount(this)">
-        </div>
+        <div class="amount-input-wrapper"><span>$</span><input type="number" id="customAmount" placeholder="Other" oninput="selectCustomAmount(this)"></div>
       </div>
       <input type="hidden" name="amount" id="finalAmount" value="15">
       <label class="donation-label" style="margin-top: 20px;">Payment Method</label>
-      <div class="payment-methods">
-        <div class="payment-option active"><i class="fab fa-cc-visa"></i> Card</div>
-        <div class="payment-option"><i class="fab fa-paypal"></i> PayPal</div>
-        <div class="payment-option"><i class="fab fa-google-pay"></i> Pay</div>
-      </div>
-      <button type="submit" class="btn-confirm-donation">
-        Donate Now <i class="fas fa-arrow-right"></i>
-      </button>
+      <div class="payment-methods"><div class="payment-option active"><i class="fab fa-cc-visa"></i> Card</div><div class="payment-option"><i class="fab fa-paypal"></i> PayPal</div><div class="payment-option"><i class="fab fa-google-pay"></i> Pay</div></div>
+      <button type="submit" class="btn-confirm-donation">Donate Now <i class="fas fa-arrow-right"></i></button>
       <p class="secure-text"><i class="fas fa-lock"></i> Secure SSL Encrypted Transaction</p>
     </form>
   </div>
 </div>
 
-<script src="/javascripts/support-modal.js"></script>
-
 <script>
-  // Lógica AJAX para Seguir/Dejar de seguir
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+    tablinks = document.getElementsByClassName("tab-link");
+    for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+  
+  // Auto-open Updates if param exists
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('tab') === 'updates') { document.querySelector("button[onclick*='tab-updates']").click(); }
+
+  // Modal logic
+  const modal = document.getElementById('donationModal');
+  const form = document.getElementById('donationForm');
+  const title = document.getElementById('modalProjectTitle');
+  const amountInput = document.getElementById('finalAmount');
+  const customInput = document.getElementById('customAmount');
+
+  function openDonationModal(id, projectName) {
+    form.action = `/support-developers/donate/${id}`;
+    title.innerText = `Support "${projectName}"`;
+    modal.classList.add('visible');
+  }
+  function closeDonationModal() { modal.classList.remove('visible'); }
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeDonationModal(); });
+
+  function selectAmount(val, element) {
+    amountInput.value = val; customInput.value = '';
+    document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.amount-input-wrapper').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+  }
+  function selectCustomAmount(input) {
+    amountInput.value = input.value;
+    document.querySelectorAll('.amount-option').forEach(el => el.classList.remove('active'));
+    input.parentElement.classList.add('active');
+  }
+
   async function toggleFollow(targetId) {
     const btn = document.getElementById('followBtn');
     if(!btn) return;
-
-    // Estado de carga optimista
-    const originalText = btn.innerText;
-    btn.innerText = "...";
-    
+    const originalText = btn.innerText; btn.innerText = "...";
     try {
-      const response = await fetch(`/users/follow/${targetId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
+      const response = await fetch(`/users/follow/${targetId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const result = await response.json();
-      
       if (result.success) {
-        if (result.action === "followed") {
-          btn.innerText = "Unfollow";
-          btn.classList.add("active");
-        } else {
-          btn.innerText = "Follow";
-          btn.classList.remove("active");
-        }
-      } else {
-        alert("Error: " + result.message);
-        btn.innerText = originalText;
-      }
-    } catch (error) {
-      console.error(error);
-      btn.innerText = originalText;
-    }
+        if (result.action === "followed") { btn.innerText = "Unfollow"; btn.classList.add("active"); } 
+        else { btn.innerText = "Follow"; btn.classList.remove("active"); }
+      } else { alert("Error: " + result.message); btn.innerText = originalText; }
+    } catch (error) { console.error(error); btn.innerText = originalText; }
   }
 </script>

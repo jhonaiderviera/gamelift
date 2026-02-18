@@ -1,116 +1,253 @@
-/* auth.css - Split-Screen Design */
+/* auth.css - Diseño Pantalla Dividida Refinado */
 
-/* El contenedor principal ocupa toda la pantalla y se divide en dos */
+/* Contenedor principal fijo */
 .auth-wrapper {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    z-index: 10;
-    background: var(--bg); /* Fondo base por si acaso */
-  }
-  
-  /* --- COLUMNA IZQUIERDA (Formulario) --- */
-  .auth-left {
-    flex: 1; /* Ocupa el 50% o el espacio restante */
-    background: #0a0a12; /* Color sólido oscuro para el lado del formulario */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    position: relative;
-  }
-  
-  /* La tarjeta del formulario ahora es transparente para integrarse */
-  .auth-card {
-    width: 100%;
-    max-width: 420px;
-    background: transparent; /* Sin fondo propio */
-    box-shadow: none; /* Sin sombra */
-    border: none;
-    position: relative;
-    z-index: 20;
-    animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  
-  /* --- COLUMNA DERECHA (Imagen) --- */
-  .auth-right {
-    flex: 1.2; /* Un poco más ancha para dar protagonismo a la imagen */
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    position: relative;
-    /* Overlay opcional para que el texto de la imagen no compita, si lo hubiera */
-  }
-  
-  .auth-right::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to left, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
-    pointer-events: none;
-  }
-  
-  
-  /* --- ESTILOS DEL FORMULARIO (Igual que antes, pero ajustados) --- */
-  .auth-header { text-align: left; margin-bottom: 30px; } /* Alineado a la izquierda */
-  .auth-logo { 
-    font-family: 'Poppins', sans-serif; 
-    font-weight: 900; font-size: 32px; letter-spacing: 0.1em; 
-    background: linear-gradient(to right, #fff, #b6b7c9);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    display: inline-block; margin-bottom: 12px;
-  }
-  .auth-title { margin: 0; font-size: 2.2rem; font-weight: 700; color: #fff; }
-  .auth-subtitle { color: var(--muted); font-size: 1rem; margin-top: 8px; max-width: 80%; }
-  
-  /* Inputs con fondo más oscuro */
-  .auth-form { display: flex; flex-direction: column; gap: 18px; }
-  .form-input {
-    width: 100%;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1rem;
-    transition: 0.3s ease;
-  }
-  .form-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  /* Checklist de contraseña */
-  .password-requirements {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: -8px;
-  }
-  .req-item { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-  .req-item i { font-size: 12px; }
-  .req-item.valid { color: #4ade80; }
-  .req-item.valid i::before { content: "✓"; font-weight: bold; }
-  .req-item.invalid i::before { content: "○"; }
-  
-  /* Botones y Footer */
-  .form-options { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--muted); }
-  .custom-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-  .custom-check input { accent-color: var(--primary); width: 16px; height: 16px; }
-  .form-footer { text-align: left; margin-top: 24px; color: var(--muted); font-size: 0.95rem; }
-  .auth-link { color: var(--primary); font-weight: 600; }
-  .btn-block { width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 8px; }
-  .alert-error { background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.3); color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
-  
-  /* Responsive: En móviles se apila */
-  @media (max-width: 900px) {
-    .auth-wrapper { flex-direction: column-reverse; position: relative; height: auto; min-height: 100vh; }
-    .auth-right { flex: none; height: 35vh; width: 100%; }
-    .auth-left { flex: none; width: 100%; padding: 30px 20px; }
-    .auth-card { max-width: 100%; }
-  }
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  z-index: 10;
+  background: #0a0a12; /* Fondo de seguridad */
+}
+
+/* --- COLUMNA IZQUIERDA (Formulario) --- */
+.auth-left {
+  flex: 1;
+  background: #0a0a12;
+  display: flex;
+  flex-direction: column;
+  /* CAMBIO CLAVE: Alineamos arriba en vez de al centro para evitar choques */
+  align-items: center;
+  justify-content: flex-start; 
+  /* Espacio superior generoso para librar el Navbar */
+  padding-top: 140px; 
+  padding-bottom: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
+  position: relative;
+  overflow-y: auto; /* Scroll si la pantalla es pequeña */
+}
+
+/* La tarjeta del formulario */
+.auth-card {
+  width: 100%;
+  max-width: 440px; /* Un pelín más ancho para que respire */
+  background: transparent;
+  position: relative;
+  z-index: 20;
+  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- HEADER --- */
+.auth-header { margin-bottom: 35px; text-align: center; } /* Centramos textos del header */
+.auth-logo { 
+  display: inline-block; font-weight: 900; letter-spacing: 3px; 
+  color: var(--primary); margin-bottom: 15px; font-size: 0.85rem; 
+  text-transform: uppercase;
+}
+.auth-title { 
+  font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0 0 10px 0; line-height: 1.1; 
+}
+.auth-subtitle { color: #9ca3af; font-size: 1.05rem; line-height: 1.5; }
+
+/* --- FORMULARIO --- */
+.form-group { margin-bottom: 20px; position: relative; }
+
+.form-input {
+  width: 100%;
+  background: #13141f; /* Fondo un poco más claro que el base */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px; /* Bordes más redondeados */
+  padding: 16px 20px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  background: #1a1b26;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+.form-input::placeholder { color: #52525b; }
+
+/* Checklist de contraseña */
+.password-requirements {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+  margin-top: -5px; margin-bottom: 25px;
+  padding: 10px; background: rgba(255,255,255,0.02); border-radius: 10px;
+}
+.req-item { font-size: 0.75rem; color: #6b7280; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: 0.3s; }
+.req-item i { width: 6px; height: 6px; border-radius: 50%; background: #4b5563; transition: 0.3s; }
+.req-item.valid { color: #34d399; }
+.req-item.valid i { background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
+.req-item.invalid { color: #6b7280; }
+
+/* --- TARJETA DE ROL (LOS BOTONES QUE TE GUSTAN) --- */
+.role-card {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  margin-top: 30px;
+  margin-bottom: 25px;
+  user-select: none;
+}
+
+.role-card input {
+  position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0;
+}
+
+.role-content {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  background: linear-gradient(145deg, #161722, #13141f);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Efecto Hover */
+.role-card:hover .role-content {
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Icono */
+.role-icon {
+  width: 50px; height: 50px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: #9ca3af;
+  transition: 0.3s;
+}
+
+.role-text { flex: 1; display: flex; flex-direction: column; }
+.role-title { font-weight: 700; color: #fff; font-size: 1.05rem; }
+.role-desc { font-size: 0.85rem; color: #9ca3af; margin-top: 4px; }
+
+/* Círculo Check */
+.role-check {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid #3f3f46;
+  display: flex; align-items: center; justify-content: center;
+  color: transparent;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+
+/* ESTADO SELECCIONADO (CHECKED) */
+.role-card input:checked + .role-content {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--primary);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+}
+
+.role-card input:checked + .role-content .role-icon {
+  background: var(--primary);
+  color: #fff;
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.role-card input:checked + .role-content .role-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* --- CHECKBOX TÉRMINOS --- */
+.terms-options {
+  margin-bottom: 30px;
+  padding: 0 5px;
+}
+
+.custom-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+.custom-check input {
+  appearance: none;
+  background-color: transparent;
+  margin: 0;
+  width: 22px; height: 22px;
+  border: 2px solid #4b5563;
+  border-radius: 6px;
+  display: grid; place-content: center;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.custom-check input::before {
+  content: "✓";
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 900;
+  transform: scale(0);
+  transition: 0.2s transform ease-in-out;
+}
+
+.custom-check input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+.custom-check input:checked::before { transform: scale(1); }
+
+.custom-check a { color: var(--primary); text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--primary); }
+.custom-check:hover input { border-color: var(--primary); }
+
+/* --- BOTÓN SUBMIT --- */
+.btn-block { 
+  width: 100%; padding: 18px; font-size: 1.1rem; border-radius: 14px; 
+  font-weight: 700; letter-spacing: 0.5px;
+  background: var(--primary); color: #fff; border: none;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-block:not(:disabled):hover {
+  background: var(--primary-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(139, 92, 246, 0.35);
+}
+.btn-block:disabled {
+  background: #374151; color: #9ca3af; cursor: not-allowed; opacity: 0.7; transform: none; box-shadow: none;
+}
+
+/* Footer */
+.form-footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 0.95rem; }
+.auth-link { color: #fff; font-weight: 600; text-decoration: none; margin-left: 5px; }
+.auth-link:hover { color: var(--primary); text-decoration: underline; }
+
+/* Columna Derecha (Visual) */
+.auth-right {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: none; 
+}
+.auth-overlay {
+  position: absolute; bottom: 80px; left: 60px; right: 60px;
+  color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+}
+.auth-overlay h2 { font-size: 3rem; font-weight: 800; margin-bottom: 15px; line-height: 1; }
+.auth-overlay p { font-size: 1.2rem; opacity: 0.9; max-width: 500px; line-height: 1.6; }
+
+@media (min-width: 1000px) {
+  .auth-right { display: block; }
+}

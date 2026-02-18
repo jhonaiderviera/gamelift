@@ -115,6 +115,124 @@
     /* El cambio de texto se hace vía JS, pero visualmente cambiamos el color aquí */
   }
   
+  /* --- ESTILOS PARA ENLACES DE PERFIL --- */
+.profile-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  
+  /* Flexbox para alinear avatar y texto */
+  display: flex; 
+  align-items: center;
+}
+
+.profile-link:hover {
+  opacity: 0.7; /* Efecto visual al pasar el mouse */
+}
+
+/* --- TABS SYSTEM --- */
+.tabs-container { margin-top: 20px; }
+
+.tabs-header {
+  display: flex; gap: 20px; margin-bottom: 25px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.tab-link {
+  background: none; border: none;
+  font-size: 1.1rem; font-weight: 600; color: #94a3b8;
+  padding: 10px 5px; cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+.tab-link:hover { color: #fff; }
+
+.tab-link.active {
+  color: #fff;
+  border-bottom-color: var(--primary);
+}
+
+.counter-badge {
+  font-size: 0.75rem; background: rgba(255,255,255,0.1); 
+  padding: 2px 8px; border-radius: 10px; margin-left: 5px;
+}
+
+.tab-content { display: none; animation: fadeIn 0.4s ease; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- DEVLOG POST FORM (FOR CREATOR) --- */
+.post-update-card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px dashed var(--primary);
+  border-radius: 16px; padding: 25px; margin-bottom: 40px;
+}
+
+.post-update-card h4 { margin: 0 0 15px 0; color: #fff; display: flex; align-items: center; gap: 10px; }
+
+.update-input, .update-textarea {
+  width: 100%; background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 15px;
+  font-family: inherit;
+}
+.update-input:focus, .update-textarea:focus { outline: none; border-color: var(--primary); }
+
+.btn-post-update {
+  background: var(--primary); color: #fff; border: none;
+  padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;
+  transition: 0.2s;
+}
+.btn-post-update:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+/* --- DEVLOG TIMELINE DESIGN --- */
+.updates-timeline {
+  position: relative; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.1);
+}
+
+.timeline-item {
+  position: relative; margin-bottom: 40px; padding-left: 30px;
+}
+
+.timeline-marker {
+  position: absolute; left: -26px; top: 5px;
+  width: 14px; height: 14px; background: #0f172a;
+  border: 3px solid var(--primary); border-radius: 50%;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.timeline-content {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px; padding: 25px;
+}
+
+.update-date {
+  font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+}
+
+.update-title {
+  margin: 8px 0 15px 0; color: #fff; font-size: 1.4rem;
+}
+
+.update-body {
+  color: #cbd5e1; line-height: 1.7; white-space: pre-wrap;
+}
+
+.empty-updates {
+  text-align: center; padding: 40px; color: #64748b;
+  border: 2px dashed rgba(255,255,255,0.05); border-radius: 16px;
+}
+.empty-updates i { font-size: 2rem; margin-bottom: 10px; opacity: 0.5; }
+
+/* Alert */
+.alert-success { 
+  background: rgba(16,185,129,0.2); color: #6ee7b7; padding: 15px; 
+  border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); margin-bottom: 20px; 
+}
+  
   /* Responsive */
   @media (max-width: 900px) {
     .detail-grid { grid-template-columns: 1fr; }

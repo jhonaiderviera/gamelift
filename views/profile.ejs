@@ -1,258 +1,385 @@
 <div class="profile-container">
 
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="alert-box error" style="background: rgba(239,68,68,0.2); color: #fca5a5; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(239,68,68,0.3); display: flex; align-items: center; gap: 10px;">
-      <i class="fas fa-exclamation-circle"></i> <span><%= error %></span>
+  <% if (typeof error !=='undefined' && error) { %>
+    <div class="alert-box error"
+      style="background: rgba(239,68,68,0.2); color: #fca5a5; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(239,68,68,0.3); display: flex; align-items: center; gap: 10px;">
+      <i class="fas fa-exclamation-circle"></i> <span>
+        <%= error %>
+      </span>
     </div>
-  <% } %>
-  <% if (typeof success !== 'undefined' && success) { %>
-    <div class="alert-box success" style="background: rgba(16,185,129,0.2); color: #6ee7b7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 10px;">
-      <i class="fas fa-check-circle"></i> <span><%= success %></span>
-    </div>
-  <% } %>
-
-  <div class="profile-header-card">
-    <div class="profile-banner"></div>
-    <div class="profile-identity">
-      <div class="avatar-container">
-        <img src="<%= data.photoUrl || 'https://ui-avatars.com/api/?background=random&color=fff&size=200&name=' + data.username %>" alt="<%= data.username %>">
-      </div>
-      
-      <div class="user-details">
-        <div class="name-row">
-          <h1><%= data.username %></h1>
-          <span class="badge-pro">Indie Dev</span>
-        </div>
-        
-        <div id="bio-display" class="bio-display" onclick="enableBioEdit()">
-          <% if (data.bio) { %>
-            <p class="user-bio-text"><%= data.bio %> <i class="fas fa-pen" style="font-size: 0.7rem; opacity: 0.5; margin-left: 8px;"></i></p>
-          <% } else { %>
-            <p class="user-bio-placeholder">Escribe aquí tu biografía...</p>
-          <% } %>
-        </div>
-
-        <div id="bio-editor" class="bio-editor" style="display: none;">
-          <form action="/profile/update-bio" method="POST">
-            <textarea name="bio" class="bio-textarea" rows="3" placeholder="Tell the world who you are..."><%= data.bio %></textarea>
-            <div class="bio-actions">
-              <button type="submit" class="btn-mini-save"><i class="fas fa-check"></i> Save</button>
-              <button type="button" class="btn-mini-cancel" onclick="cancelBioEdit()"><i class="fas fa-times"></i> Cancel</button>
-            </div>
-          </form>
-        </div>
-        <div class="profile-stats">
-          <div class="stat-box">
-            <span class="stat-number"><%= data.followers %></span>
-            <span class="stat-label">Followers</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-number"><%= data.following %></span>
-            <span class="stat-label">Following</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-number"><%= data.myReviews.length %></span>
-            <span class="stat-label">Reviews</span>
-          </div>
-          <div class="stat-box highlight">
-            <span class="stat-number">$<%= data.totalRaised %></span>
-            <span class="stat-label">Total Raised</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="profile-actions">
-        <button class="btn-action btn-settings" onclick="openSettingsModal()">
-          <i class="fas fa-cog"></i> Settings
-        </button>
-        <a href="/auth/logout" class="btn-action btn-logout">
-          <i class="fas fa-sign-out-alt"></i> Log Out
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="profile-tabs">
-    <button class="tab-btn active" onclick="openTab(event, 'tab-projects')">
-      <i class="fas fa-rocket"></i> Created Projects
-      <span class="count-pill"><%= data.myProjects.length %></span>
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'tab-reviews')">
-      <i class="fas fa-star"></i> My Reviews
-      <span class="count-pill"><%= data.myReviews.length %></span>
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'tab-library')">
-      <i class="fas fa-gamepad"></i> My Library
-      <span class="count-pill"><%= data.library.length %></span>
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'tab-favorites')">
-      <i class="fas fa-heart"></i> Favorites
-      <span class="count-pill"><%= data.favorites.length %></span>
-    </button>
-  </div>
-
-  <div id="tab-projects" class="tab-content active">
-    <% if (data.myProjects.length > 0) { %>
-      <div class="grid-layout">
-        <% data.myProjects.forEach(project => { %>
-          <div class="mini-project-card">
-            <div class="mini-cover">
-              <img src="<%= project.image %>" loading="lazy">
-              <span class="status-badge">Live</span>
-            </div>
-            <div class="mini-info">
-              <h3><%= project.title %></h3>
-              <div class="mini-progress">
-                <% const percent = Math.min(100, Math.round((project.raised / project.goal) * 100)); %>
-                <div class="bar-bg"><div class="bar-fill" style="width: <%= percent %>%"></div></div>
-                <small>$<%= project.raised %> raised</small>
-              </div>
-              <a href="/support-developers/<%= project.id %>" class="btn-view">Manage</a>
-            </div>
-          </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-state">
-        <i class="fas fa-pencil-ruler"></i>
-        <h3>No projects yet.</h3>
-        <a href="/support-developers/create" class="btn-cta">Create Project</a>
-      </div>
     <% } %>
-  </div>
+      <% if (typeof success !=='undefined' && success) { %>
+        <div class="alert-box success"
+          style="background: rgba(16,185,129,0.2); color: #6ee7b7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-check-circle"></i> <span>
+            <%= success %>
+          </span>
+        </div>
+        <% } %>
 
-  <div id="tab-reviews" class="tab-content" style="display:none;">
-    <% if (data.myReviews.length > 0) { %>
-      <div class="grid-layout">
-        <% data.myReviews.forEach(review => { %>
-          <div class="review-card-profile">
-            <div class="review-header">
-              <h4><%= review.gameName || 'Game Review' %></h4>
-              <div class="stars" style="color:#fbbf24; font-size:0.8rem;">
-                <% for(let i=0; i<5; i++) { %>
-                  <% if(i < review.rating) { %><i class="fas fa-star"></i><% } else { %><i class="far fa-star"></i><% } %>
+          <div class="profile-header-card">
+            <div class="profile-banner"></div>
+            <div class="profile-identity">
+              <div class="avatar-container">
+                <img
+                  src="<%= data.photoUrl || 'https://ui-avatars.com/api/?background=random&color=fff&size=200&name=' + data.username %>"
+                  alt="<%= data.username %>">
+              </div>
+
+              <div class="user-details">
+                <div class="name-row">
+                  <h1>
+                    <%= data.username %>
+                  </h1>
+                  <span class="user-role-badge <%= data.roleClass %>">
+                    <%= data.roleLabel %>
+                  </span>
+                  <% if (data.tags && data.tags.length> 0) { %>
+                    <div class="user-tags-list">
+                      <% data.tags.forEach(tag=> { %>
+                        <span class="user-tag">
+                          <%= tag %>
+                        </span>
+                        <% }) %>
+                    </div>
+                    <% } %>
+                </div>
+
+                <div id="bio-display" class="bio-display" onclick="enableBioEdit()">
+                  <% if (data.bio) { %>
+                    <p class="user-bio-text">
+                      <%= data.bio %> <i class="fas fa-pen"
+                          style="font-size: 0.7rem; opacity: 0.5; margin-left: 8px;"></i>
+                    </p>
+                    <% } else { %>
+                      <p class="user-bio-placeholder">Tell the world who you are...</p>
+                      <% } %>
+                </div>
+
+                <div id="bio-editor" class="bio-editor" style="display: none;">
+                  <form action="/profile/update-bio" method="POST">
+                    <textarea name="bio" class="bio-textarea" rows="3"
+                      placeholder="Tell the world who you are..."><%= data.bio %></textarea>
+                    <div class="bio-actions">
+                      <button type="submit" class="btn-mini-save"><i class="fas fa-check"></i> Save</button>
+                      <button type="button" class="btn-mini-cancel" onclick="cancelBioEdit()"><i
+                          class="fas fa-times"></i> Cancel</button>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="profile-stats">
+                  <div class="stat-box"><span class="stat-number">
+                      <%= data.followers %>
+                    </span><span class="stat-label">Followers</span></div>
+                  <div class="stat-box"><span class="stat-number">
+                      <%= data.following %>
+                    </span><span class="stat-label">Following</span></div>
+                  <div class="stat-box"><span class="stat-number">
+                      <%= data.unlockedCount %>
+                    </span><span class="stat-label">Trophies</span></div>
+                </div>
+              </div>
+
+              <div class="profile-actions">
+                <button class="btn-action btn-settings" onclick="openSettingsModal()"><i class="fas fa-cog"></i>
+                  Settings</button>
+                <a href="/auth/logout" class="btn-action btn-logout"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'tab-achievements')"><i class="fas fa-trophy"></i>
+              Trophies</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-collections')"><i class="fas fa-layer-group"></i>
+              Collections</button> <button class="tab-btn" onclick="openTab(event, 'tab-projects')"><i
+                class="fas fa-rocket"></i> Projects</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-reviews')"><i class="fas fa-star"></i> Reviews</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-library')"><i class="fas fa-gamepad"></i>
+              Library</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-favorites')"><i class="fas fa-heart"></i>
+              Favorites</button>
+          </div>
+
+          <div id="tab-achievements" class="tab-content active">
+            <div class="achievement-progress-container">
+              <div class="progress-text">
+                <span>Level <%= Math.floor(data.unlockedCount / 2) + 1 %></span>
+                <span>
+                  <%= data.unlockedCount %> / <%= data.achievements.length %> Unlocked
+                </span>
+              </div>
+              <div class="level-bar-track">
+                <div class="level-bar-fill" style="width: <%= data.achievementProgress %>%"></div>
+              </div>
+            </div>
+            <div class="achievements-list">
+              <% data.achievements.forEach(ach=> { %>
+                <div class="achievement-card tier-<%= ach.tier %> <%= ach.unlocked ? 'unlocked' : 'locked' %>">
+                  <div class="ach-icon-wrapper">
+                    <div class="ach-icon"><i class="<%= ach.icon %>"></i></div>
+                    <% if (ach.tier==='platinum' || ach.tier==='gold' ) { %>
+                      <div class="shine-effect"></div>
+                      <% } %>
+                  </div>
+                  <div class="ach-info">
+                    <div class="ach-header">
+                      <h4>
+                        <%= ach.title %>
+                      </h4>
+                      <% if (ach.unlocked) { %><span class="unlock-date">Earned</span>
+                        <% } %>
+                    </div>
+                    <p>
+                      <%= ach.desc %>
+                    </p>
+                    <span class="tier-badge">
+                      <%= ach.tier %>
+                    </span>
+                  </div>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+
+          <div id="tab-collections" class="tab-content" style="display:none;">
+            <div
+              style="margin-bottom: 30px; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); display: flex; gap: 15px; align-items: center;">
+              <div
+                style="background: rgba(139,92,246,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                <i class="fas fa-plus"></i>
+              </div>
+              <form action="/collections/create" method="POST" style="flex: 1; display: flex; gap: 10px;">
+                <input type="text" name="title" placeholder="Create a new collection (e.g. 'Must Play RPGs')" required
+                  style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #374151; background: #111827; color: #fff;">
+                <button type="submit" class="btn-save" style="white-space: nowrap;">Create List</button>
+              </form>
+            </div>
+
+            <% if (data.myCollections && data.myCollections.length> 0) { %>
+              <div class="grid-layout">
+                <% data.myCollections.forEach(col=> { %>
+                  <a href="/collections/<%= col.id %>" style="text-decoration: none;">
+                    <div class="review-card-profile" style="height: 100%; transition: transform 0.2s; cursor: pointer;">
+                      <div class="review-header">
+                        <h4 style="font-size: 1.1rem; color: #fff; margin:0;">
+                          <%= col.title %>
+                        </h4>
+                        <div class="score-badge"
+                          style="width: auto; padding: 2px 8px; font-size: 0.8rem; background: #374151;">
+                          <%= col.games ? col.games.length : 0 %>
+                        </div>
+                      </div>
+
+                      <div
+                        style="display: flex; gap: 5px; margin-top: 15px; height: 60px; overflow: hidden; border-radius: 6px; background: #111827; padding: 5px;">
+                        <% if(col.games && col.games.length> 0) { %>
+                          <% col.games.slice(0, 4).forEach(g=> { %>
+                            <img src="<%= g.cover %>"
+                              style="width: 40px; height: 100%; object-fit: cover; border-radius: 4px;">
+                            <% }) %>
+                              <% } else { %>
+                                <div
+                                  style="width: 100%; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 0.8rem;">
+                                  Empty List</div>
+                                <% } %>
+                      </div>
+                      <p style="margin-top: 10px; font-size: 0.8rem; color: var(--primary);">View Collection <i
+                          class="fas fa-arrow-right"></i></p>
+                    </div>
+                  </a>
+                  <% }) %>
+              </div>
+              <% } else { %>
+                <div class="empty-state">
+                  <i class="fas fa-layer-group"></i>
+                  <h3>No collections yet.</h3>
+                  <p>Create one above to start curating your games!</p>
+                </div>
                 <% } %>
+          </div>
+
+          <div id="tab-projects" class="tab-content" style="display:none;">
+            <% if (data.myProjects.length> 0) { %>
+              <div class="grid-layout">
+                <% data.myProjects.forEach(project=> { %>
+                  <div class="mini-project-card">
+                    <div class="mini-cover"><img src="<%= project.image %>" loading="lazy"><span
+                        class="status-badge">Live</span></div>
+                    <div class="mini-info">
+                      <h3>
+                        <%= project.title %>
+                      </h3>
+                      <div class="mini-progress">
+                        <% const percent=project.goal> 0 ? Math.min(100, Math.round((project.raised / project.goal) *
+                          100)) : 0; %>
+                          <div class="bar-bg">
+                            <div class="bar-fill" style="width: <%= percent %>%"></div>
+                          </div>
+                          <small>$<%= project.raised %> raised</small>
+                      </div>
+                      <a href="/support-developers/<%= project.id %>" class="btn-view">Manage</a>
+                    </div>
+                  </div>
+                  <% }) %>
               </div>
-            </div>
-            <p class="review-text">"<%= review.comment %>"</p>
+              <% } else { %>
+                <div class="empty-state"><i class="fas fa-pencil-ruler"></i>
+                  <h3>No projects yet.</h3><a href="/support-developers/create" class="btn-cta">Create Project</a>
+                </div>
+                <% } %>
           </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-state">
-        <i class="fas fa-comment-slash"></i>
-        <h3>No reviews yet.</h3>
-      </div>
-    <% } %>
-  </div>
 
-  <div id="tab-library" class="tab-content" style="display:none;">
-    <% if (data.library.length > 0) { %>
-      <div class="grid-games">
-        <% data.library.forEach(game => { %>
-          <div class="library-card">
-            <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
-            <div class="overlay"><span><%= game.gameName %></span></div>
+          <div id="tab-reviews" class="tab-content" style="display:none;">
+            <% if (data.myReviews.length> 0) { %>
+              <div class="grid-layout">
+                <% data.myReviews.forEach(review=> { %>
+                  <div class="review-card-profile">
+                    <div class="review-header">
+                      <h4>
+                        <%= review.gameName || 'Game Review' %>
+                      </h4>
+                      <div class="score-badge">
+                        <%= review.average %>
+                      </div>
+                    </div>
+                    <p class="review-text">"<%= review.text %>"</p>
+                  </div>
+                  <% }) %>
+              </div>
+              <% } else { %>
+                <div class="empty-state"><i class="fas fa-comment-slash"></i>
+                  <h3>No reviews yet.</h3>
+                </div>
+                <% } %>
           </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-state">
-        <i class="fas fa-ghost"></i><h3>Library Empty</h3>
-      </div>
-    <% } %>
-  </div>
 
-  <div id="tab-favorites" class="tab-content" style="display:none;">
-    <% if (data.favorites.length > 0) { %>
-      <div class="grid-games">
-        <% data.favorites.forEach(game => { %>
-          <div class="library-card fav-card">
-            <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
-            <div class="heart-icon"><i class="fas fa-heart"></i></div>
+          <div id="tab-library" class="tab-content" style="display:none;">
+            <% if (data.library.length> 0) { %>
+              <div class="grid-games">
+                <% data.library.forEach(game=> { %>
+                  <a href="/games/<%= game.gameId %>" class="library-card">
+                    <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
+                    <div class="overlay"><span>
+                        <%= game.gameName %>
+                      </span></div>
+                  </a>
+                  <% }) %>
+              </div>
+              <% } else { %>
+                <div class="empty-state"><i class="fas fa-ghost"></i>
+                  <h3>Library Empty</h3>
+                </div>
+                <% } %>
           </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-state">
-        <i class="fas fa-heart-broken"></i><h3>No Favorites</h3>
-      </div>
-    <% } %>
-  </div>
+
+          <div id="tab-favorites" class="tab-content" style="display:none;">
+            <% if (data.favorites.length> 0) { %>
+              <div class="grid-games">
+                <% data.favorites.forEach(game=> { %>
+                  <a href="/games/<%= game.gameId %>" class="library-card fav-card">
+                    <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
+                    <div class="heart-icon"><i class="fas fa-heart"></i></div>
+                  </a>
+                  <% }) %>
+              </div>
+              <% } else { %>
+                <div class="empty-state"><i class="fas fa-heart-broken"></i>
+                  <h3>No Favorites</h3>
+                </div>
+                <% } %>
+          </div>
 
 </div>
 
 <div id="settingsModal" class="modal-overlay">
   <div class="settings-card">
     <div class="modal-header">
-      <h3 id="settingsTitle">Account Settings</h3>
+      <h3 id="settingsTitle">Settings</h3>
       <button onclick="closeSettingsModal()" class="close-modal-btn"><i class="fas fa-times"></i></button>
     </div>
-    
+
     <div id="view-menu" class="settings-view">
       <div class="settings-options">
-        <button onclick="switchView('view-username', 'Change Username')" class="setting-option-btn"><i class="fas fa-user-edit"></i> Change Username</button>
-        <button onclick="switchView('view-photo', 'Change Profile Picture')" class="setting-option-btn"><i class="fas fa-camera"></i> Change Profile Picture</button>
-        <button onclick="switchView('view-password', 'Change Password')" class="setting-option-btn"><i class="fas fa-key"></i> Change Password</button>
+        <button onclick="switchView('view-tags', 'Personalize Profile')" class="setting-option-btn highlight-btn"><i
+            class="fas fa-tags"></i> Personality Tags</button>
+        <button onclick="switchView('view-username', 'Change Username')" class="setting-option-btn"><i
+            class="fas fa-user-edit"></i> Change Username</button>
+        <button onclick="switchView('view-photo', 'Change Profile Picture')" class="setting-option-btn"><i
+            class="fas fa-camera"></i> Change Profile Picture</button>
+        <button onclick="switchView('view-password', 'Change Password')" class="setting-option-btn"><i
+            class="fas fa-key"></i> Change Password</button>
         <hr class="divider" style="border-color: rgba(255,255,255,0.1);">
-        <button onclick="switchView('view-delete', 'Delete Account')" class="setting-option-btn danger"><i class="fas fa-trash-alt"></i> Delete Account</button>
+        <button onclick="switchView('view-delete', 'Delete Account')" class="setting-option-btn danger"><i
+            class="fas fa-trash-alt"></i> Delete Account</button>
       </div>
+    </div>
+
+    <div id="view-tags" class="settings-view hidden">
+      <p style="color:#9ca3af; margin-bottom:15px; font-size:0.9rem;">Select up to 3 tags.</p>
+      <form action="/profile/update-tags" method="POST">
+        <div class="tags-selector">
+          <% data.availableTags.forEach(tag=> { %>
+            <label class="tag-checkbox"><input type="checkbox" name="tags" value="<%= tag %>" <%=data.tags.includes(tag)
+                ? 'checked' : '' %> onclick="limitTags(this)"><span>
+                <%= tag %>
+              </span></label>
+            <% }) %>
+        </div>
+        <div class="modal-actions"><button type="button" class="btn-back"
+            onclick="switchView('view-menu', 'Settings')">Back</button><button type="submit" class="btn-save">Save
+            Tags</button></div>
+      </form>
     </div>
 
     <div id="view-username" class="settings-view hidden">
       <form action="/profile/update-username" method="POST">
-        <label class="input-label">New Username</label>
-        <input type="text" name="newUsername" class="settings-input" placeholder="<%= data.username %>" required>
-        <div class="modal-actions">
-          <button type="button" class="btn-back" onclick="switchView('view-menu', 'Account Settings')">Back</button>
-          <button type="submit" class="btn-save">Save</button>
-        </div>
+        <label class="input-label">New Username</label><input type="text" name="newUsername" class="settings-input"
+          placeholder="<%= data.username %>" required>
+        <div class="modal-actions"><button type="button" class="btn-back"
+            onclick="switchView('view-menu', 'Settings')">Back</button><button type="submit"
+            class="btn-save">Save</button></div>
       </form>
     </div>
 
     <div id="view-photo" class="settings-view hidden">
       <form action="/profile/update-photo" method="POST">
-        <label class="input-label">Image URL</label>
-        <input type="url" name="photoUrl" class="settings-input" placeholder="https://..." required>
-        <div class="modal-actions">
-          <button type="button" class="btn-back" onclick="switchView('view-menu', 'Account Settings')">Back</button>
-          <button type="submit" class="btn-save">Update</button>
-        </div>
+        <label class="input-label">Image URL</label><input type="url" name="photoUrl" class="settings-input"
+          placeholder="https://..." required>
+        <div class="modal-actions"><button type="button" class="btn-back"
+            onclick="switchView('view-menu', 'Settings')">Back</button><button type="submit"
+            class="btn-save">Update</button></div>
       </form>
     </div>
 
     <div id="view-password" class="settings-view hidden">
       <form action="/profile/change-password" method="POST" onsubmit="return validatePasswordForm()">
-        <label class="input-label">Current</label>
-        <input type="password" name="currentPassword" class="settings-input" required>
-        <label class="input-label">New</label>
-        <input type="password" name="newPassword" id="newPassword" class="settings-input" required>
-        <label class="input-label">Confirm</label>
-        <input type="password" id="confirmPassword" class="settings-input" required>
+        <label class="input-label">Current</label><input type="password" name="currentPassword" class="settings-input"
+          required>
+        <label class="input-label">New</label><input type="password" name="newPassword" id="newPassword"
+          class="settings-input" required>
+        <label class="input-label">Confirm</label><input type="password" id="confirmPassword" class="settings-input"
+          required>
         <p id="passwordMatchError" style="color:#ef4444;display:none;">Mismatch</p>
-        <div class="modal-actions">
-          <button type="button" class="btn-back" onclick="switchView('view-menu', 'Account Settings')">Back</button>
-          <button type="submit" class="btn-save">Update</button>
-        </div>
+        <div class="modal-actions"><button type="button" class="btn-back"
+            onclick="switchView('view-menu', 'Settings')">Back</button><button type="submit"
+            class="btn-save">Update</button></div>
       </form>
     </div>
 
     <div id="view-delete" class="settings-view hidden">
-      <p style="text-align:center;color:#ef4444;margin-bottom:20px;">Are you sure? This is permanent.</p>
+      <p style="text-align:center;color:#ef4444;margin-bottom:20px;">Permanent action.</p>
       <form action="/profile/delete-account" method="POST">
-        <div class="modal-actions">
-          <button type="button" class="btn-back" onclick="switchView('view-menu', 'Account Settings')">Cancel</button>
-          <button type="submit" class="btn-save danger-bg">Yes, Delete</button>
-        </div>
+        <div class="modal-actions"><button type="button" class="btn-back"
+            onclick="switchView('view-menu', 'Settings')">Cancel</button><button type="submit"
+            class="btn-save danger-bg">Yes, Delete</button></div>
       </form>
     </div>
   </div>
 </div>
 
-<link rel="stylesheet" href="/stylesheets/profile.css">
-
 <script>
-  // Tabs
   function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tab-content");
@@ -263,32 +390,13 @@
     evt.currentTarget.className += " active";
   }
 
-  // --- LÓGICA DE BIO EDITABLE ---
-  function enableBioEdit() {
-    document.getElementById('bio-display').style.display = 'none';
-    document.getElementById('bio-editor').style.display = 'block';
-    document.querySelector('.bio-textarea').focus();
-  }
-  function cancelBioEdit() {
-    document.getElementById('bio-editor').style.display = 'none';
-    document.getElementById('bio-display').style.display = 'block';
-  }
-  // -----------------------------
-
+  function enableBioEdit() { document.getElementById('bio-display').style.display = 'none'; document.getElementById('bio-editor').style.display = 'block'; document.querySelector('.bio-textarea').focus(); }
+  function cancelBioEdit() { document.getElementById('bio-editor').style.display = 'none'; document.getElementById('bio-display').style.display = 'block'; }
   const settingsModal = document.getElementById('settingsModal');
-  function openSettingsModal() { settingsModal.classList.add('visible'); switchView('view-menu', 'Account Settings'); }
+  function openSettingsModal() { settingsModal.classList.add('visible'); switchView('view-menu', 'Settings'); }
   function closeSettingsModal() { settingsModal.classList.remove('visible'); }
-  function switchView(viewId, title) {
-    document.querySelectorAll('.settings-view').forEach(el => el.classList.add('hidden'));
-    document.getElementById(viewId).classList.remove('hidden');
-    document.getElementById('settingsTitle').innerText = title;
-  }
+  function switchView(viewId, title) { document.querySelectorAll('.settings-view').forEach(el => el.classList.add('hidden')); document.getElementById(viewId).classList.remove('hidden'); document.getElementById('settingsTitle').innerText = title; }
   settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); });
-
-  function validatePasswordForm() {
-    if(document.getElementById('newPassword').value !== document.getElementById('confirmPassword').value) {
-      document.getElementById('passwordMatchError').style.display = 'block'; return false;
-    }
-    return true;
-  }
+  function validatePasswordForm() { if (document.getElementById('newPassword').value !== document.getElementById('confirmPassword').value) { document.getElementById('passwordMatchError').style.display = 'block'; return false; } return true; }
+  function limitTags(checkbox) { if (document.querySelectorAll('input[name="tags"]:checked').length > 3) { checkbox.checked = false; alert("Max 3 tags."); } }
 </script>
