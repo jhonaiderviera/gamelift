@@ -153,4 +153,39 @@ router.post('/u/:uid/follow', isAuthenticated, async (req, res) => {
   } catch (error) { res.redirect(`/profile/u/${req.params.uid}`); }
 });
 
+router.post('/library/update-status', isAuthenticated, async (req, res) => {
+  try {
+    const { gameId, status } = req.body;
+    const uid = req.user.uid || req.user.id;
+
+    // Validar estados permitidos
+    const validStatuses = ['playing', 'completed', 'on-hold', 'dropped', 'backlog'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, msg: "Invalid status" });
+    }
+
+    // Referencia al documento del juego en la subcolección 'library' del usuario
+    const gameRef = db.collection('users').doc(uid).collection('library').doc(gameId);
+
+    // Verificar si existe primero
+    const doc = await gameRef.get();
+    if (!doc.exists) {
+      // Si no está en la librería, podrías decidir añadirlo automáticamente o dar error.
+      // Por ahora, daremos error para obligar a "Añadir a librería" primero.
+      return res.status(404).json({ success: false, msg: "Game not in library" });
+    }
+
+    // Actualizar solo el campo status
+    await gameRef.update({
+      status: status,
+      updatedAt: new Date()
+    });
+
+    res.json({ success: true, status: status });
+
+  } catch (error) {
+    console.error("Error updating game status:", error);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
 module.exports = router;

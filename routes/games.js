@@ -44,13 +44,14 @@ router.get("/category/:type", async (req, res) => {
   } catch (error) { res.redirect("/games"); }
 });
 
-// --- 4. DETALLE DEL JUEGO (MODIFICADO) ---
+// --- 4. DETALLE DEL JUEGO (MODIFICADO CON BACKLOG) ---
 router.get("/:id", async (req, res) => {
   try {
     const gameId = req.params.id;
     const gameData = await getGameDetails(gameId);
     if (!gameData) return res.status(404).render("error", { message: "Game not found", error: { status: 404 }, page: "error", data: {} });
 
+    // 1. Cargar Reviews
     let reviews = [];
     let gameliftScore = null;
     try {
@@ -62,24 +63,43 @@ router.get("/:id", async (req, res) => {
       }
     } catch (e) { console.warn("Firebase warning (Reviews):", e.message); }
 
-    // --- CARGAR COLECCIONES DEL USUARIO (SEGURO) ---
+    // 2. Cargar Colecciones (Para el modal)
     let userCollections = [];
+    // 3. Verificar Estado en Librería (Para el botón Backlog/Playing/etc)
+    let libraryStatus = null;
+
     if (req.user) {
+      const uid = req.user.uid || req.user.id;
+
+      // A. Fetch Colecciones
       try {
-        const uid = req.user.uid || req.user.id;
         const colSnap = await db.collection('collections').where('userId', '==', uid).orderBy('createdAt', 'desc').get();
         userCollections = colSnap.docs.map(doc => ({ id: doc.id, title: doc.data().title }));
       } catch (colError) {
-        console.warn("⚠️ Aviso: No se cargaron las colecciones para el modal (falta índice).", colError.message);
-        // userCollections se queda vacío [], así que el modal simplemente dirá "No tienes colecciones"
+        console.warn("⚠️ Aviso: No se cargaron las colecciones (falta índice o error).", colError.message);
+      }
+
+      // B. Fetch Estado Librería (NUEVO)
+      try {
+        const libDoc = await db.collection('users').doc(uid).collection('library').doc(gameId).get();
+        if (libDoc.exists) {
+          libraryStatus = libDoc.data().status || 'backlog';
+        }
+      } catch (libError) {
+        console.warn("Error checking library status:", libError.message);
       }
     }
-    // ----------------------------------------------
 
     res.render("layout", {
       title: `${gameData.name} | GameLift`, page: "game-detail", active: "games",
-      // Pasamos userCollections a la vista
-      data: { ...gameData, reviews, gameliftScore, reviewCount: reviews.length, userCollections },
+      data: {
+        ...gameData,
+        reviews,
+        gameliftScore,
+        reviewCount: reviews.length,
+        userCollections, // Pasamos colecciones
+        libraryStatus    // Pasamos estado (playing, backlog, etc.)
+      },
       user: req.user
     });
   } catch (error) { console.error(error); res.redirect("/games"); }

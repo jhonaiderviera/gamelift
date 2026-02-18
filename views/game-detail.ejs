@@ -41,20 +41,43 @@
           </div>
           
           <div class="detail-actions">
-             <button class="btn btn-primary js-manage-library"><i class="fas fa-plus"></i> Add to Library</button>
-             <button class="btn btn-ghost js-manage-favorite"><i class="far fa-heart"></i> Favorite</button>
              
-             <button class="btn btn-ghost" type="button" onclick="openCollectionModal()">
-               <i class="fas fa-list"></i> Add to List
-             </button>
+             <div class="status-selector-wrapper" style="position: relative; display: inline-block;">
+                <% if (data.libraryStatus) { %>
+                  <select id="gameStatusSelect" onchange="updateGameStatus(this.value)" class="btn btn-primary" 
+                          style="padding-right: 35px; appearance: none; cursor: pointer; background-color: var(--primary); text-align: left; min-width: 140px;">
+                    <option value="backlog" <%= data.libraryStatus === ' backlog' ? 'selected' : '' %>>📚 Backlog
+                  </option>
+                  <option value="playing" <%=data.libraryStatus==='playing' ? 'selected' : '' %>>🎮 Playing</option>
+                  <option value="completed" <%=data.libraryStatus==='completed' ? 'selected' : '' %>>🏆 Completed
+                  </option>
+                  <option value="on-hold" <%=data.libraryStatus==='on-hold' ? 'selected' : '' %>>⏸️ On Hold</option>
+                  <option value="dropped" <%=data.libraryStatus==='dropped' ? 'selected' : '' %>>💀 Dropped</option>
+                  </select>
+                  <i class="fas fa-chevron-down"
+                    style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.8rem;"></i>
+                  <% } else { %>
+                    <button class="btn btn-primary" onclick="addToLibraryInitial()">
+                      <i class="fas fa-plus"></i> Add to Library
+                    </button>
+                    <% } %>
+            </div>
+
+            <button class="btn btn-ghost js-manage-favorite" onclick="toggleFavorite()">
+              <i class="far fa-heart"></i> Favorite
+            </button>
+
+            <button class="btn btn-ghost" type="button" onclick="openCollectionModal()">
+              <i class="fas fa-list"></i> Add to List
+            </button>
           </div>
         </div>
 
         <div class="detail-scores">
           <div class="score-box gamelift">
-            <div class="score-circle <%= data.gameliftScore ? ((data.gameliftScore >= 75) ? ' good' :
-                  ((data.gameliftScore>= 50) ? 'mid' : 'bad')) : 'mid' %>">
-                  <%= data.gameliftScore || '—' %>
+            <div
+              class="score-circle <%= data.gameliftScore ? ((data.gameliftScore >= 75) ? 'good' : ((data.gameliftScore >= 50) ? 'mid' : 'bad')) : 'mid' %>">
+              <%= data.gameliftScore || '—' %>
             </div>
             <div class="score-meta">
               <span class="score-label main">GameLift</span>
@@ -311,6 +334,7 @@
               </button>
             </div>
           </div>
+
           <% } else { %>
             <div class="empty-modal">
               <p>Login to use collections</p>
@@ -496,7 +520,7 @@
     function openCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.add('show'); }
     function closeCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.remove('show'); }
 
-    // 1. REVIEWS (Sliders)
+    // 1. REVIEWS
     function updateReviewScore() {
       const s = parseInt(document.getElementById('input-story').value) || 0;
       const g = parseInt(document.getElementById('input-gameplay').value) || 0;
@@ -540,7 +564,68 @@
       });
     }
 
-    // 2. AÑADIR A COLECCIÓN EXISTENTE
+    // 2. BACKLOG / LIBRARY STATUS SYSTEM (NUEVO)
+    async function addToLibraryInitial() {
+      try {
+        const res = await fetch('/users/library/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: '<%= data.id %>',
+            gameName: '<%= data.name %>',
+            coverUrl: '<%= data.coverUrl %>',
+            status: 'backlog'
+          })
+        });
+        const json = await res.json();
+        if (json.status === 'added') {
+          showToast("Added to Backlog! 📚");
+          // Recargar para que aparezca el selector
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          showToast("Something went wrong", 'error');
+        }
+      } catch (e) { console.error(e); showToast("Network Error", 'error'); }
+    }
+
+    async function updateGameStatus(newStatus) {
+      try {
+        const res = await fetch('/users/library/update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: '<%= data.id %>',
+            status: newStatus
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`Status: ${newStatus.toUpperCase()}`);
+        } else {
+          showToast("Error updating status", 'error');
+        }
+      } catch (e) { console.error(e); showToast("Network Error", 'error'); }
+    }
+
+    // 3. FAVORITOS
+    async function toggleFavorite() {
+      try {
+        const res = await fetch('/users/favorites/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gameId: '<%= data.id %>',
+            gameName: '<%= data.name %>',
+            coverUrl: '<%= data.coverUrl %>'
+          })
+        });
+        const json = await res.json();
+        if (json.status === 'added') showToast("Added to Favorites ❤️");
+        else showToast("Removed from Favorites 💔");
+      } catch (e) { console.error(e); showToast("Error", 'error'); }
+    }
+
+    // 4. COLECCIONES
     async function addToCollection(listId) {
       try {
         const res = await fetch(`/collections/${listId}/add`, {
@@ -561,51 +646,30 @@
       } catch (e) { console.error(e); showToast('Network error', 'error'); }
     }
 
-    // 3. NUEVO: CREAR COLECCIÓN RÁPIDA (AJAX)
     async function createCollectionAjax() {
       const input = document.getElementById('newCollectionName');
       const title = input.value;
-
-      if (!title || title.trim() === "") {
-        showToast("Please enter a name", 'error');
-        return;
-      }
-
+      if (!title || title.trim() === "") { showToast("Please enter a name", 'error'); return; }
       try {
         const res = await fetch('/collections/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: title })
         });
         const json = await res.json();
-
         if (json.success) {
           showToast("Collection created! 🎉");
-          input.value = ""; // Limpiar input
-
-          // Eliminar mensaje de "vacío" si existe
+          input.value = "";
           const emptyMsg = document.getElementById('empty-state-msg');
           if (emptyMsg) emptyMsg.style.display = 'none';
-
-          // Crear el nuevo botón dinámicamente
           const listContainer = document.getElementById('collections-list-container');
           const newBtn = document.createElement('button');
           newBtn.className = 'list-btn';
           newBtn.onclick = function () { addToCollection(json.id); };
           newBtn.innerHTML = `<i class="fas fa-folder"></i> <span class="col-title">${json.title}</span>`;
-
-          // Añadir al principio de la lista
           listContainer.insertBefore(newBtn, listContainer.firstChild);
-
-          // Opcional: Auto-click para añadir el juego directamente
-          // addToCollection(json.id); 
-
         } else {
           showToast(json.msg || "Error creating", 'error');
         }
-      } catch (e) {
-        console.error(e);
-        showToast("Server Error", 'error');
-      }
+      } catch (e) { console.error(e); showToast("Server Error", 'error'); }
     }
   </script>

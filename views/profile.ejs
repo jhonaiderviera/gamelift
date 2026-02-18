@@ -93,8 +93,9 @@
             <button class="tab-btn active" onclick="openTab(event, 'tab-achievements')"><i class="fas fa-trophy"></i>
               Trophies</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-collections')"><i class="fas fa-layer-group"></i>
-              Collections</button> <button class="tab-btn" onclick="openTab(event, 'tab-projects')"><i
-                class="fas fa-rocket"></i> Projects</button>
+              Collections</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-projects')"><i class="fas fa-rocket"></i>
+              Projects</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-reviews')"><i class="fas fa-star"></i> Reviews</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-library')"><i class="fas fa-gamepad"></i>
               Library</button>
@@ -259,12 +260,24 @@
             <% if (data.library.length> 0) { %>
               <div class="grid-games">
                 <% data.library.forEach(game=> { %>
-                  <a href="/games/<%= game.gameId %>" class="library-card">
-                    <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
-                    <div class="overlay"><span>
-                        <%= game.gameName %>
-                      </span></div>
-                  </a>
+                  <div class="game-card-wrapper">
+
+                    <% let st=game.status || 'backlog' ; let stIcon='' ; if(st==='playing' ) stIcon='🎮' ;
+                      if(st==='completed' ) stIcon='🏆' ; if(st==='on-hold' ) stIcon='⏸️' ; if(st==='dropped' )
+                      stIcon='💀' ; if(st==='backlog' ) stIcon='📚' ; %>
+                      <div class="status-badge <%= st %>">
+                        <%= stIcon %> <span>
+                            <%= st.charAt(0).toUpperCase() + st.slice(1) %>
+                          </span>
+                      </div>
+
+                      <a href="/games/<%= game.gameId %>" class="library-card">
+                        <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
+                        <div class="overlay"><span>
+                            <%= game.gameName %>
+                          </span></div>
+                      </a>
+                  </div>
                   <% }) %>
               </div>
               <% } else { %>
@@ -378,6 +391,84 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* Wrapper para que la etiqueta flote sobre la imagen */
+  .game-card-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    transition: transform 0.2s;
+  }
+
+  .game-card-wrapper:hover {
+    transform: translateY(-5px);
+    z-index: 10;
+  }
+
+  /* La etiqueta base */
+  .status-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    z-index: 5;
+    /* Encima de la imagen */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Colores según el estado */
+  .status-badge.playing {
+    background: rgba(16, 185, 129, 0.9);
+    border: 1px solid #34d399;
+  }
+
+  /* Verde */
+  .status-badge.completed {
+    background: rgba(245, 158, 11, 0.9);
+    border: 1px solid #fbbf24;
+    color: #fff;
+  }
+
+  /* Dorado */
+  .status-badge.on-hold {
+    background: rgba(59, 130, 246, 0.9);
+    border: 1px solid #60a5fa;
+  }
+
+  /* Azul */
+  .status-badge.dropped {
+    background: rgba(239, 68, 68, 0.9);
+    border: 1px solid #f87171;
+  }
+
+  /* Rojo */
+  .status-badge.backlog {
+    background: rgba(107, 114, 128, 0.9);
+    border: 1px solid #9ca3af;
+  }
+
+  /* Gris */
+
+  /* Aseguramos que la imagen ocupe todo */
+  .library-card {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+</style>
 
 <script>
   function openTab(evt, tabName) {
