@@ -6,35 +6,34 @@
         <span class="brand-mark">GAMELIFT</span>
       </a>
 
-      <button
-        class="nav-toggle"
-        type="button"
-        aria-controls="navMenu"
-        aria-expanded="false"
-      >
+      <button class="nav-toggle" type="button" aria-controls="navMenu" aria-expanded="false">
         <span class="nav-toggle-line"></span>
         <span class="nav-toggle-line"></span>
         <span class="nav-toggle-line"></span>
       </button>
 
-      <nav
-        id="navMenu"
-        class="nav-menu"
-        aria-label="Primary navigation"
-      >
+      <nav id="navMenu" class="nav-menu" aria-label="Primary navigation">
         <a class="nav-link <%= (typeof active !== 'undefined' && active === 'index') ? 'is-active' : '' %>" href="/">
           Home
         </a>
 
-        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'games') ? 'is-active' : '' %>" href="/games">
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'games') ? 'is-active' : '' %>"
+          href="/games">
           Games
         </a>
 
-        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'features') ? 'is-active' : '' %>" href="/features">
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'versus') ? 'is-active' : '' %>"
+          href="/versus">
+          <i class="fas fa-bolt" style="color: #f59e0b; margin-right: 5px;"></i> Versus
+        </a>
+
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'features') ? 'is-active' : '' %>"
+          href="/features">
           New Features
         </a>
 
-        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'support') ? 'is-active' : '' %>" href="/support-developers">
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'support') ? 'is-active' : '' %>"
+          href="/support-developers">
           Support Developers
         </a>
       </nav>
@@ -43,33 +42,29 @@
 
         <% if (locals.user) { %>
 
-          <a
-            href="/profile"
-            class="btn btn-ghost btn-sm"
-            style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;"
-          >
+          <a href="/profile" class="btn btn-ghost btn-sm"
+            style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;">
             <img
               src="<%= (user.avatarUrl) ? user.avatarUrl : 'https://ui-avatars.com/api/?background=random&color=fff&name=' + (user.username || 'User') %>"
               alt="<%= user.username || 'User' %>"
-              style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;"
-            >
+              style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
 
             <span style="font-weight: 600;">
               <%= user.username || 'Profile' %>
             </span>
           </a>
 
-        <% } else { %>
+          <% } else { %>
 
-          <a class="btn btn-ghost btn-sm" href="/auth/login">
-            Login
-          </a>
+            <a class="btn btn-ghost btn-sm" href="/auth/login">
+              Login
+            </a>
 
-          <a class="btn btn-primary btn-sm" href="/auth/register">
-            Register
-          </a>
+            <a class="btn btn-primary btn-sm" href="/auth/register">
+              Register
+            </a>
 
-        <% } %>
+            <% } %>
 
       </div>
 

@@ -1,99 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    <%= title %>
+  </title>
 
-    <link rel="stylesheet" href="/stylesheets/main.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <% if (page === "login" || page === "register") { %>
-      <link rel="stylesheet" href="/stylesheets/auth.css" />
+  <link rel="stylesheet" href="/stylesheets/main.css" />
+
+  <% if (page==="login" || page==="register" ) { %>
+    <link rel="stylesheet" href="/stylesheets/auth.css" />
     <% } %>
 
-    <% if (page === "profile") { %>
-      <link rel="stylesheet" href="/stylesheets/profile.css" />
-    <% } %>
+      <% if (page==="profile" ) { %>
+        <link rel="stylesheet" href="/stylesheets/profile.css" />
+        <% } %>
 
-    <% if (page === "index") { %>
-      <link rel="stylesheet" href="/stylesheets/home.css" />
-    <% } %>
+          <% if (page==="index" ) { %>
+            <link rel="stylesheet" href="/stylesheets/home.css" />
+            <% } %>
 
-    <% if (page === "games") { %>
-      <link rel="stylesheet" href="/stylesheets/games.css" />
-    <% } %>
+              <% if (page==="games" ) { %>
+                <link rel="stylesheet" href="/stylesheets/games.css" />
+                <% } %>
 
-    <% if (page === "game-detail") { %>
-      <link rel="stylesheet" href="/stylesheets/game-detail.css" />
-    <% } %>
+                  <% if (page==="game-detail" ) { %>
+                    <link rel="stylesheet" href="/stylesheets/game-detail.css" />
+                    <% } %>
 
-    <% if (page === "features") { %>
-      <link rel="stylesheet" href="/stylesheets/games.css" /> <% } %>
+                      <% if (page==="features" ) { %>
+                        <link rel="stylesheet" href="/stylesheets/games.css" />
+                        <% } %>
 
-    <% if (page === "support") { %>
-      <link rel="stylesheet" href="/stylesheets/support.css" />
-    <% } %>
-  </head>
+                          <% if (page==="support" ) { %>
+                            <link rel="stylesheet" href="/stylesheets/support.css" />
+                            <% } %>
 
-  <body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+                              <% if (page==="versus" ) { %>
+                                <link rel="stylesheet" href="/stylesheets/versus.css" />
+                                <% } %>
+</head>
 
-    <%- include("partials/navbar", { active: page || "index" }) %>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+
+  <%- include("partials/navbar", { active: page || "index" }) %>
 
     <main class="app" id="main" style="flex: 1; display: flex; flex-direction: column;">
 
-      <% if (page === "index") { %>
-        <%- include("index", {
-          heroSlides: (data && data.heroSlides) ? data.heroSlides : [],
-          topGames: (data && data.topGames) ? data.topGames : []
-        }) %>
+      <% if (page==="index" ) { %>
+        <%- include("index", { heroSlides: (data && data.heroSlides) ? data.heroSlides : [], topGames: (data &&
+          data.topGames) ? data.topGames : [] }) %>
 
-      <% } else if (page === "games") { %>
-        <%- include("games", { data }) %>
+          <% } else if (page==="games" ) { %>
+            <%- include("games", { data }) %>
 
-      <% } else if (page === "features") { %>
-        <%- include("features", { data }) %>
-      
-      <% } else if (page === "support") { %>
-        <%- include("support", { data }) %>
+              <% } else if (page==="features" ) { %>
+                <%- include("features", { data }) %>
 
-      <% } else if (page === "error") { %>
-        <%- include("error", { data }) %>
+                  <% } else if (page==="support" ) { %>
+                    <%- include("support", { data }) %>
 
-      <% } else { %>
-        <%- include(page, { data, user: (typeof user !== 'undefined' ? user : null) }) %>
-      <% } %>
+                      <% } else if (page==="error" ) { %>
+                        <%- include("error", { data }) %>
+
+                          <% } else { %>
+                            <%- include(page, { data, user: (typeof user !=='undefined' ? user : null) }) %>
+                              <% } %>
 
     </main>
 
     <%- include("partials/footer") %>
 
-    <script src="/javascripts/main.js"></script>
+      <script src="/javascripts/main.js"></script>
 
-    <% if (page === "index") { %>
-      <script src="/javascripts/hero-slider.js"></script>
-    <% } %>
+      <% if (page==="index" ) { %>
+        <script src="/javascripts/hero-slider.js"></script>
+        <% } %>
 
-    <% if (page === "games" || page === "features" || page === "game-detail") { %>
-      <script src="/javascripts/games-actions.js"></script>
-    <% } %>
+          <% if (page==="games" || page==="features" || page==="game-detail" ) { %>
+            <script src="/javascripts/games-actions.js"></script>
+            <% } %>
 
-    <% if (page === "games") { %>
-      <script src="/javascripts/games-search.js"></script>
-    <% } %>
-    
-    <% if (page === "game-detail") { %>
-      <script src="/javascripts/game-reviews.js"></script>
-    <% } %>
-    
-    <% if (page === "support-create") { %>
-      <link rel="stylesheet" href="/stylesheets/support-create.css" />
-    <% } %>
+              <% if (page==="games" ) { %>
+                <script src="/javascripts/games-search.js"></script>
+                <% } %>
 
-    <% if (page === "support-detail") { %>
-      <link rel="stylesheet" href="/stylesheets/support.css" /> <link rel="stylesheet" href="/stylesheets/support-detail.css" />
-    <% } %>
+                  <% if (page==="game-detail" ) { %>
+                    <script src="/javascripts/game-reviews.js"></script>
+                    <% } %>
 
-  </body>
+                      <% if (page==="support-create" ) { %>
+                        <link rel="stylesheet" href="/stylesheets/support-create.css" />
+                        <% } %>
+
+                          <% if (page==="support-detail" ) { %>
+                            <link rel="stylesheet" href="/stylesheets/support.css" />
+                            <link rel="stylesheet" href="/stylesheets/support-detail.css" />
+                            <% } %>
+
+</body>
+
 </html>

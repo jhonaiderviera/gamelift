@@ -12,10 +12,15 @@ const gamesRouter = require("./routes/games");
 const featuresRouter = require("./routes/features");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
-const igdbRouter = require("./routes/igdb");
-const steamGridDbRouter = require("./routes/steamgriddb");
+const igdbRouter = require("./routes/igdb"); // Asegúrate de que este archivo exista como routes/igdb.js
+const steamGridDbRouter = require("./routes/steamgriddb"); // Asegúrate de que exista routes/steamgriddb.js
 const usersRouter = require("./routes/users");
 const supportRouter = require("./routes/support");
+
+// --- AQUÍ FALTABAN ESTAS DOS LÍNEAS ---
+const collectionsRouter = require("./routes/collections");
+const versusRouter = require("./routes/versus");
+// --------------------------------------
 
 // Importar servicio Firebase
 const { db } = require("./services/firebase");
@@ -61,7 +66,10 @@ app.use("/users", usersRouter);
 app.use("/api/igdb", igdbRouter);
 app.use("/api/steamgriddb", steamGridDbRouter);
 app.use("/support-developers", supportRouter);
-app.use("/collections", require("./routes/collections"));
+
+// Ahora esto funcionará porque ya importamos los archivos arriba
+app.use("/collections", collectionsRouter);
+app.use("/versus", versusRouter);
 
 // Catch 404
 app.use(function (req, res, next) {

@@ -1,107 +1,296 @@
 <link rel="stylesheet" href="/stylesheets/profile.css">
 
-<div class="profile-container">
+<% const defaultBanner="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop" ;
+  const bannerImage=(data.bannerUrl && data.bannerUrl.length> 0) ? data.bannerUrl : defaultBanner;
 
-  <div class="profile-header-card">
-    <div class="profile-banner"></div>
-    <div class="profile-identity">
-      <div class="avatar-container">
-        <img src="<%= data.photoUrl || 'https://ui-avatars.com/api/?background=random&color=fff&name=' + data.username %>" alt="<%= data.username %>">
-      </div>
-      
-      <div class="user-details">
-        <div class="name-row">
-          <h1><%= data.username %></h1>
-          <span class="user-role-badge <%= data.roleClass %>"><%= data.roleLabel %></span>
-          
-          <% if (data.tags && data.tags.length > 0) { %>
-            <div class="user-tags-list">
-              <% data.tags.forEach(tag => { %>
-                <span class="user-tag"><%= tag %></span>
-              <% }) %>
-            </div>
-          <% } %>
-        </div>
-        
-        <div class="bio-display">
-          <p class="user-bio-text"><%= data.bio || "No bio yet." %></p>
-        </div>
+  const statusIcons = {
+  'playing': '🎮', 'completed': '🏆', 'on-hold': '⏸️', 'dropped': '💀', 'backlog': '📚'
+  };
+  %>
 
-        <div class="profile-stats">
-          <div class="stat-box">
-            <span class="stat-number"><%= data.followersCount %></span>
-            <span class="stat-label">Followers</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-number"><%= data.followingCount %></span>
-            <span class="stat-label">Following</span>
-          </div>
-        </div>
+  <div class="profile-container">
+
+    <div class="profile-header-card">
+      <div class="profile-banner-container">
+        <div class="profile-banner-img" style="background-image: url('<%= bannerImage %>');"></div>
+        <div class="profile-banner-overlay"></div>
       </div>
 
-      <div class="profile-actions">
-        <% if (user) { %>
-          <form action="/profile/u/<%= data.uid %>/follow" method="POST">
+      <div class="profile-identity">
+        <div class="avatar-container">
+          <img
+            src="<%= data.photoUrl || 'https://ui-avatars.com/api/?background=random&color=fff&size=200&name=' + data.username %>"
+            alt="<%= data.username %>">
+        </div>
+
+        <div class="user-details">
+          <div class="name-row">
+            <h1>
+              <%= data.username %>
+            </h1>
+            <span class="user-role-badge <%= data.roleClass %>">
+              <%= data.roleLabel %>
+            </span>
+            <% if (data.tags && data.tags.length> 0) { %>
+              <div class="user-tags-list">
+                <% data.tags.forEach(tag=> { %>
+                  <span class="user-tag">
+                    <%= tag %>
+                  </span>
+                  <% }) %>
+              </div>
+              <% } %>
+          </div>
+
+          <div class="bio-display" style="cursor: default;">
+            <p class="user-bio-text">
+              <%= data.bio %>
+            </p>
+          </div>
+
+          <div class="profile-stats">
+            <div class="stat-box"><span class="stat-number">
+                <%= data.followers %>
+              </span><span class="stat-label">Followers</span></div>
+            <div class="stat-box"><span class="stat-number">
+                <%= data.following %>
+              </span><span class="stat-label">Following</span></div>
+            <div class="stat-box"><span class="stat-number">
+                <%= data.unlockedCount %>
+              </span><span class="stat-label">Trophies</span></div>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <form action="/profile/u/<%= data.uid %>/follow" method="POST" style="margin: 0;">
             <% if (data.amIFollowing) { %>
-              <button type="submit" class="btn-action" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.5);">
+              <button type="submit" class="btn-action btn-logout">
                 <i class="fas fa-user-minus"></i> Unfollow
               </button>
-            <% } else { %>
-              <button type="submit" class="btn-action" style="background: #8b5cf6; color: #fff; border: none;">
-                <i class="fas fa-user-plus"></i> Follow
-              </button>
-            <% } %>
+              <% } else { %>
+                <button type="submit" class="btn-action btn-settings"
+                  style="background: var(--primary); color: white; border-color: var(--primary);">
+                  <i class="fas fa-user-plus"></i> Follow
+                </button>
+                <% } %>
           </form>
-        <% } %>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="profile-tabs">
-    <button class="tab-btn active">Reviews (<%= data.reviews.length %>)</button>
-    <% if (data.projects.length > 0) { %>
-      <button class="tab-btn">Projects (<%= data.projects.length %>)</button>
-    <% } %>
-  </div>
+    <div class="profile-tabs">
+      <button class="tab-btn active" onclick="openTab(event, 'tab-achievements')"><i class="fas fa-trophy"></i>
+        Trophies</button>
+      <button class="tab-btn" onclick="openTab(event, 'tab-collections')"><i class="fas fa-layer-group"></i>
+        Collections</button>
+      <button class="tab-btn" onclick="openTab(event, 'tab-projects')"><i class="fas fa-rocket"></i> Projects</button>
+      <button class="tab-btn" onclick="openTab(event, 'tab-reviews')"><i class="fas fa-star"></i> Reviews</button>
+      <button class="tab-btn" onclick="openTab(event, 'tab-library')"><i class="fas fa-gamepad"></i> Library</button>
+      <button class="tab-btn" onclick="openTab(event, 'tab-favorites')"><i class="fas fa-heart"></i> Favorites</button>
+    </div>
 
-  <div class="tab-content active" style="display:block;">
-    <% if (data.reviews.length > 0) { %>
-      <div class="grid-layout">
-        <% data.reviews.forEach(review => { %>
-          <div class="review-card-profile">
-            <div class="review-header">
-              <h4><%= review.gameName %></h4>
-              <div class="score-badge"><%= review.average %></div>
-            </div>
-            <p class="review-text">"<%= review.text %>"</p>
-          </div>
-        <% }) %>
+    <div id="tab-achievements" class="tab-content active">
+      <div class="achievement-progress-container">
+        <div class="progress-text">
+          <span>Level <%= Math.floor(data.unlockedCount / 2) + 1 %></span>
+          <span>
+            <%= data.unlockedCount %> / <%= data.achievements.length %> Unlocked
+          </span>
+        </div>
+        <div class="level-bar-track">
+          <div class="level-bar-fill" style="width: <%= data.achievementProgress %>%"></div>
+        </div>
       </div>
-    <% } else { %>
-      <div class="empty-state">
-        <i class="fas fa-comment-slash"></i>
-        <h3>No public reviews.</h3>
-      </div>
-    <% } %>
-  </div>
-
-  <% if (data.projects.length > 0) { %>
-    <div class="tab-content" style="margin-top: 30px;">
-      <h3 style="color:#fff; margin-bottom:15px;">Projects</h3>
-      <div class="grid-layout">
-        <% data.projects.forEach(project => { %>
-          <div class="mini-project-card">
-            <div class="mini-cover">
-              <img src="<%= project.image %>" loading="lazy">
+      <div class="achievements-list">
+        <% data.achievements.forEach(ach=> { %>
+          <div class="achievement-card tier-<%= ach.tier %> <%= ach.unlocked ? 'unlocked' : 'locked' %>">
+            <div class="ach-icon-wrapper">
+              <div class="ach-icon"><i class="<%= ach.icon %>"></i></div>
+              <% if (ach.tier==='platinum' || ach.tier==='gold' ) { %>
+                <div class="shine-effect"></div>
+                <% } %>
             </div>
-            <div class="mini-info">
-              <h3><%= project.title %></h3>
-              <a href="/support-developers/<%= project.id %>" class="btn-view">View</a>
+            <div class="ach-info">
+              <div class="ach-header">
+                <h4>
+                  <%= ach.title %>
+                </h4>
+                <% if (ach.unlocked) { %><span class="unlock-date earned">Earned</span>
+                  <% } %>
+              </div>
+              <p>
+                <%= ach.desc %>
+              </p>
+              <span class="tier-badge">
+                <%= ach.tier %>
+              </span>
             </div>
           </div>
-        <% }) %>
+          <% }) %>
       </div>
     </div>
-  <% } %>
 
-</div>
+    <div id="tab-collections" class="tab-content" style="display:none;">
+      <% if (data.myCollections && data.myCollections.length> 0) { %>
+        <div class="grid-layout">
+          <% data.myCollections.forEach(col=> { %>
+            <a href="/collections/<%= col.id %>" style="text-decoration: none;">
+              <div class="review-card-profile" style="height: 100%; transition: transform 0.2s; cursor: pointer;">
+                <div class="review-header">
+                  <h4 style="font-size: 1.1rem; color: #fff; margin:0;">
+                    <%= col.title %>
+                  </h4>
+                  <div class="score-badge"
+                    style="width: auto; padding: 2px 8px; font-size: 0.8rem; background: #374151;">
+                    <%= col.games ? col.games.length : 0 %>
+                  </div>
+                </div>
+                <div
+                  style="display: flex; gap: 5px; margin-top: 15px; height: 60px; overflow: hidden; border-radius: 6px; background: #111827; padding: 5px;">
+                  <% if(col.games && col.games.length> 0) { %>
+                    <% col.games.slice(0, 4).forEach(g=> { %>
+                      <img src="<%= g.cover %>"
+                        style="width: 40px; height: 100%; object-fit: cover; border-radius: 4px;">
+                      <% }) %>
+                        <% } else { %>
+                          <div
+                            style="width: 100%; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 0.8rem;">
+                            Empty List</div>
+                          <% } %>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.8rem; color: var(--primary);">View Collection <i
+                    class="fas fa-arrow-right"></i></p>
+              </div>
+            </a>
+            <% }) %>
+        </div>
+        <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-layer-group"></i>
+            <h3>No collections yet.</h3>
+          </div>
+          <% } %>
+    </div>
+
+    <div id="tab-projects" class="tab-content" style="display:none;">
+      <% if (data.myProjects.length> 0) { %>
+        <div class="grid-layout">
+          <% data.myProjects.forEach(project=> { %>
+            <div class="mini-project-card">
+              <div class="mini-cover"><img src="<%= project.image %>" loading="lazy"><span
+                  class="status-badge">Live</span></div>
+              <div class="mini-info">
+                <h3>
+                  <%= project.title %>
+                </h3>
+                <div class="mini-progress">
+                  <% const percent=project.goal> 0 ? Math.min(100, Math.round((project.raised / project.goal) * 100)) :
+                    0; %>
+                    <div class="bar-bg">
+                      <div class="bar-fill" style="width: <%= percent %>%"></div>
+                    </div>
+                    <small>$<%= project.raised %> raised</small>
+                </div>
+                <a href="/support-developers/<%= project.id %>" class="btn-view">View</a>
+              </div>
+            </div>
+            <% }) %>
+        </div>
+        <% } else { %>
+          <div class="empty-state"><i class="fas fa-pencil-ruler"></i>
+            <h3>No projects yet.</h3>
+          </div>
+          <% } %>
+    </div>
+
+    <div id="tab-reviews" class="tab-content" style="display:none;">
+      <% if (data.myReviews.length> 0) { %>
+        <div class="grid-layout">
+          <% data.myReviews.forEach(review=> { %>
+            <div class="review-card-profile">
+              <div class="review-header">
+                <h4>
+                  <%= review.gameName || 'Game Review' %>
+                </h4>
+                <div class="score-badge">
+                  <%= review.average %>
+                </div>
+              </div>
+              <p class="review-text">"<%= review.text %>"</p>
+            </div>
+            <% }) %>
+        </div>
+        <% } else { %>
+          <div class="empty-state"><i class="fas fa-comment-slash"></i>
+            <h3>No reviews yet.</h3>
+          </div>
+          <% } %>
+    </div>
+
+    <div id="tab-library" class="tab-content" style="display:none;">
+      <% if (data.library.length> 0) { %>
+        <div class="grid-games">
+          <% data.library.forEach(game=> { %>
+            <div class="game-card-wrapper">
+              <% const st=game.status || 'backlog' ; const stIcon=statusIcons[st] || '📚' ; %>
+                <div class="status-badge <%= st %>">
+                  <%= stIcon %> <span>
+                      <%= st.charAt(0).toUpperCase() + st.slice(1) %>
+                    </span>
+                </div>
+                <a href="/games/<%= game.gameId %>" class="library-card">
+                  <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
+                  <div class="overlay"><span>
+                      <%= game.gameName %>
+                    </span></div>
+                </a>
+            </div>
+            <% }) %>
+        </div>
+        <% } else { %>
+          <div class="empty-state"><i class="fas fa-ghost"></i>
+            <h3>Library Empty</h3>
+          </div>
+          <% } %>
+    </div>
+
+    <div id="tab-favorites" class="tab-content" style="display:none;">
+      <% if (data.favorites.length> 0) { %>
+        <div class="grid-games">
+          <% data.favorites.forEach(game=> { %>
+            <div class="game-card-wrapper">
+              <% if (game.status) { %>
+                <% const st=game.status; const stIcon=statusIcons[st] || '📚' ; %>
+                  <div class="status-badge <%= st %>">
+                    <%= stIcon %> <span>
+                        <%= st.charAt(0).toUpperCase() + st.slice(1) %>
+                      </span>
+                  </div>
+                  <% } %>
+                    <a href="/games/<%= game.gameId %>" class="library-card fav-card">
+                      <img src="<%= game.coverUrl %>" alt="<%= game.gameName %>">
+                      <div class="heart-icon"><i class="fas fa-heart"></i></div>
+                    </a>
+            </div>
+            <% }) %>
+        </div>
+        <% } else { %>
+          <div class="empty-state"><i class="fas fa-heart-broken"></i>
+            <h3>No Favorites</h3>
+          </div>
+          <% } %>
+    </div>
+
+  </div>
+
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+      tablinks = document.getElementsByClassName("tab-btn");
+      for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+  </script>

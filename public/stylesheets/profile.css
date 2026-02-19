@@ -15,14 +15,17 @@
   border: 1px solid #374151;
   margin-bottom: 30px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
 .profile-banner {
   height: 150px;
   background: linear-gradient(90deg, var(--primary), #ec4899);
   opacity: 0.8;
+  position: relative;
 }
 
+/* Identidad del Usuario */
 .profile-identity {
   padding: 0 40px 30px 40px;
   display: flex;
@@ -30,6 +33,8 @@
   gap: 30px;
   margin-top: -60px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
 }
 
 .avatar-container img {
@@ -39,6 +44,7 @@
   border: 6px solid #1f2937;
   object-fit: cover;
   background: #000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .user-details {
@@ -51,6 +57,7 @@
   align-items: center;
   gap: 15px;
   margin-bottom: 5px;
+  flex-wrap: wrap;
 }
 
 .name-row h1 {
@@ -58,6 +65,7 @@
   color: #fff;
   margin: 0;
   font-weight: 800;
+  line-height: 1.1;
 }
 
 /* === ETIQUETAS DE ROL === */
@@ -69,7 +77,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   vertical-align: middle;
-  transform: translateY(-2px);
+  display: inline-block;
 }
 
 .badge-gamer {
@@ -98,7 +106,7 @@
   margin-left: -8px;
   border-radius: 8px;
   transition: background 0.2s ease, border-color 0.2s ease;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   border: 1px solid transparent;
   max-width: fit-content;
 }
@@ -113,12 +121,14 @@
   margin: 0;
   max-width: 600px;
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .user-bio-placeholder {
   color: #6b7280;
   font-style: italic;
   margin: 0;
+  font-size: 0.9rem;
 }
 
 .bio-editor {
@@ -156,6 +166,11 @@
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
+  transition: filter 0.2s;
+}
+
+.btn-mini-save:hover {
+  filter: brightness(1.1);
 }
 
 .btn-mini-cancel {
@@ -166,13 +181,19 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-mini-cancel:hover {
+  color: #fff;
+  border-color: #fff;
 }
 
 /* STATS */
 .profile-stats {
   display: flex;
   gap: 30px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .stat-box {
@@ -184,17 +205,16 @@
   font-size: 1.4rem;
   font-weight: 800;
   color: #fff;
+  line-height: 1;
 }
 
 .stat-label {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: #9ca3af;
   text-transform: uppercase;
   font-weight: 600;
-}
-
-.stat-box.highlight .stat-number {
-  color: var(--primary);
+  margin-top: 4px;
+  letter-spacing: 0.5px;
 }
 
 /* BOTONES DE ACCIÓN */
@@ -244,10 +264,17 @@
 /* TABS */
 .profile-tabs {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   border-bottom: 1px solid #374151;
   margin-bottom: 30px;
   overflow-x: auto;
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.profile-tabs::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
 }
 
 .tab-btn {
@@ -255,13 +282,15 @@
   border: none;
   color: #9ca3af;
   padding: 12px 20px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   border-bottom: 3px solid transparent;
   transition: 0.3s;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 .tab-btn:hover {
@@ -273,16 +302,8 @@
   border-bottom-color: var(--primary);
 }
 
-.count-pill {
-  background: #374151;
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-}
-
-.tab-btn.active .count-pill {
-  background: var(--primary);
+.tab-btn i {
+  font-size: 0.9rem;
 }
 
 /* === ACHIEVEMENTS SYSTEM === */
@@ -301,55 +322,59 @@
   margin-bottom: 10px;
   color: #fff;
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .level-bar-track {
   width: 100%;
-  height: 10px;
-  background: #1f2937;
-  border-radius: 5px;
+  height: 8px;
+  background: #111827;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .level-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), #ec4899);
-  border-radius: 5px;
+  border-radius: 4px;
   transition: width 1s ease;
 }
 
 .achievements-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 15px;
 }
 
 .achievement-card {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
   background: #111827;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #374151;
   transition: 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Icono Base */
 .ach-icon-wrapper {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
 }
 
 .ach-icon {
   width: 100%;
   height: 100%;
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   background: #1f2937;
   color: #6b7280;
   border: 2px solid #374151;
@@ -378,19 +403,20 @@
   background: linear-gradient(135deg, #1e3a8a, #3b82f6);
   border-color: #60a5fa;
   color: #fff;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
 /* Estado Locked */
 .achievement-card.locked {
   opacity: 0.6;
-  filter: grayscale(1);
+  background: rgba(17, 24, 39, 0.5);
 }
 
 .achievement-card.locked .ach-icon {
   background: #1f2937;
   border-color: #374151;
   color: #4b5563;
+  filter: grayscale(1);
 }
 
 /* Animación de brillo */
@@ -400,8 +426,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 14px;
-  overflow: hidden;
+  pointer-events: none;
 }
 
 .achievement-card.unlocked .shine-effect::after {
@@ -411,21 +436,19 @@
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
   transform: skewX(-25deg);
-  animation: shine 3s infinite;
+  animation: shine 4s infinite;
 }
 
 @keyframes shine {
-  0% {
+
+  0%,
+  100% {
     left: -100%;
   }
 
-  20% {
-    left: 200%;
-  }
-
-  100% {
+  50% {
     left: 200%;
   }
 }
@@ -437,25 +460,32 @@
 .ach-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
+  align-items: flex-start;
+  margin-bottom: 4px;
 }
 
 .ach-header h4 {
   margin: 0;
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .unlock-date {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.7rem;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .ach-info p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #9ca3af;
+  line-height: 1.4;
 }
 
 .tier-badge {
@@ -463,23 +493,38 @@
   font-size: 0.65rem;
   text-transform: uppercase;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
   margin-top: 8px;
   background: #1f2937;
   color: #9ca3af;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .tier-platinum .tier-badge {
   color: #60a5fa;
   border: 1px solid rgba(96, 165, 250, 0.3);
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .tier-gold .tier-badge {
   color: #fbbf24;
   border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.1);
 }
+
+.tier-silver .tier-badge {
+  color: #e5e7eb;
+  border: 1px solid rgba(229, 231, 235, 0.3);
+  background: rgba(229, 231, 235, 0.1);
+}
+
+.tier-bronze .tier-badge {
+  color: #fdba74;
+  border: 1px solid rgba(253, 186, 116, 0.3);
+  background: rgba(253, 186, 116, 0.1);
+}
+
 
 /* GRID LAYOUTS */
 .grid-layout {
@@ -490,7 +535,7 @@
 
 .grid-games {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 20px;
 }
 
@@ -502,7 +547,7 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
   gap: 15px;
   transition: 0.2s;
 }
@@ -510,12 +555,13 @@
 .mini-project-card:hover {
   transform: translateY(-3px);
   border-color: var(--primary);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .mini-cover {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   flex-shrink: 0;
 }
 
@@ -526,10 +572,18 @@
   border-radius: 8px;
 }
 
+.mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .mini-info h3 {
   color: #fff;
   font-size: 1rem;
   margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mini-progress {
@@ -541,7 +595,7 @@
   background: #374151;
   border-radius: 2px;
   width: 100%;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .bar-fill {
@@ -553,16 +607,18 @@
 .mini-progress small {
   font-size: 0.75rem;
   color: #9ca3af;
+  display: block;
 }
 
 .btn-view {
   display: inline-block;
   text-decoration: none;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #fff;
   background: #374151;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 6px;
+  transition: 0.2s;
 }
 
 .btn-view:hover {
@@ -579,6 +635,7 @@
   flex-direction: column;
   gap: 10px;
   transition: 0.2s;
+  height: 100%;
 }
 
 .review-card-profile:hover {
@@ -598,23 +655,33 @@
 .review-header h4 {
   margin: 0;
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
 }
 
 .review-text {
   color: #d1d5db;
   font-style: italic;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .score-badge {
   background: #1f2937;
   color: var(--primary);
   font-weight: 800;
-  padding: 4px 8px;
+  padding: 2px 8px;
   border-radius: 6px;
   border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.85rem;
 }
 
 /* === LIBRARY CARDS & STATUS BADGES === */
@@ -622,9 +689,10 @@
 /* Wrapper para que la etiqueta flote sobre la imagen */
 .game-card-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
   transition: transform 0.2s;
+  aspect-ratio: 3/4;
 }
 
 .game-card-wrapper:hover {
@@ -639,7 +707,7 @@
   right: 8px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: white;
   z-index: 5;
@@ -658,56 +726,54 @@
   border: 1px solid #34d399;
 }
 
-/* Verde */
 .status-badge.completed {
   background: rgba(245, 158, 11, 0.9);
   border: 1px solid #fbbf24;
   color: #fff;
 }
 
-/* Dorado */
 .status-badge.on-hold {
   background: rgba(59, 130, 246, 0.9);
   border: 1px solid #60a5fa;
 }
 
-/* Azul */
 .status-badge.dropped {
   background: rgba(239, 68, 68, 0.9);
   border: 1px solid #f87171;
 }
 
-/* Rojo */
 .status-badge.backlog {
   background: rgba(107, 114, 128, 0.9);
   border: 1px solid #9ca3af;
 }
 
-/* Gris */
-
 /* Tarjeta de Librería base */
 .library-card {
-  aspect-ratio: 3/4;
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   border: 1px solid transparent;
   transition: 0.3s;
-  display: block;
-  width: 100%;
-  height: 100%;
+  background: #111827;
 }
 
 .library-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
 .library-card:hover {
-  z-index: 2;
-  border-color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.library-card:hover img {
+  transform: scale(1.05);
 }
 
 .library-card .overlay {
@@ -716,7 +782,7 @@
   left: 0;
   right: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  padding: 20px 10px 10px;
+  padding: 30px 10px 10px;
   transform: translateY(100%);
   transition: 0.3s;
 }
@@ -729,38 +795,73 @@
   color: #fff;
   font-weight: 600;
   font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Icono corazón en favoritos */
+.fav-card .heart-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #ef4444;
+  background: rgba(0, 0, 0, 0.6);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  backdrop-filter: blur(2px);
 }
 
 /* Empty States */
 .empty-state {
   text-align: center;
-  padding: 60px;
+  padding: 60px 20px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 16px;
   border: 1px dashed #374151;
   color: #6b7280;
+  margin-top: 20px;
 }
 
 .empty-state i {
   font-size: 3rem;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   opacity: 0.5;
+  color: #9ca3af;
 }
 
 .empty-state h3 {
   color: #fff;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .btn-cta {
   display: inline-block;
-  margin-top: 15px;
+  margin-top: 20px;
   background: var(--primary);
   color: #fff;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-cta:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
 }
 
 /* MODAL SETTINGS */
@@ -786,13 +887,15 @@
 .settings-card {
   background: #1f2937;
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
   border-radius: 20px;
-  padding: 25px;
+  padding: 30px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
   transform: translateY(20px);
   transition: transform 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-overlay.visible .settings-card {
@@ -803,13 +906,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 15px;
 }
 
 .modal-header h3 {
   margin: 0;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .close-modal-btn {
@@ -818,25 +924,27 @@
   color: #9ca3af;
   font-size: 1.2rem;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .close-modal-btn:hover {
   color: #fff;
+  transform: rotate(90deg);
 }
 
 .settings-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .setting-option-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
+  gap: 15px;
+  padding: 14px 18px;
   background: #111827;
-  border-radius: 10px;
+  border-radius: 12px;
   color: #d1d5db;
   text-decoration: none;
   font-weight: 500;
@@ -845,16 +953,26 @@
   cursor: pointer;
   width: 100%;
   text-align: left;
+  font-size: 0.95rem;
+}
+
+.setting-option-btn i {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .setting-option-btn:hover {
   background: #374151;
   color: #fff;
+  border-color: #4b5563;
+  transform: translateX(5px);
 }
 
 .setting-option-btn.danger {
   color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .setting-option-btn.danger:hover {
@@ -876,7 +994,7 @@
   color: #d1d5db;
   margin-bottom: 8px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .settings-input {
@@ -884,20 +1002,22 @@
   background: #111827;
   border: 1px solid #374151;
   color: #fff;
-  padding: 12px;
+  padding: 12px 15px;
   border-radius: 8px;
   outline: none;
   font-size: 1rem;
   margin-bottom: 20px;
+  transition: 0.2s;
 }
 
 .settings-input:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
 .modal-actions {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   margin-top: 10px;
 }
 
@@ -909,6 +1029,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  transition: 0.2s;
 }
 
 .btn-back:hover {
@@ -925,10 +1046,12 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  transition: 0.2s;
 }
 
 .btn-save:hover {
   filter: brightness(1.1);
+  transform: translateY(-2px);
 }
 
 .btn-save.danger-bg {
@@ -953,7 +1076,7 @@
   font-weight: 600;
   background: rgba(255, 255, 255, 0.08);
   color: #d1d5db;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   letter-spacing: 0.3px;
@@ -963,8 +1086,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
-  max-height: 300px;
+  margin-bottom: 25px;
+  max-height: 250px;
   overflow-y: auto;
   padding: 5px;
 }
@@ -980,7 +1103,7 @@
 
 .tag-checkbox span {
   display: inline-block;
-  padding: 8px 14px;
+  padding: 8px 16px;
   background: #111827;
   border: 1px solid #374151;
   border-radius: 20px;
@@ -1028,10 +1151,17 @@
 
   .user-details {
     padding-top: 10px;
+    width: 100%;
   }
 
   .name-row {
     justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .user-role-badge {
+    transform: none;
   }
 
   .user-tags-list {
@@ -1041,6 +1171,16 @@
     width: 100%;
   }
 
+  .bio-display {
+    margin: 10px auto 20px auto;
+  }
+
+  .user-bio-text,
+  .user-bio-placeholder {
+    text-align: center;
+    margin: 0 auto;
+  }
+
   .profile-stats {
     justify-content: center;
   }
@@ -1048,6 +1188,320 @@
   .profile-actions {
     width: 100%;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 20px;
+  }
+
+  .profile-tabs {
+    justify-content: flex-start;
+    padding-bottom: 5px;
+  }
+
+  .grid-games {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+/* =========================================
+   PROFILE.CSS - MEJORAS VISUALES (NEXT LEVEL)
+   ========================================= */
+
+/* --- NUEVO BANNER DINÁMICO --- */
+.profile-header-card {
+  /* Aseguramos que el zoom del banner no se salga de la tarjeta */
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f111a;
+  /* Fondo un poco más oscuro para contrastar */
+}
+
+.profile-banner-container {
+  position: relative;
+  height: 180px;
+  /* Un poco más alto para lucir la imagen */
+  overflow: hidden;
+}
+
+.profile-banner-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  /* Efecto lento de zoom y movimiento para dar vida (efecto Ken Burns suave) */
+  animation: bannerMove 20s ease-in-out infinite alternate;
+}
+
+.profile-banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Degradado para asegurar que el texto blanco se lea bien encima de cualquier imagen */
+  background: linear-gradient(to bottom, rgba(15, 17, 26, 0.1), rgba(15, 17, 26, 1));
+  z-index: 1;
+}
+
+@keyframes bannerMove {
+  0% {
+    transform: scale(1);
+    background-position: center top;
+  }
+
+  100% {
+    transform: scale(1.1);
+    background-position: center bottom;
+  }
+}
+
+/* --- ENTRADA ANIMADA DE LA CABECERA --- */
+.profile-identity {
+  position: relative;
+  z-index: 2;
+  /* Asegura que el texto esté sobre el banner */
+}
+
+/* Animar la entrada del Avatar (Pop-in) */
+.avatar-container img {
+  border: 4px solid #0f111a;
+  /* Coincide con el fondo */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  /* Animación cúbica para un rebote suave */
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* Animar la información del usuario deslizándose hacia arriba */
+.user-details {
+  animation: slideUpFade 0.8s ease-out forwards 0.2s;
+  /* 0.2s de retraso */
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- ANIMACIÓN BARRA DE PROGRESO --- */
+.level-bar-track {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.level-bar-fill {
+  /* Añadir un resplandor neón a la barra */
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+  width: 0%;
+  /* Empieza en 0 */
+  /* Se anima hasta el ancho definido en el HTML */
+  animation: fillProgress 1.5s ease-out forwards 0.5s;
+}
+
+@keyframes fillProgress {
+  from {
+    width: 0%;
+  }
+
+  /* El valor final lo toma del estilo en línea style="width: %" */
+}
+
+/* --- EFECTOS EN PESTAÑAS (TABS) --- */
+.tab-btn {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Efecto de línea deslizante moderna */
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary, #8b5cf6);
+  transform: translateX(-105%);
+  transition: transform 0.3s ease;
+}
+
+.tab-btn:hover::after {
+  transform: translateX(0%);
+}
+
+.tab-btn.active {
+  color: #fff;
+  /* Brillo sutil en el texto activo */
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.tab-btn.active::after {
+  transform: translateX(0%);
+  height: 3px;
+  box-shadow: 0 0 10px var(--primary, #8b5cf6);
+}
+
+/* --- TARJETAS DE TROFEOS "NEXT LEVEL" --- */
+
+.achievements-list {
+  /* Perspectiva para efectos 3D si quisiéramos rotaciones */
+  perspective: 1000px;
+}
+
+.achievement-card {
+  /* Fondo con degradado muy sutil */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Transiciones suaves para el hover */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* Preparar animación de entrada en cascada */
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardEntrance 0.6s ease-out forwards;
+}
+
+/* Retraso escalonado para que aparezcan uno tras otro (Cascada) */
+.achievement-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.achievement-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.achievement-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.achievement-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.achievement-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.achievement-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.achievement-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+/* ... añade más si tienes muchas tarjetas */
+
+@keyframes cardEntrance {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- ESTADO HOVER: "Levantar y Brillar" --- */
+.achievement-card:hover {
+  transform: translateY(-7px) scale(1.02);
+  /* Se levanta */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 92, 246, 0.3);
+  /* Borde neón sutil */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+/* Brillo específico según el rango (Tier) al hacer hover */
+.achievement-card.unlocked.tier-platinum:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(96, 165, 250, 0.4);
+}
+
+.achievement-card.unlocked.tier-gold:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(251, 191, 36, 0.4);
+}
+
+
+/* --- ANIMACIÓN DE BRILLO EN DESBLOQUEADOS --- */
+/* Efecto de pulso en la etiqueta "EARNED" */
+.unlock-date.earned {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Barrido de brillo metálico sobre las tarjetas desbloqueadas */
+.achievement-card.unlocked {
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-card.unlocked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  /* Banda de luz transparente */
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: skewX(-25deg);
+  /* Animación de barrido que ocurre una vez al cargar */
+  animation: shineSweep 2s ease-out forwards 1s;
+  pointer-events: none;
+}
+
+@keyframes shineSweep {
+  100% {
+    left: 200%;
+  }
+}
+
+/* --- (OPCIONAL) FONDO ATMOSFÉRICO PARA EL BODY --- */
+/* Si quieres que el fondo negro no sea tan plano */
+body {
+  background-color: #06060a;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+  /* Animación sutil de respiración en el fondo */
+  animation: bgPulse 10s ease-in-out infinite alternate;
+}
+
+@keyframes bgPulse {
+  0% {
+    background-size: 100% 100%;
+  }
+
+  100% {
+    background-size: 110% 110%;
   }
 }

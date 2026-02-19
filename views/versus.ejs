@@ -1,0 +1,177 @@
+<link rel="stylesheet" href="/stylesheets/versus.css">
+
+<div class="versus-container">
+
+    <% if (data.isToday) { %>
+        <h1 class="versus-title">DAILY BATTLE</h1>
+        <p class="versus-subtitle">Vote to see results</p>
+        <% } else { %>
+            <h1 class="versus-title">ARCHIVED BATTLE</h1>
+            <p class="versus-subtitle">
+                <%= data.date %>
+            </p>
+            <% } %>
+
+                <div id="resultsBar" class="results-bar-container" style="display: none;">
+                    <div class="bar-red" style="width: <%= data.p1 %>%;">
+                        <span class="percent">
+                            <%= data.p1 %>%
+                        </span>
+                    </div>
+                    <div class="bar-blue" style="width: <%= data.p2 %>%;">
+                        <span class="percent">
+                            <%= data.p2 %>%
+                        </span>
+                    </div>
+                    <div class="vs-icon-mini">VS</div>
+                </div>
+
+                <div class="battle-arena" id="arena">
+
+                    <div class="fighter-card left" id="fighter1" onclick="handleVote('left')">
+                        <div class="fighter-bg"
+                            style="background-image: url('<%= data.game1.coverUrl ? data.game1.coverUrl.replace('t_cover_big', 't_1080p') : '' %>');">
+                        </div>
+                        <div class="fighter-content">
+                            <h2>
+                                <%= data.game1.name %>
+                            </h2>
+                            <div class="stats">
+                                <span>
+                                    <%= data.game1.year==='N/A' ? '' : data.game1.year %>
+                                </span>
+                                <span class="vote-count-display" style="display:none;">
+                                    <%= data.game1.votes %> Votes
+                                </span>
+                            </div>
+                            <button class="btn-vote red" type="button">VOTE RED</button>
+                        </div>
+                    </div>
+
+                    <div class="center-elements">
+                        <div class="vs-badge"><span>VS</span></div>
+
+                        <a href="/versus" id="nextBattleBtn" style="
+        position: absolute; 
+        z-index: 50; 
+        padding: 15px 30px; 
+        background: white; 
+        color: black; 
+        text-decoration: none;
+        border-radius: 50px; 
+        font-weight: 900; 
+        cursor: pointer; 
+        display: none; 
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 30px rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        white-space: nowrap;">
+                            Today's Battle <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="fighter-card right" id="fighter2" onclick="handleVote('right')">
+                        <div class="fighter-bg"
+                            style="background-image: url('<%= data.game2.coverUrl ? data.game2.coverUrl.replace('t_cover_big', 't_1080p') : '' %>');">
+                        </div>
+                        <div class="fighter-content">
+                            <h2>
+                                <%= data.game2.name %>
+                            </h2>
+                            <div class="stats">
+                                <span>
+                                    <%= data.game2.year==='N/A' ? '' : data.game2.year %>
+                                </span>
+                                <span class="vote-count-display" style="display:none;">
+                                    <%= data.game2.votes %> Votes
+                                </span>
+                            </div>
+                            <button class="btn-vote blue" type="button">VOTE BLUE</button>
+                        </div>
+                    </div>
+
+                </div>
+</div>
+
+<script>
+    // Variables del servidor inyectadas en JS
+    const BATTLE_DATE = "<%= data.date %>";
+    const IS_TODAY = <%= data.isToday %>;
+    const HAS_VOTED_KEY = "voted_" + BATTLE_DATE;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Comprobar si ya votó
+        if (localStorage.getItem(HAS_VOTED_KEY)) {
+            showResultsMode();
+        } else if (!IS_TODAY) {
+            // Si es una batalla antigua y no votaste, solo muestra resultados
+            showResultsMode();
+        }
+    });
+
+    async function handleVote(side) {
+        // 1. Validaciones
+        if (localStorage.getItem(HAS_VOTED_KEY)) return;
+        if (!IS_TODAY) {
+            alert("Voting for this battle is closed.");
+            return;
+        }
+
+        // 2. Efecto visual inmediato
+        const btn = document.querySelector(side === 'left' ? '.btn-vote.red' : '.btn-vote.blue');
+        if (btn) {
+            btn.innerHTML = "VOTED! <i class='fas fa-check'></i>";
+            btn.style.transform = "scale(1.1)";
+        }
+
+        // 3. Guardar en localStorage
+        localStorage.setItem(HAS_VOTED_KEY, side);
+
+        // 4. Enviar al backend
+        try {
+            await fetch('/versus/vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: BATTLE_DATE, winnerSide: side })
+            });
+
+            // 5. Recargar para ver los porcentajes
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
+
+        } catch (e) {
+            console.error(e);
+            window.location.reload();
+        }
+    }
+
+    function showResultsMode() {
+        const bar = document.getElementById('resultsBar');
+        if (bar) bar.style.display = 'flex';
+
+        const arena = document.getElementById('arena');
+        if (arena) arena.style.opacity = "0.6";
+
+        document.querySelectorAll('.fighter-card').forEach(c => {
+            c.onclick = null;
+            c.style.cursor = "default";
+        });
+
+        document.querySelectorAll('.btn-vote').forEach(b => {
+            b.style.display = "none";
+        });
+
+        document.querySelectorAll('.vote-count-display').forEach(s => s.style.display = "block");
+
+        const sub = document.querySelector('.versus-subtitle');
+        if (sub && IS_TODAY) sub.innerText = "Thanks for voting today!";
+
+        if (!IS_TODAY) {
+            const nextBtn = document.getElementById('nextBattleBtn');
+            if (nextBtn) nextBtn.style.display = 'block';
+        }
+    }
+</script>

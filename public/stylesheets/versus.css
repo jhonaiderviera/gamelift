@@ -1,0 +1,301 @@
+/* Ubicación: /public/stylesheets/versus.css */
+
+.versus-container {
+    height: calc(100vh - 80px);
+    /* Ocupa toda la pantalla menos el navbar */
+    overflow: hidden;
+    position: relative;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.versus-title {
+    position: absolute;
+    top: 30px;
+    z-index: 20;
+    font-size: 3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    letter-spacing: 5px;
+    pointer-events: none;
+    text-align: center;
+    width: 100%;
+}
+
+.versus-subtitle {
+    position: absolute;
+    top: 90px;
+    z-index: 20;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 15px;
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+.battle-arena {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.fighter-card {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+    overflow: hidden;
+    cursor: pointer;
+    /* Indica que es interactivo */
+}
+
+/* Efecto Hover: Uno se hace grande y el otro pequeño */
+.fighter-card:hover {
+    flex: 1.5;
+}
+
+.battle-arena:hover .fighter-card:not(:hover) {
+    flex: 0.8;
+    filter: grayscale(0.8);
+}
+
+.fighter-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s;
+}
+
+.fighter-card:hover .fighter-bg {
+    transform: scale(1.1);
+}
+
+/* Overlay Oscuro para leer texto */
+.fighter-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+}
+
+.fighter-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    transform: translateY(50px);
+    opacity: 0.8;
+    transition: 0.4s;
+    padding: 20px;
+}
+
+.fighter-card:hover .fighter-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.fighter-content h2 {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+    margin-bottom: 10px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    color: #cbd5e1;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+/* BOTONES */
+.btn-vote {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    text-transform: uppercase;
+    clip-path: polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%);
+    transition: 0.2s;
+    position: relative;
+    z-index: 15;
+}
+
+.btn-vote.red {
+    background: linear-gradient(45deg, #ef4444, #b91c1c);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-vote.blue {
+    background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-vote:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+.btn-vote:active {
+    transform: scale(0.95);
+}
+
+/* LOGO VS CENTRAL */
+.vs-badge {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #000;
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2), 0 0 50px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}
+
+/* Ubicación: public/stylesheets/versus.css */
+
+/* ESTILOS PARA LA BARRA DE RESULTADOS */
+.results-bar-container {
+    position: absolute;
+    top: 140px;
+    width: 60%;
+    height: 40px;
+    background: #111;
+    z-index: 50;
+    border-radius: 50px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    animation: fadeInBar 1s forwards;
+}
+
+@keyframes fadeInBar {
+    to {
+        opacity: 1;
+    }
+}
+
+.bar-red {
+    background: linear-gradient(90deg, #ef4444, #b91c1c);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    transition: width 1s ease;
+    white-space: nowrap;
+}
+
+.bar-blue {
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+    transition: width 1s ease;
+    white-space: nowrap;
+}
+
+.percent {
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.vs-icon-mini {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    color: #000;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajuste de responsive para la barra */
+@media (max-width: 768px) {
+    .results-bar-container {
+        width: 90%;
+        top: 120px;
+        height: 30px;
+    }
+
+    .percent {
+        font-size: 0.9rem;
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .battle-arena {
+        flex-direction: column;
+    }
+
+    .vs-badge {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .fighter-content {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .fighter-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .versus-title {
+        font-size: 1.5rem;
+        top: 10px;
+    }
+
+    .versus-subtitle {
+        display: none;
+    }
+
+    .btn-vote {
+        padding: 10px 25px;
+        font-size: 1rem;
+    }
+}
