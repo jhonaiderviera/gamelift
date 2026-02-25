@@ -1,0 +1,152 @@
+/* --- TÍTULO PRINCIPAL --- */
+.hall-header {
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.hall-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    /* Degradado de texto */
+    background: linear-gradient(135deg, #fff 30%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    letter-spacing: -1px;
+}
+
+.hall-subtitle {
+    color: #9ca3af;
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* --- GRID DE TARJETAS --- */
+.hall-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding-bottom: 50px;
+}
+
+/* --- TARJETA DE ESTUDIO (STUDIO CARD) --- */
+.studio-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Rebote suave */
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+/* Efecto Hover: Tarjeta sube y brilla */
+.studio-card:hover {
+    transform: translateY(-8px);
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.9) 0%, rgba(20, 20, 30, 1) 100%);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+/* --- LOGO (EL CÍRCULO) --- */
+.studio-logo-wrapper {
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 50%;
+    /* Círculo perfecto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    transition: transform 0.4s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.studio-card:hover .studio-logo-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.studio-logo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* --- INFORMACIÓN --- */
+.studio-info {
+    flex-grow: 1;
+    z-index: 2;
+}
+
+.studio-name {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    transition: color 0.3s;
+}
+
+.studio-card:hover .studio-name {
+    color: var(--primary, #8b5cf6);
+}
+
+.studio-desc {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.studio-desc span {
+    font-size: 0.95rem;
+    color: #d1d5db;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* --- FLECHA DECORATIVA (Aparece en hover) --- */
+.studio-arrow {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    color: var(--primary, #8b5cf6);
+    font-size: 1.2rem;
+}
+
+.studio-card:hover .studio-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* --- RESPLANDOR DE FONDO (Opcional) --- */
+.studio-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.1), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.studio-card:hover::before {
+    opacity: 1;
+}

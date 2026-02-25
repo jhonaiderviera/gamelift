@@ -10,74 +10,70 @@
         <p class="auth-subtitle">Enter your credentials to continue.</p>
       </div>
 
-      <!-- Error server side -->
-      <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-error" role="alert" aria-live="polite">
-          <%= error %>
+      <!-- Success / Error server side -->
+      <% if (typeof success !=='undefined' && success && success.length> 0) { %>
+        <div
+          style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>
+            <%= success %>
+          </span>
         </div>
-      <% } %>
+        <% } %>
 
-      <!-- Form -->
-      <form class="auth-form" action="/auth/login" method="POST" novalidate>
+          <% if (typeof error !=='undefined' && error && error.length> 0) { %>
+            <div class="alert alert-error" role="alert" aria-live="polite"
+              style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+              <%= error %>
+            </div>
+            <% } %>
 
-        <div class="form-group">
-          <label for="email" class="sr-only">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="form-input"
-            placeholder="Email Address"
-            required
-            autocomplete="email"
-            inputmode="email"
-          >
-        </div>
+              <!-- Form -->
+              <form class="auth-form" action="/auth/login" method="POST" novalidate>
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
 
-        <div class="form-group">
-          <label for="password" class="sr-only">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-input"
-            placeholder="Password"
-            required
-            minlength="6"
-            autocomplete="current-password"
-          >
-        </div>
+                <div class="form-group">
+                  <label for="email" class="sr-only">Email</label>
+                  <input type="email" id="email" name="email" class="form-input" placeholder="Email Address" required
+                    autocomplete="email" inputmode="email">
+                </div>
 
-        <div class="form-options">
-          <label class="custom-check">
-            <input type="checkbox" name="remember" value="1" autocomplete="off">
-            <span>Remember me</span>
-          </label>
+                <div class="form-group">
+                  <label for="password" class="sr-only">Password</label>
+                  <input type="password" id="password" name="password" class="form-input" placeholder="Password"
+                    required minlength="6" autocomplete="current-password">
+                </div>
 
-          <a href="#" class="auth-link" style="font-size: 0.85rem;">
-            Forgot password?
-          </a>
-        </div>
+                <div class="form-options">
+                  <label class="custom-check">
+                    <input type="checkbox" name="remember" value="1" autocomplete="off">
+                    <span>Remember me</span>
+                  </label>
 
-        <button type="submit" class="btn btn-primary btn-block">
-          Sign In
-        </button>
-      </form>
+                  <a href="/auth/forgot-password" class="auth-link" style="font-size: 0.85rem;">
+                    Forgot password?
+                  </a>
+                </div>
 
-      <!-- Footer -->
-      <div class="form-footer">
-        New to GameLift?
-        <a href="/auth/register" class="auth-link">Create an account</a>
-      </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                  Sign In
+                </button>
+              </form>
+
+              <!-- Footer -->
+              <div class="form-footer">
+                New to GameLift?
+                <a href="/auth/register" class="auth-link">Create an account</a>
+              </div>
 
     </div>
   </div>
 
   <!-- Panel visual -->
-  <div
-    class="auth-right"
-    style="background-image: url('<%= data.bgImage %>');"
-    aria-hidden="true"
-  ></div>
+  <div class="auth-right" style="background-image: url('<%= data.bgImage %>');" aria-hidden="true"></div>
 
 </div>

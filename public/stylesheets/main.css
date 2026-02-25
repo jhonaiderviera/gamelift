@@ -5,19 +5,66 @@
    :root {
     /* Paleta de Colores (Theme) */
     --bg: #06060a;
+    --bg-dark: #0a0a12;
+    --bg-input: #13141f;
     --card-bg: #0f1020;
+    --card-bg-alt: #1f2937;
     --card-hover: #161830;
     --text: #f2f3ff;
+    --text-secondary: #cbd5e1;
     --muted: #9ca3af;
-    --primary: #8b5cf6;       /* Morado Principal */
+    --muted-dark: #64748b;
+    --primary: #8b5cf6;
     --primary-hover: #7c3aed;
-    --accent: #ec4899;        /* Rosa Acento */
-    
-    /* Utilidades */
+    --primary-light: #a78bfa;
+    --primary-glow: rgba(139, 92, 246, 0.5);
+    --accent: #ec4899;
+    --accent-light: #f472b6;
+
+    /* Estados */
+    --success: #34d399;
+    --success-dark: #10b981;
+    --warning: #fbbf24;
+    --warning-dark: #eab308;
+    --danger: #ef4444;
+    --gold: #ffd700;
+
+    /* Grises / Bordes */
     --border: rgba(255, 255, 255, 0.08);
+    --border-subtle: #374151;
+    --scrollbar: #333;
+    --footer-bg: #030305;
     --glass: rgba(15, 16, 32, 0.65);
     --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+    /* Neutrales extra */
+    --text-white: #fff;
+    --bg-black: #000;
+    --bg-panel-dark: #111827;
+    --card-dark: #161b28;
+    --muted-mid: #6b7280;
+    --muted-light: #d1d5db;
+    --muted-border: #4b5563;
+    --slate-muted: #94a3b8;
+    --slate-bg: #0f172a;
+    --slate-border: #334155;
+    --slate-dark: #1e293b;
+
+    /* Versus */
+    --versus-blue: #3b82f6;
+    --versus-blue-dark: #1e3a8a;
+    --bar-blue-dark: #1d4ed8;
+
+    /* Tipografia */
     --font-main: "Poppins", system-ui, -apple-system, sans-serif;
+
+    /* Plataformas */
+    --platform-windows: #0078d4;
+    --platform-playstation: #003791;
+    --platform-xbox: #107c10;
+    --platform-apple: #A2AAAD;
+    --platform-android: #3DDC84;
+    --platform-nintendo: #e60012;
   }
   
   /* Reset Básico */

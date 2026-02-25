@@ -536,16 +536,20 @@
     }
 
     const reviewForm = document.getElementById('gameReviewForm');
+    let isSubmittingReview = false;
     if (reviewForm) {
       reviewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSubmittingReview) return;
+        isSubmittingReview = true;
+
         const btn = document.getElementById('submitReviewBtn');
         const originalText = btn.innerText;
         btn.disabled = true; btn.innerText = 'Posting...';
         try {
           const gameId = reviewForm.getAttribute('data-game-id');
           const res = await fetch(`/games/${gameId}/reviews`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
             body: JSON.stringify({
               gameId, gameName: reviewForm.getAttribute('data-game-name'),
               text: document.getElementById('reviewText').value,
@@ -558,9 +562,20 @@
               }
             })
           });
-          if (res.ok) window.location.reload();
-          else { showToast("Error submitting review", 'error'); btn.disabled = false; btn.innerText = originalText; }
-        } catch (e) { console.error(e); showToast("Server error", 'error'); btn.disabled = false; btn.innerText = originalText; }
+          if (res.ok) {
+            window.location.reload();
+          } else { 
+            const errorData = await res.json().catch(() => ({}));
+            showToast(errorData.message || "Error submitting review", 'error'); 
+            btn.disabled = false; btn.innerText = originalText;
+            isSubmittingReview = false;
+          }
+        } catch (e) { 
+          console.error(e); 
+          showToast("Server error", 'error'); 
+          btn.disabled = false; btn.innerText = originalText; 
+          isSubmittingReview = false;
+        }
       });
     }
 
@@ -569,7 +584,7 @@
       try {
         const res = await fetch('/users/library/toggle', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify({
             gameId: '<%= data.id %>',
             gameName: '<%= data.name %>',
@@ -592,7 +607,7 @@
       try {
         const res = await fetch('/users/library/update-status', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify({
             gameId: '<%= data.id %>',
             status: newStatus
@@ -612,7 +627,7 @@
       try {
         const res = await fetch('/users/favorites/toggle', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify({
             gameId: '<%= data.id %>',
             gameName: '<%= data.name %>',
@@ -629,7 +644,7 @@
     async function addToCollection(listId) {
       try {
         const res = await fetch(`/collections/${listId}/add`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify({
             gameId: '<%= data.id %>',
             gameName: '<%= data.name %>',
@@ -652,7 +667,7 @@
       if (!title || title.trim() === "") { showToast("Please enter a name", 'error'); return; }
       try {
         const res = await fetch('/collections/create', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify({ title: title })
         });
         const json = await res.json();

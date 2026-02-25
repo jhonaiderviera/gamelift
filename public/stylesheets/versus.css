@@ -5,7 +5,7 @@
     /* Ocupa toda la pantalla menos el navbar */
     overflow: hidden;
     position: relative;
-    background: #000;
+    background: var(--bg-black);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,7 +19,7 @@
     font-size: 3rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: #fff;
+    color: var(--text-white);
     text-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
     letter-spacing: 5px;
     pointer-events: none;
@@ -31,7 +31,7 @@
     position: absolute;
     top: 90px;
     z-index: 20;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -110,7 +110,7 @@
 
 .fighter-content h2 {
     font-size: 2.5rem;
-    color: #fff;
+    color: var(--text-white);
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
     margin-bottom: 10px;
     font-weight: 800;
@@ -122,7 +122,7 @@
     justify-content: center;
     gap: 15px;
     margin-bottom: 25px;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.9rem;
@@ -134,7 +134,7 @@
     font-size: 1.2rem;
     font-weight: 900;
     border: none;
-    color: #fff;
+    color: var(--text-white);
     cursor: pointer;
     text-transform: uppercase;
     clip-path: polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%);
@@ -170,7 +170,7 @@
     transform: translate(-50%, -50%);
     width: 100px;
     height: 100px;
-    background: #fff;
+    background: var(--text-white);
     border-radius: 50%;
     z-index: 30;
     display: flex;
@@ -179,7 +179,7 @@
     font-size: 2.5rem;
     font-weight: 900;
     font-style: italic;
-    color: #000;
+    color: var(--bg-black);
     box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2), 0 0 50px rgba(0, 0, 0, 0.8);
     pointer-events: none;
 }
@@ -192,7 +192,7 @@
     top: 140px;
     width: 60%;
     height: 40px;
-    background: #111;
+    background: var(--bg-panel-dark);
     z-index: 50;
     border-radius: 50px;
     overflow: hidden;
@@ -233,7 +233,7 @@
 .percent {
     font-weight: 900;
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--text-white);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -242,8 +242,8 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    background: #fff;
-    color: #000;
+    background: var(--text-white);
+    color: var(--bg-black);
     font-weight: 900;
     padding: 2px 8px;
     border-radius: 10px;

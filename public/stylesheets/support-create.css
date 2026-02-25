@@ -8,7 +8,7 @@
     position: relative;
     overflow: hidden;
     /* Fondo Abstracto "Deep Gaming" */
-    background-color: #0f172a;
+    background-color: var(--slate-bg);
     background-image: 
       radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
       radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
@@ -32,14 +32,14 @@
   
   /* LADO IZQUIERDO (Inspiración) */
   .back-link {
-    color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    color: var(--slate-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
     margin-bottom: 40px; font-weight: 500; transition: 0.3s;
     background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px;
   }
-  .back-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .back-link:hover { background: rgba(255,255,255,0.1); color: var(--text-white); }
   
-  .create-title { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; color: #fff; }
-  .create-desc { color: #cbd5e1; font-size: 1.15rem; line-height: 1.6; max-width: 90%; margin-bottom: 40px; }
+  .create-title { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; color: var(--text-white); }
+  .create-desc { color: var(--text-secondary); font-size: 1.15rem; line-height: 1.6; max-width: 90%; margin-bottom: 40px; }
   
   /* Tarjetas Flotantes Decorativas */
   .floating-decor { display: flex; flex-direction: column; gap: 20px; perspective: 1000px; }
@@ -48,51 +48,51 @@
   .decor-card {
     background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08);
     padding: 15px 25px; border-radius: 16px; backdrop-filter: blur(10px);
-    display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 600;
+    display: flex; align-items: center; gap: 12px; color: var(--text-white); font-weight: 600;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     transform: rotateY(-10deg) rotateX(5deg); transition: transform 0.5s;
   }
   .decor-card:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.05); background: rgba(139, 92, 246, 0.2); border-color: var(--primary); }
-  .decor-card i { font-size: 1.2rem; color: #a78bfa; }
+  .decor-card i { font-size: 1.2rem; color: var(--primary-light); }
   
   /* LADO DERECHO (FORMULARIO) */
   .create-form-card {
-    background: #1e293b; /* Color sólido oscuro */
-    border: 1px solid #334155;
+    background: var(--slate-dark); /* Color sólido oscuro */
+    border: 1px solid var(--slate-border);
     padding: 40px; border-radius: 24px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   }
   
-  .form-header { margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
-  .form-header h2 { font-size: 1.8rem; margin: 0; color: #fff; }
-  .form-header p { color: #64748b; margin-top: 5px; font-size: 0.9rem; }
+  .form-header { margin-bottom: 30px; border-bottom: 1px solid var(--slate-border); padding-bottom: 20px; }
+  .form-header h2 { font-size: 1.8rem; margin: 0; color: var(--text-white); }
+  .form-header p { color: var(--muted-dark); margin-top: 5px; font-size: 0.9rem; }
   
   /* INPUTS */
   .form-group { margin-bottom: 24px; }
-  .form-group label { display: block; color: #e2e8f0; margin-bottom: 8px; font-size: 0.95rem; font-weight: 500; }
+  .form-group label { display: block; color: var(--muted-light); margin-bottom: 8px; font-size: 0.95rem; font-weight: 500; }
   
   .input-wrapper { position: relative; }
   .input-icon {
     position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    color: #64748b; transition: 0.3s; z-index: 2;
+    color: var(--muted-dark); transition: 0.3s; z-index: 2;
   }
   
   .input-field, .textarea-field {
-    width: 100%; background: #0f172a; border: 1px solid #334155;
-    color: #fff; padding: 14px 16px 14px 48px; border-radius: 12px;
+    width: 100%; background: var(--slate-bg); border: 1px solid var(--slate-border);
+    color: var(--text-white); padding: 14px 16px 14px 48px; border-radius: 12px;
     font-size: 1rem; transition: all 0.3s;
   }
   .textarea-field { padding: 16px; height: 120px; resize: none; }
   
   .input-field:focus, .textarea-field:focus {
-    border-color: var(--primary); background: #020617; outline: none;
+    border-color: var(--primary); background: var(--bg-black); outline: none;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
   }
   .input-field:focus + .input-icon { color: var(--primary); }
   
   /* --- NUEVO SISTEMA DE TAGS --- */
   .tags-input-container {
-    background: #0f172a; border: 1px solid #334155;
+    background: var(--slate-bg); border: 1px solid var(--slate-border);
     border-radius: 12px; padding: 8px 12px;
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
     min-height: 50px;
@@ -101,27 +101,27 @@
   
   /* Los tags ya creados */
   .tag-pill {
-    background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(139, 92, 246, 0.2); color: var(--primary-light); border: 1px solid rgba(139, 92, 246, 0.3);
     padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
     display: flex; align-items: center; gap: 6px;
   }
   .tag-remove { cursor: pointer; font-size: 1rem; opacity: 0.7; }
-  .tag-remove:hover { opacity: 1; color: #fff; }
+  .tag-remove:hover { opacity: 1; color: var(--text-white); }
   
   /* El input donde escribes */
   .tag-input-text {
-    background: transparent; border: none; color: #fff; flex: 1;
+    background: transparent; border: none; color: var(--text-white); flex: 1;
     min-width: 120px; outline: none; font-size: 0.95rem; padding: 4px 0;
   }
   
   /* Sugerencias abajo */
   .tags-suggestions { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
   .suggestion-chip {
-    background: #334155; color: #94a3b8; padding: 6px 12px;
+    background: var(--slate-border); color: var(--slate-muted); padding: 6px 12px;
     border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
     border: 1px solid transparent;
   }
-  .suggestion-chip:hover { background: #475569; color: #fff; border-color: #64748b; }
+  .suggestion-chip:hover { background: var(--muted-border); color: var(--text-white); border-color: var(--muted-dark); }
   .suggestion-chip i { margin-right: 5px; font-size: 0.75rem; }
   
   

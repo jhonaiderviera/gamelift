@@ -133,7 +133,7 @@
         try {
             await fetch('/versus/vote', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
                 body: JSON.stringify({ date: BATTLE_DATE, winnerSide: side })
             });
 

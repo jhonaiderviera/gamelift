@@ -145,7 +145,8 @@
     </div>
 
     <form id="donationForm" action="" method="POST">
-      
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+
       <label class="donation-label">Select Amount</label>
       <div class="amount-grid">
         <div class="amount-option" onclick="selectAmount(5, this)">$5</div>

@@ -73,6 +73,7 @@
             <div class="post-update-card">
               <h4><i class="fas fa-bullhorn"></i> Post a Devlog</h4>
               <form action="/support-developers/<%= data.project.id %>/post-update" method="POST">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
                 <input type="text" name="title" class="update-input" placeholder="Update Title" required>
                 <textarea name="content" class="update-textarea" rows="4" placeholder="Share updates..." required></textarea>
                 <button type="submit" class="btn-post-update">Publish</button>
@@ -154,6 +155,7 @@
       <button onclick="closeDonationModal()" class="close-modal-btn"><i class="fas fa-times"></i></button>
     </div>
     <form id="donationForm" action="" method="POST">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
       <label class="donation-label">Select Amount</label>
       <div class="amount-grid">
         <div class="amount-option" onclick="selectAmount(5, this)">$5</div>
@@ -217,7 +219,7 @@
     if(!btn) return;
     const originalText = btn.innerText; btn.innerText = "...";
     try {
-      const response = await fetch(`/users/follow/${targetId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      const response = await fetch(`/users/follow/${targetId}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() } });
       const result = await response.json();
       if (result.success) {
         if (result.action === "followed") { btn.innerText = "Unfollow"; btn.classList.add("active"); } 

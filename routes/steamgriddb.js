@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { autocomplete, heroesByGameId, getHeroByGameName } = require("../services/steamGridClient");
+const { autocomplete, heroesByGameId, getHeroMetaByGameName } = require("../services/steamGridClient");
 
 // GET /api/steamgriddb/autocomplete?term=elden
 router.get("/autocomplete", async (req, res) => {
@@ -34,7 +34,7 @@ router.get("/hero-by-name", async (req, res) => {
     const name = String(req.query.name || "").trim();
     if (!name) return res.status(400).json({ ok: false, error: "Missing name." });
 
-    const url = await getHeroByGameName(name);
+    const url = await getHeroMetaByGameName(name);
     res.json({ ok: true, url });
   } catch (e) {
     res.status(500).json({ ok: false, error: "SteamGridDB hero-by-name failed." });

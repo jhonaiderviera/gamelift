@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
   <title>
     <%= title %>
   </title>
@@ -14,7 +15,7 @@
 
   <link rel="stylesheet" href="/stylesheets/main.css" />
 
-  <% if (page==="login" || page==="register" ) { %>
+  <% if (page==="login" || page==="register" || page==="auth/forgot-password" || page==="auth/reset-password" ) { %>
     <link rel="stylesheet" href="/stylesheets/auth.css" />
     <% } %>
 

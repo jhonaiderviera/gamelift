@@ -63,6 +63,7 @@
 
         <div class="profile-actions">
           <form action="/profile/u/<%= data.uid %>/follow" method="POST" style="margin: 0;">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
             <% if (data.amIFollowing) { %>
               <button type="submit" class="btn-action btn-logout">
                 <i class="fas fa-user-minus"></i> Unfollow

@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Enviar reseña al servidor
         const res = await fetch(`/games/${gameId}/reviews`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
           body: JSON.stringify(payload)
         });
   

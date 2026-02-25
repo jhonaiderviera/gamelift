@@ -1,4 +1,3 @@
-/* Ubicación: /routes/games.js */
 const express = require("express");
 const router = express.Router();
 const { db, admin } = require("../services/firebase");
@@ -10,6 +9,7 @@ const {
   getGameDetails
 } = require("../services/igdbClient");
 const { logActivity } = require("../services/activityLogger");
+const { getUid } = require("../middleware/auth");
 
 // --- 1. CATÁLOGO PRINCIPAL ---
 router.get("/", async (req, res) => {
@@ -115,6 +115,18 @@ router.post("/:id/reviews", async (req, res) => {
   let authorName = "User"; let authorAvatar = null;
   try {
     const uid = user.uid || user.id;
+
+    // --- PASO 1: VALIDACIÓN ANTI-DUPLICADOS ---
+    const existingReview = await db.collection('reviews')
+      .where('gameId', '==', gameId)
+      .where('userId', '==', uid)
+      .get();
+
+    if (!existingReview.empty) {
+      return res.status(400).json({ message: "You have already reviewed this game!" });
+    }
+    // --- FIN PASO 1 ---
+
     const userDoc = await db.collection('users').doc(uid).get();
     if (userDoc.exists) {
       const userData = userDoc.data();
@@ -129,6 +141,8 @@ router.post("/:id/reviews", async (req, res) => {
 
     const average = Math.round((parseInt(scores.story) + parseInt(scores.gameplay) + parseInt(scores.graphics) + parseInt(scores.sound)) / 4);
 
+    const reviewUniqueId = `${gameId}_${uid}`;
+
     const newReview = {
       gameId, gameName: gameName || "Unknown Game",
       userId: uid, userName: authorName, userAvatar: authorAvatar,
@@ -137,7 +151,9 @@ router.post("/:id/reviews", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    await db.collection('reviews').add(newReview);
+    // USAMOS .set() EN LUGAR DE .add() CON ID COMPUESTO
+    await db.collection('reviews').doc(reviewUniqueId).set(newReview);
+
     await logActivity(uid, authorName, authorAvatar, 'review', gameId, gameName, { score: average });
     res.json({ success: true });
   } catch (error) {

@@ -23,7 +23,7 @@ function mustGetEnv(name) {
 }
 
 async function sgdbGet(path) {
-  const key = mustGetEnv("SGDB_API_KEY");
+  const key = mustGetEnv("STEAMGRIDDB_API_KEY");
 
   const res = await fetch(`${SGDB_BASE_URL}${path}`, {
     headers: {

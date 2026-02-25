@@ -9,10 +9,10 @@
 
 /* --- HEADER CARD --- */
 .profile-header-card {
-  background: #1f2937;
+  background: var(--card-bg-alt);
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid #374151;
+  border: 1px solid var(--border-subtle);
   margin-bottom: 30px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   position: relative;
@@ -41,7 +41,7 @@
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 6px solid #1f2937;
+  border: 6px solid var(--card-bg-alt);
   object-fit: cover;
   background: #000;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -82,20 +82,20 @@
 
 .badge-gamer {
   background: rgba(107, 114, 128, 0.2);
-  color: #9ca3af;
+  color: var(--muted);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .badge-dev {
   background: rgba(139, 92, 246, 0.2);
-  color: #a78bfa;
+  color: var(--primary-light);
   border: 1px solid rgba(139, 92, 246, 0.4);
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
 }
 
 .badge-admin {
   background: rgba(236, 72, 153, 0.2);
-  color: #f472b6;
+  color: var(--accent-light);
   border: 1px solid rgba(236, 72, 153, 0.4);
 }
 
@@ -138,7 +138,7 @@
 .bio-textarea {
   width: 100%;
   max-width: 600px;
-  background: #111827;
+  background: var(--bg-dark);
   border: 1px solid var(--primary);
   color: #fff;
   padding: 12px;
@@ -175,7 +175,7 @@
 
 .btn-mini-cancel {
   background: transparent;
-  color: #9ca3af;
+  color: var(--muted);
   border: 1px solid #4b5563;
   padding: 6px 14px;
   border-radius: 6px;
@@ -210,7 +210,7 @@
 
 .stat-label {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--muted);
   text-transform: uppercase;
   font-weight: 600;
   margin-top: 4px;
@@ -245,19 +245,19 @@
 }
 
 .btn-settings:hover {
-  background: #374151;
+  background: var(--border-subtle);
   color: #fff;
   border-color: #fff;
 }
 
 .btn-logout {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: var(--danger);
   border-color: rgba(239, 68, 68, 0.3);
 }
 
 .btn-logout:hover {
-  background: #ef4444;
+  background: var(--danger);
   color: #fff;
 }
 
@@ -265,7 +265,7 @@
 .profile-tabs {
   display: flex;
   gap: 5px;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid var(--border-subtle);
   margin-bottom: 30px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -280,7 +280,7 @@
 .tab-btn {
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--muted);
   padding: 12px 20px;
   font-size: 0.95rem;
   cursor: pointer;
@@ -313,7 +313,7 @@
   padding: 20px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 16px;
-  border: 1px solid #374151;
+  border: 1px solid var(--border-subtle);
 }
 
 .progress-text {
@@ -328,7 +328,7 @@
 .level-bar-track {
   width: 100%;
   height: 8px;
-  background: #111827;
+  background: var(--bg-dark);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -351,9 +351,9 @@
   align-items: flex-start;
   gap: 15px;
   padding: 15px;
-  background: #111827;
+  background: var(--bg-dark);
   border-radius: 12px;
-  border: 1px solid #374151;
+  border: 1px solid var(--border-subtle);
   transition: 0.3s;
   position: relative;
   overflow: hidden;
@@ -375,9 +375,9 @@
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  background: #1f2937;
+  background: var(--card-bg-alt);
   color: #6b7280;
-  border: 2px solid #374151;
+  border: 2px solid var(--border-subtle);
 }
 
 /* TIERS DE COLORES */
@@ -395,7 +395,7 @@
 
 .tier-gold .ach-icon {
   background: linear-gradient(135deg, #5c4d1a, #8a7326);
-  border-color: #ffd700;
+  border-color: var(--gold);
   color: #fff8c7;
 }
 
@@ -413,8 +413,8 @@
 }
 
 .achievement-card.locked .ach-icon {
-  background: #1f2937;
-  border-color: #374151;
+  background: var(--card-bg-alt);
+  border-color: var(--border-subtle);
   color: #4b5563;
   filter: grayscale(1);
 }
@@ -484,7 +484,7 @@
 .ach-info p {
   margin: 0;
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--muted);
   line-height: 1.4;
 }
 
@@ -496,8 +496,8 @@
   padding: 2px 6px;
   border-radius: 4px;
   margin-top: 8px;
-  background: #1f2937;
-  color: #9ca3af;
+  background: var(--card-bg-alt);
+  color: var(--muted);
   letter-spacing: 0.5px;
 }
 
@@ -541,8 +541,8 @@
 
 /* Mini Project Card */
 .mini-project-card {
-  background: #111827;
-  border: 1px solid #374151;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -592,7 +592,7 @@
 
 .bar-bg {
   height: 4px;
-  background: #374151;
+  background: var(--border-subtle);
   border-radius: 2px;
   width: 100%;
   margin-bottom: 4px;
@@ -606,7 +606,7 @@
 
 .mini-progress small {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--muted);
   display: block;
 }
 
@@ -615,7 +615,7 @@
   text-decoration: none;
   font-size: 0.75rem;
   color: #fff;
-  background: #374151;
+  background: var(--border-subtle);
   padding: 4px 10px;
   border-radius: 6px;
   transition: 0.2s;
@@ -627,8 +627,8 @@
 
 /* Reviews */
 .review-card-profile {
-  background: #111827;
-  border: 1px solid #374151;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -675,7 +675,7 @@
 }
 
 .score-badge {
-  background: #1f2937;
+  background: var(--card-bg-alt);
   color: var(--primary);
   font-weight: 800;
   padding: 2px 8px;
@@ -744,7 +744,7 @@
 
 .status-badge.backlog {
   background: rgba(107, 114, 128, 0.9);
-  border: 1px solid #9ca3af;
+  border: 1px solid var(--muted);
 }
 
 /* Tarjeta de Librería base */
@@ -757,7 +757,7 @@
   position: relative;
   border: 1px solid transparent;
   transition: 0.3s;
-  background: #111827;
+  background: var(--bg-dark);
 }
 
 .library-card img {
@@ -806,7 +806,7 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: #ef4444;
+  color: var(--danger);
   background: rgba(0, 0, 0, 0.6);
   width: 30px;
   height: 30px;
@@ -824,7 +824,7 @@
   padding: 60px 20px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 16px;
-  border: 1px dashed #374151;
+  border: 1px dashed var(--border-subtle);
   color: #6b7280;
   margin-top: 20px;
 }
@@ -833,7 +833,7 @@
   font-size: 3rem;
   margin-bottom: 15px;
   opacity: 0.5;
-  color: #9ca3af;
+  color: var(--muted);
 }
 
 .empty-state h3 {
@@ -885,7 +885,7 @@
 }
 
 .settings-card {
-  background: #1f2937;
+  background: var(--card-bg-alt);
   width: 90%;
   max-width: 450px;
   border-radius: 20px;
@@ -907,7 +907,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 15px;
 }
 
@@ -921,7 +921,7 @@
 .close-modal-btn {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 1.2rem;
   cursor: pointer;
   transition: 0.2s;
@@ -943,13 +943,13 @@
   align-items: center;
   gap: 15px;
   padding: 14px 18px;
-  background: #111827;
+  background: var(--bg-dark);
   border-radius: 12px;
   color: #d1d5db;
   text-decoration: none;
   font-weight: 500;
   transition: 0.2s;
-  border: 1px solid #374151;
+  border: 1px solid var(--border-subtle);
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -963,20 +963,20 @@
 }
 
 .setting-option-btn:hover {
-  background: #374151;
+  background: var(--border-subtle);
   color: #fff;
   border-color: #4b5563;
   transform: translateX(5px);
 }
 
 .setting-option-btn.danger {
-  color: #ef4444;
+  color: var(--danger);
   border-color: rgba(239, 68, 68, 0.2);
   background: rgba(239, 68, 68, 0.05);
 }
 
 .setting-option-btn.danger:hover {
-  background: #ef4444;
+  background: var(--danger);
   color: #fff;
 }
 
@@ -999,8 +999,8 @@
 
 .settings-input {
   width: 100%;
-  background: #111827;
-  border: 1px solid #374151;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
   color: #fff;
   padding: 12px 15px;
   border-radius: 8px;
@@ -1024,7 +1024,7 @@
 .btn-back {
   background: transparent;
   border: 1px solid #4b5563;
-  color: #9ca3af;
+  color: var(--muted);
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -1055,7 +1055,7 @@
 }
 
 .btn-save.danger-bg {
-  background: #ef4444;
+  background: var(--danger);
 }
 
 .btn-save.danger-bg:hover {
@@ -1104,10 +1104,10 @@
 .tag-checkbox span {
   display: inline-block;
   padding: 8px 16px;
-  background: #111827;
-  border: 1px solid #374151;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-subtle);
   border-radius: 20px;
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 0.85rem;
   transition: all 0.2s ease;
 }

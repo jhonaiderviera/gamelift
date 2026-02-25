@@ -1,3 +1,9 @@
+// Helper global: obtener CSRF token del meta tag
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+}
+
 // Menú de navegación móvil - toggle y cierre
 (function () {
     const toggle = document.querySelector(".nav-toggle");

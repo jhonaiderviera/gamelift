@@ -31,7 +31,7 @@
 
 .hero-tag {
   display: inline-block; background: rgba(139, 92, 246, 0.2);
-  color: #a78bfa; padding: 6px 16px; border-radius: 20px;
+  color: var(--primary-light); padding: 6px 16px; border-radius: 20px;
   font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 1px; margin-bottom: 20px;
   border: 1px solid rgba(139, 92, 246, 0.3);
@@ -77,17 +77,17 @@
 
 .search-actions { display: flex; gap: 8px; padding-right: 5px; align-items: center; }
 .btn-search {
-  background: #8b5cf6; color: white; border: none; padding: 10px 24px;
+  background: var(--primary); color: white; border: none; padding: 10px 24px;
   border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s;
 }
-.btn-search:hover { background: #7c3aed; }
+.btn-search:hover { background: var(--primary-hover); }
 
 .btn-random {
   background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff; width: 40px; height: 40px; border-radius: 50%;
   cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
 }
-.btn-random:hover { background: #8b5cf6; border-color: #8b5cf6; transform: rotate(15deg); }
+.btn-random:hover { background: var(--primary); border-color: var(--primary); transform: rotate(15deg); }
 
 .hero-tags { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 0.9rem; color: rgba(255,255,255,0.6); }
 .tag-pill {
@@ -153,16 +153,16 @@
 
 /* Estados Activos (Cuando ya está agregado) */
 .action-btn.library.active {
-  background: #34d399; border-color: #34d399; color: #000;
+  background: var(--success); border-color: var(--success); color: #000;
 }
 .action-btn.favorite.active {
-  background: #ef4444; border-color: #ef4444; color: #fff;
+  background: var(--danger); border-color: var(--danger); color: #fff;
 }
 
 /* Badge Rating Flotante */
 .rating-badge-float {
   position: absolute; bottom: 8px; right: 8px;
-  background: rgba(0,0,0,0.8); color: #4ade80;
+  background: rgba(0,0,0,0.8); color: var(--success);
   font-weight: 700; padding: 4px 8px; border-radius: 6px;
   font-size: 0.85rem; border: 1px solid rgba(74, 222, 128, 0.3);
   z-index: 5;
@@ -185,7 +185,7 @@
 }
 .spinner {
   width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #8b5cf6; border-radius: 50%;
+  border-top-color: var(--primary); border-radius: 50%;
   animation: spin 1s linear infinite; margin: 0 auto 15px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -203,6 +203,6 @@
 }
 
 /* Colores de Valoración */
-.rating-good { background: #22c55e; color: #fff; }
-.rating-mid  { background: #eab308; color: #fff; }
-.rating-bad  { background: #ef4444; color: #fff; }
+.rating-good { background: var(--success-dark); color: #fff; }
+.rating-mid  { background: var(--warning-dark); color: #fff; }
+.rating-bad  { background: var(--danger); color: #fff; }

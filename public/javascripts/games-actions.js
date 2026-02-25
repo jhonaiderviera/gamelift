@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
         body: JSON.stringify({ gameId, gameName, coverUrl })
       });
 
