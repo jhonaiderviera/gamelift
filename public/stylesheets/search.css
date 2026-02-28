@@ -107,3 +107,31 @@
 .company-card:hover .company-logo-wrapper img {
   transform: scale(1.1);
 }
+
+/* === RESPONSIVE — Adaptación móvil === */
+@media (max-width: 768px) {
+  .search-header {
+    margin-top: 20px;
+    margin-bottom: 25px;
+  }
+  .company-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .empty-search {
+    padding: 50px 16px;
+  }
+  .empty-search i { font-size: 3rem; }
+}
+
+@media (max-width: 480px) {
+  .company-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  .company-logo-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+  .company-info h3 { font-size: 1rem; }
+}

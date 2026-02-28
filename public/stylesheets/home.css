@@ -18,7 +18,7 @@
 .hero-track {
   display: flex;
   height: 100%;
-  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .hero-slide {
@@ -32,7 +32,7 @@
   inset: 0;
   background-size: cover;
   background-position: center top;
-  transition: transform 8s ease;
+  transition: transform 4.5s ease;
   transform: scale(1);
   filter: brightness(0.9);
 }
@@ -66,6 +66,8 @@
 
 .hero-info {
   max-width: 600px;
+  min-width: 0;
+  overflow: hidden;
   animation: slideUp 0.8s var(--ease-out-back) forwards;
 }
 
@@ -104,13 +106,15 @@
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-size: clamp(2rem, 5vw, 4.5rem);
   line-height: 1;
   margin-bottom: 25px;
   color: var(--text-white);
   text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   font-weight: 900;
   letter-spacing: -1px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .hero-actions {
@@ -269,13 +273,30 @@
   background: rgba(255, 255, 255, 0.2);
   border: none;
   cursor: pointer;
-  transition: 0.3s;
+  transition: width 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 
 .hero-dot.is-active {
-  background: var(--text-white);
+  background: rgba(255, 255, 255, 0.25);
   width: 45px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Progress fill inside active dot */
+.dot-progress {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #fff;
+  transform-origin: left;
+  transform: scaleX(0);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes dotFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 
@@ -837,6 +858,17 @@
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+.act-icon.collection {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05));
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.act-icon.comment {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
 /* CONTENIDO DE TEXTO */
 .act-content {
   flex: 1;
@@ -918,15 +950,99 @@
   margin-left: 5px;
 }
 
+/* Pulse badge (Following / Global) */
+.pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.pulse-badge.following {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--primary-light);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+.pulse-badge.global {
+  background: rgba(107, 114, 128, 0.12);
+  color: var(--muted);
+  border: 1px solid rgba(107, 114, 128, 0.25);
+}
+
+/* Act link style (inline in activity text) */
+.act-link {
+  color: var(--text-white);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(167, 139, 250, 0.5);
+  transition: 0.2s;
+}
+.act-link:hover {
+  color: var(--primary-light);
+  border-bottom-color: var(--primary-light);
+}
+
 /* Empty state */
 .empty-feed {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 60px;
+  padding: 60px 30px;
   color: var(--muted-mid);
-  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.empty-feed p { margin: 0; }
+.empty-feed-link {
+  margin-top: 10px;
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.empty-feed-link:hover { color: var(--text-white); }
+
+/* Hidden activity cards */
+.activity-hidden {
+  display: none !important;
+}
+
+/* Toggle "Show all / Show less" button */
+.pulse-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.pulse-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.pulse-toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: var(--primary-light);
+}
+.pulse-toggle-btn i {
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
 }
 
 
@@ -989,5 +1105,116 @@
     justify-content: center;
     border-left: none;
     border-right: none;
+  }
+
+  /* Activity feed — una columna en tablet */
+  .activity-feed-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Hero — ocultar flechas en movil, los usuarios usan dots y swipe */
+  .hero-arrow {
+    display: none;
+  }
+
+  /* Hero — mejorar visibilidad de imagenes de fondo en movil */
+  .hero-bg {
+    background-position: center top;
+    filter: brightness(1.3);
+  }
+
+  /* Overlay mucho mas ligero en movil para que las imagenes de fondo se vean */
+  .hero-overlay {
+    background:
+      linear-gradient(to top, #0f111a 0%, rgba(15, 17, 26, 0.6) 30%, rgba(0, 0, 0, 0.1) 60%, rgba(0, 0, 0, 0.15) 100%);
+  }
+
+  /* Reducir gradiente del content en movil */
+  .hero-content {
+    background: linear-gradient(to top, rgba(15, 17, 26, 0.9) 0%, rgba(15, 17, 26, 0) 80%);
+  }
+
+  /* Dots mas compactos en movil */
+  .hero-dots {
+    bottom: 20px;
+  }
+  .hero-dot {
+    width: 22px;
+    height: 3px;
+  }
+  .hero-dot.is-active {
+    width: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hero — ajustar padding y tamaños en pantallas muy pequeñas */
+  .hero-frame {
+    border-radius: 16px;
+    height: clamp(400px, 65vh, 550px);
+  }
+  .hero-content {
+    padding: 30px 20px;
+  }
+  .hero-title {
+    font-size: clamp(1.6rem, 7vw, 2.5rem);
+    margin-bottom: 18px;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .hero-chip {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    margin-right: 8px;
+  }
+  .hero-scores {
+    padding: 12px 16px;
+    gap: 15px;
+    border-radius: 12px;
+  }
+  .score-ring {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+  .label-main { font-size: 0.75rem; }
+
+  /* Versus — imagenes de batalla mas pequeñas en movil */
+  .live-cover {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+  }
+  .live-info h4 {
+    font-size: 1rem;
+  }
+
+  /* Game cards grid */
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  /* Activity cards */
+  .activity-card { padding: 16px; gap: 12px; }
+  .act-icon { width: 36px; height: 36px; font-size: 0.95rem; }
+
+  /* Hall of legends — imagenes y textos mas compactos */
+  .hall-grid {
+    grid-template-columns: 1fr;
+  }
+  .winner-cover {
+    border-radius: 6px;
+  }
+  .hall-content {
+    padding: 12px;
+    gap: 12px;
+  }
+  .battle-details h4 {
+    font-size: 0.9rem;
   }
 }

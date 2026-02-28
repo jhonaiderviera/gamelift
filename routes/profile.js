@@ -2,19 +2,24 @@ const express = require('express');
 const router = express.Router();
 const { db, admin } = require("../services/firebase");
 const { logActivity } = require("../services/activityLogger");
+const { createNotification } = require("../services/notificationService");
 const { isAuthenticated, getUid } = require("../middleware/auth");
 const { getAchievements } = require("../services/achievements");
 
+// Perfil de usuario — vista privada, publica, settings y sistema de follow
+
+// Tags que el usuario puede elegir para su perfil (max 3)
 const AVAILABLE_TAGS = [
   "RPG Lover", "FPS Pro", "Retro", "Indie Fan",
   "Speedrunner", "Casual", "Hardcore", "Collector",
   "Strategy", "Co-op", "MMO", "eSports", "Artist", "Writer"
 ];
 
-// Helper: Procesa library + favorites con status map (antes duplicado)
+// Unifica library y favoritos — los favoritos heredan el status de la biblioteca
 function processLibraryAndFavorites(librarySnap, favoritesSnap) {
   const library = librarySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+  // Mapa de status para vincular favoritos con su estado en la biblioteca
   const libraryStatusMap = {};
   library.forEach(game => {
     libraryStatusMap[game.id] = game.status;
@@ -30,48 +35,39 @@ function processLibraryAndFavorites(librarySnap, favoritesSnap) {
   return { library, favorites };
 }
 
-// Helper: Calcula el rol del usuario
+// Determina el badge del usuario segun su rol o si tiene proyectos indie publicados
 function getUserRole(userData, projectCount) {
   if (userData.role === 'admin') return { label: "Administrator", css: "badge-admin" };
   if (userData.role === 'developer' || projectCount > 0) return { label: "Indie Developer", css: "badge-dev" };
   return { label: "Gamer", css: "badge-gamer" };
 }
 
-/* --- 1. MI PERFIL (Privado) --- */
+// Mi perfil privado — carga toda la data del usuario en paralelo (6 queries a Firestore)
 router.get('/', isAuthenticated, async function (req, res, next) {
   try {
     const uid = getUid(req);
 
-    // 1. Datos del usuario
-    const userDoc = await db.collection('users').doc(uid).get();
+    // Todas estas queries son independientes, asi que van en paralelo
+    const [userDoc, myProjectsSnap, librarySnap, favoritesSnap, reviewsSnap, colSnap] = await Promise.all([
+      db.collection('users').doc(uid).get(),
+      db.collection('indie_games').where('authorId', '==', uid).get(),
+      db.collection('users').doc(uid).collection('library').orderBy('addedAt', 'desc').limit(100).get(),
+      db.collection('users').doc(uid).collection('favorites').orderBy('addedAt', 'desc').limit(100).get(),
+      db.collection('reviews').where('userId', '==', uid).orderBy('createdAt', 'desc').limit(50).get(),
+      db.collection('collections').where('userId', '==', uid).orderBy('createdAt', 'desc').get().catch(indexError => {
+        console.warn("Warning: Could not load collections.", indexError.message);
+        return { docs: [] };
+      })
+    ]);
+
     const userData = userDoc.exists ? userDoc.data() : {};
-
-    // 2. Proyectos
-    const myProjectsSnap = await db.collection('indie_games').where('authorId', '==', uid).get();
     const myProjects = myProjectsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // 3. Rol
     const role = getUserRole(userData, myProjects.length);
-
-    // 4. Library & Favorites
-    const librarySnap = await db.collection('users').doc(uid).collection('library').orderBy('addedAt', 'desc').get();
-    const favoritesSnap = await db.collection('users').doc(uid).collection('favorites').orderBy('addedAt', 'desc').get();
     const { library, favorites } = processLibraryAndFavorites(librarySnap, favoritesSnap);
-
-    // 5. Reviews
-    const reviewsSnap = await db.collection('reviews').where('userId', '==', uid).get();
     const myReviews = reviewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const myCollections = colSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // 6. Colecciones
-    let myCollections = [];
-    try {
-      const colSnap = await db.collection('collections').where('userId', '==', uid).orderBy('createdAt', 'desc').get();
-      myCollections = colSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (indexError) {
-      console.warn("Warning: Could not load collections.", indexError.message);
-    }
-
-    // 7. Logros (servicio centralizado)
+    // Calcular logros del usuario basado en cantidad de reviews, juegos y proyectos
     const { achievements, unlockedCount, progressPercent } = getAchievements({
       reviewCount: myReviews.length,
       libraryCount: library.length,
@@ -105,7 +101,9 @@ router.get('/', isAuthenticated, async function (req, res, next) {
   }
 });
 
-/* --- RUTAS DE ACTUALIZACION --- */
+/* --- RUTAS DE ACTUALIZACION DE PERFIL --- */
+
+// Actualizar tags — max 3, se validan contra la lista permitida
 router.post('/update-tags', isAuthenticated, async (req, res) => {
   try {
     let { tags } = req.body;
@@ -119,40 +117,66 @@ router.post('/update-tags', isAuthenticated, async (req, res) => {
   }
 });
 
+// Actualizar bio — truncada a 500 chars por seguridad
 router.post('/update-bio', isAuthenticated, async (req, res) => {
   try {
-    await db.collection('users').doc(getUid(req)).update({ bio: req.body.bio });
+    const bio = String(req.body.bio || '').slice(0, 500);
+    await db.collection('users').doc(getUid(req)).update({ bio });
     res.redirect('/profile');
   } catch (e) {
     res.redirect('/profile?error=Error');
   }
 });
 
+// Cambiar username — actualiza Firestore y la cookie para que se vea al instante
 router.post('/update-username', isAuthenticated, async (req, res) => {
   try {
-    await db.collection('users').doc(getUid(req)).update({ username: req.body.newUsername });
-    req.user.username = req.body.newUsername;
-    res.redirect('/profile');
+    const username = String(req.body.newUsername || '').trim();
+    if (!username || username.length < 2 || username.length > 30) {
+      return res.redirect('/profile?error=Username+must+be+2-30+characters');
+    }
+    await db.collection('users').doc(getUid(req)).update({ username });
+    req.user.username = username;
+    // Hay que actualizar la cookie tambien para que el navbar muestre el nuevo nombre
+    res.cookie("session", JSON.stringify(req.user), { httpOnly: true, maxAge: 3600 * 1000 });
+    res.redirect('/profile?success=Username+Updated');
   } catch (e) {
     res.redirect('/profile?error=Error');
   }
 });
 
+// Solo aceptamos URLs HTTPS para evitar contenido inseguro en avatars y banners
+function isValidImageUrl(url) {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:';
+  } catch { return false; }
+}
+
+// Actualizar foto de perfil — valida HTTPS y actualiza cookie para efecto inmediato
 router.post('/update-photo', isAuthenticated, async (req, res) => {
   try {
-    await db.collection('users').doc(getUid(req)).update({ photoUrl: req.body.photoUrl });
-    req.user.photoUrl = req.body.photoUrl;
+    const photoUrl = req.body.photoUrl;
+    if (!isValidImageUrl(photoUrl)) {
+      return res.redirect('/profile?error=Invalid+photo+URL+(must+be+HTTPS)');
+    }
+    await db.collection('users').doc(getUid(req)).update({ photoUrl });
+    req.user.avatarUrl = photoUrl;
+    res.cookie("session", JSON.stringify(req.user), { httpOnly: true, maxAge: 3600 * 1000 });
     res.redirect('/profile');
   } catch (e) {
     res.redirect('/profile?error=Error');
   }
 });
 
+// Cambiar contrasena — primero verifica la actual con la REST API, luego actualiza via Admin SDK
 router.post('/change-password', isAuthenticated, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (newPassword.length < 6) return res.redirect('/profile?error=Password+too+short');
 
+    // Verificar la contrasena actual haciendo login contra Firebase REST API
     const apiKey = process.env.FIREBASE_API_KEY;
     const verifyUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
     const response = await fetch(verifyUrl, {
@@ -170,11 +194,12 @@ router.post('/change-password', isAuthenticated, async (req, res) => {
   }
 });
 
+// Eliminar cuenta — borra de Firebase Auth y Firestore, luego limpia sesion
 router.post('/delete-account', isAuthenticated, async (req, res) => {
   try {
     const uid = getUid(req);
-    await admin.auth().deleteUser(uid);
-    await db.collection('users').doc(uid).delete();
+    await admin.auth().deleteUser(uid); // primero Auth
+    await db.collection('users').doc(uid).delete(); // luego Firestore
     res.clearCookie('session');
     res.redirect('/');
   } catch (e) {
@@ -182,10 +207,14 @@ router.post('/delete-account', isAuthenticated, async (req, res) => {
   }
 });
 
+// Actualizar banner del perfil — misma validacion HTTPS que la foto
 router.post('/update-banner', isAuthenticated, async (req, res) => {
   try {
     const { bannerUrl } = req.body;
     if (!bannerUrl) return res.redirect('/profile');
+    if (!isValidImageUrl(bannerUrl)) {
+      return res.redirect('/profile?error=Invalid+banner+URL+(must+be+HTTPS)');
+    }
     await db.collection('users').doc(getUid(req)).update({ bannerUrl });
     res.redirect('/profile?success=Banner+Updated');
   } catch (e) {
@@ -194,7 +223,9 @@ router.post('/update-banner', isAuthenticated, async (req, res) => {
   }
 });
 
-/* --- PERFIL PUBLICO & FOLLOW --- */
+/* --- PERFIL PUBLICO --- */
+
+// Ver perfil de otro usuario — si es el tuyo, redirige a /profile
 router.get('/u/:uid', isAuthenticated, async (req, res) => {
   try {
     const targetUid = req.params.uid;
@@ -202,38 +233,35 @@ router.get('/u/:uid', isAuthenticated, async (req, res) => {
 
     if (targetUid === currentUid) return res.redirect('/profile');
 
+    // Primero verificar que existe, y si si, paralelizar el resto de queries
     const userDoc = await db.collection('users').doc(targetUid).get();
     if (!userDoc.exists) return res.render('error', { message: "User not found", error: { status: 404 } });
     const userData = userDoc.data();
 
-    // 1. Proyectos
-    const projectsSnap = await db.collection('indie_games').where('authorId', '==', targetUid).get();
+    // Cargar proyectos, reviews, biblioteca, favoritos y colecciones en paralelo
+    const [projectsSnap, reviewsSnap, librarySnap, favoritesSnap, colSnap] = await Promise.all([
+      db.collection('indie_games').where('authorId', '==', targetUid).get(),
+      db.collection('reviews').where('userId', '==', targetUid).orderBy('createdAt', 'desc').limit(10).get(),
+      db.collection('users').doc(targetUid).collection('library').orderBy('addedAt', 'desc').limit(100).get(),
+      db.collection('users').doc(targetUid).collection('favorites').orderBy('addedAt', 'desc').limit(100).get(),
+      db.collection('collections').where('userId', '==', targetUid).orderBy('createdAt', 'desc').get().catch(e => {
+        console.warn("Error loading public collections", e);
+        return { docs: [] };
+      })
+    ]);
+
     const myProjects = projectsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // 2. Reviews
-    const reviewsSnap = await db.collection('reviews').where('userId', '==', targetUid).orderBy('createdAt', 'desc').limit(10).get();
     const myReviews = reviewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // 3. Library & Favorites (helper compartido)
-    const librarySnap = await db.collection('users').doc(targetUid).collection('library').orderBy('addedAt', 'desc').get();
-    const favoritesSnap = await db.collection('users').doc(targetUid).collection('favorites').orderBy('addedAt', 'desc').get();
     const { library, favorites } = processLibraryAndFavorites(librarySnap, favoritesSnap);
+    const myCollections = colSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // 4. Colecciones
-    let myCollections = [];
-    try {
-      const colSnap = await db.collection('collections').where('userId', '==', targetUid).orderBy('createdAt', 'desc').get();
-      myCollections = colSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (e) { console.warn("Error loading public collections", e); }
-
-    // 5. Logros (servicio centralizado)
     const { achievements, unlockedCount, progressPercent } = getAchievements({
       reviewCount: myReviews.length,
       libraryCount: library.length,
       projectCount: myProjects.length
     });
 
-    // 6. Stats y Etiquetas
+    // Checar si el usuario actual ya sigue a este perfil (para el boton follow/unfollow)
     const followers = userData.followers || [];
     const amIFollowing = followers.includes(currentUid);
     const role = getUserRole(userData, myProjects.length);
@@ -267,35 +295,53 @@ router.get('/u/:uid', isAuthenticated, async (req, res) => {
   }
 });
 
+// Follow/unfollow — usa transaccion de Firestore para evitar race conditions
 router.post('/u/:uid/follow', isAuthenticated, async (req, res) => {
   try {
     const targetUid = req.params.uid;
     const currentUid = getUid(req);
-    if (targetUid === currentUid) return res.json({ success: false });
+    if (targetUid === currentUid) return res.json({ success: false }); // no te puedes seguir a ti mismo
 
     const targetRef = db.collection('users').doc(targetUid);
     const myRef = db.collection('users').doc(currentUid);
 
+    // Transaccion: lee ambos docs y actualiza atomicamente para consistencia
     const result = await db.runTransaction(async (t) => {
       const targetDoc = await t.get(targetRef);
       const myDoc = await t.get(myRef);
       if (!targetDoc.exists || !myDoc.exists) throw "User not found";
       const targetData = targetDoc.data();
+      const myData = myDoc.data();
       const followers = targetData.followers || [];
 
       if (followers.includes(currentUid)) {
+        // Ya lo sigue = unfollow (quitar de ambos arrays)
         t.update(targetRef, { followers: admin.firestore.FieldValue.arrayRemove(currentUid) });
         t.update(myRef, { following: admin.firestore.FieldValue.arrayRemove(targetUid) });
         return { action: 'unfollow' };
       } else {
+        // No lo sigue = follow (agregar a ambos arrays)
         t.update(targetRef, { followers: admin.firestore.FieldValue.arrayUnion(currentUid) });
         t.update(myRef, { following: admin.firestore.FieldValue.arrayUnion(targetUid) });
-        return { action: 'follow', targetData };
+        return { action: 'follow', targetData, myData };
       }
     });
 
+    // Solo loguear actividad y notificar si fue un follow (no en unfollow)
     if (result.action === 'follow') {
-      await logActivity(currentUid, req.user.username, req.user.photoUrl || req.user.avatarUrl, 'follow', targetUid, result.targetData.username, {});
+      const myUsername = result.myData.username || req.user.username;
+      const myAvatar = result.myData.photoUrl || req.user.avatarUrl || null;
+      await logActivity(currentUid, myUsername, myAvatar, 'follow', targetUid, result.targetData.username, {});
+      createNotification(targetUid, {
+        type: "follow",
+        message: `${myUsername} started following you`,
+        icon: "fas fa-user-plus",
+        link: "/profile",
+      }).then(() => {
+        console.log(`Notification sent to ${targetUid}: ${myUsername} followed`);
+      }).catch((err) => {
+        console.error("Follow notification error:", err);
+      });
     }
     res.redirect(`/profile/u/${targetUid}`);
   } catch (error) {

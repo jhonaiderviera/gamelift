@@ -1,0 +1,129 @@
+/* legal.css — Terms of Service & Privacy Policy pages */
+
+.legal-page {
+  padding: 40px 0 80px;
+  min-height: 80vh;
+}
+
+.legal-card {
+  max-width: 820px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 50px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.legal-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legal-icon {
+  font-size: 2.5rem;
+  color: var(--primary, #8b5cf6);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.legal-header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.legal-updated {
+  color: var(--muted-mid, #9ca3af);
+  font-size: 0.9rem;
+}
+
+/* Content sections */
+.legal-content section {
+  margin-bottom: 32px;
+}
+
+.legal-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  padding-left: 14px;
+  border-left: 3px solid var(--primary, #8b5cf6);
+}
+
+.legal-content h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 16px 0 8px;
+}
+
+.legal-content p {
+  color: #d1d5db;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+.legal-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 16px;
+}
+
+.legal-content ul li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 8px;
+  color: #d1d5db;
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.legal-content ul li::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  background: var(--primary, #8b5cf6);
+  border-radius: 50%;
+}
+
+.legal-content ul li strong {
+  color: #fff;
+}
+
+/* Footer */
+.legal-footer {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.legal-footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .legal-card {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+  .legal-header h1 {
+    font-size: 1.8rem;
+  }
+  .legal-content h2 {
+    font-size: 1.1rem;
+  }
+}

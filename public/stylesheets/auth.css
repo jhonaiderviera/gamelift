@@ -318,6 +318,27 @@
   border-color: var(--primary);
 }
 
+/* --- OPCIONES FORMULARIO (Remember me + Forgot password) --- */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  margin-top: -4px;
+  padding: 0 2px;
+}
+
+.form-options .auth-link {
+  margin-left: 0;
+  color: #9ca3af;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.form-options .auth-link:hover {
+  color: var(--primary);
+}
+
 /* --- BOTÓN SUBMIT --- */
 .btn-block {
   width: 100%;
@@ -609,4 +630,36 @@
 
 .back-link:hover {
   color: white;
+}
+
+/* === RESPONSIVE — Mejoras para móviles pequeños === */
+@media (max-width: 480px) {
+  .auth-left {
+    padding-top: 100px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 30px;
+  }
+  .auth-card { max-width: 100%; }
+  .auth-title { font-size: 2rem; }
+  .auth-subtitle { font-size: 0.95rem; }
+  .form-input { padding: 14px 16px; font-size: 0.95rem; }
+  .btn-block { padding: 15px; font-size: 1rem; }
+  .password-requirements {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .role-content { padding: 14px; gap: 12px; }
+  .role-icon { width: 42px; height: 42px; font-size: 1.2rem; }
+  .form-options { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .auth-card-glass {
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-left { padding-top: 80px; padding-left: 14px; padding-right: 14px; }
+  .auth-title { font-size: 1.7rem; }
+  .custom-check { font-size: 0.85rem; }
 }

@@ -1,10 +1,10 @@
-/* Ubicación: /routes/support.js */
+/* Ubicacion: /routes/support.js — Seccion para apoyar a devs indie */
 const express = require("express");
 const router = express.Router();
 const { db, admin } = require("../services/firebase");
 const { logActivity } = require("../services/activityLogger");
 
-// 1. VER LISTA DE PROYECTOS
+// Listado de todos los proyectos indie, ordenados del mas reciente al mas viejo
 router.get("/", async (req, res) => {
   try {
     const projectsRef = db.collection("indie_games");
@@ -31,7 +31,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 2. CREAR CAMPAÑA (GET)
+// Formulario para crear un proyecto indie — solo accesible si estas logueado
 router.get("/create", (req, res) => {
   if (!req.user) return res.redirect("/auth/login");
   
@@ -44,20 +44,19 @@ router.get("/create", (req, res) => {
   });
 });
 
-// 3. PROCESAR CREACIÓN (POST)
+// Guardar el proyecto nuevo en Firestore
 router.post("/create", async (req, res) => {
   if (!req.user) return res.redirect("/auth/login");
 
   try {
     const { title, desc, image, imageUrl, goal, tags } = req.body;
-    
-    let authorName = "Anonymous Dev";
-    if (req.user.displayName) authorName = req.user.displayName;
-    else if (req.user.username) authorName = req.user.username;
-    else if (req.user.name) authorName = req.user.name;
-    else if (req.user.email) authorName = req.user.email.split('@')[0];
-
     const authorId = req.user.uid || req.user.id;
+
+    // Username y avatar frescos de Firestore, no de la sesion que puede estar viejo
+    const userDoc = await db.collection('users').doc(authorId).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const authorName = userData.username || req.user.username || req.user.email?.split('@')[0] || "Anonymous Dev";
+    const authorAvatar = userData.photoUrl || req.user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`;
 
     const newProject = {
       title: title || "Untitled Project",
@@ -67,11 +66,11 @@ router.post("/create", async (req, res) => {
       raised: 0,
       backers: 0,
       tags: tags ? (Array.isArray(tags) ? tags : tags.split(",").map(t => t.trim())) : ["Indie"],
-      
-      authorId: authorId, 
-      author: authorName, 
-      authorAvatar: req.user.photoUrl || req.user.picture || `https://ui-avatars.com/api/?name=${authorName}&background=random`,
-      
+
+      authorId: authorId,
+      author: authorName,
+      authorAvatar: authorAvatar,
+
       createdAt: new Date()
     };
 
@@ -86,11 +85,11 @@ router.post("/create", async (req, res) => {
   }
 });
 
-// 4. DONAR
+// Donar a un proyecto — transaccion para que raised y backers no se pisen entre donaciones
 router.post("/donate/:id", async (req, res) => {
   try {
     const projectId = req.params.id;
-    const amount = parseFloat(req.body.amount) || 10;
+    const amount = parseFloat(req.body.amount) || 10; // default $10 si no mandan monto
     const projectRef = db.collection("indie_games").doc(projectId);
 
     const doc = await projectRef.get();
@@ -106,16 +105,15 @@ router.post("/donate/:id", async (req, res) => {
       });
     });
 
+    // Si esta logueado, registrar la donacion en el muro de actividad
     if (req.user) {
-      await logActivity(
-        req.user.uid || req.user.id,
-        req.user.username || req.user.displayName || "Backer",
-        req.user.photoUrl || req.user.picture,
-        'donate',
-        projectId,
-        projectTitle,
-        { amount: amount }
-      );
+      const uid = req.user.uid || req.user.id;
+      const userDoc = await db.collection('users').doc(uid).get();
+      const userData = userDoc.exists ? userDoc.data() : {};
+      const donorName = userData.username || req.user.username || "Backer";
+      const donorAvatar = userData.photoUrl || req.user.avatarUrl || null;
+
+      await logActivity(uid, donorName, donorAvatar, 'donate', projectId, projectTitle, { amount: amount });
     }
 
     // Volver a la página anterior o a la lista
@@ -132,7 +130,7 @@ router.post("/donate/:id", async (req, res) => {
   }
 });
 
-// 5. VER DETALLE + UPDATES
+// Detalle de un proyecto con su lista de devlogs/updates
 router.get("/:id", async (req, res) => {
   try {
     const projectId = req.params.id;
@@ -147,6 +145,7 @@ router.get("/:id", async (req, res) => {
 
     const project = { id: doc.id, ...doc.data() };
 
+    // Subcoleccion de updates/devlogs del proyecto, mas recientes primero
     const updatesSnap = await db.collection("indie_games").doc(projectId).collection("updates").orderBy("createdAt", "desc").get();
     
     const updates = updatesSnap.docs.map(updateDoc => ({
@@ -169,7 +168,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// 6. PUBLICAR DEVLOG
+// Publicar un devlog — solo el autor del proyecto puede hacerlo
 router.post("/:id/post-update", async (req, res) => {
   if (!req.user) return res.redirect("/auth/login");
 
@@ -178,6 +177,7 @@ router.post("/:id/post-update", async (req, res) => {
     const { title, content } = req.body;
     const uid = req.user.uid || req.user.id;
 
+    // Verificar que quien publica es el dueno del proyecto
     const projectDoc = await db.collection("indie_games").doc(projectId).get();
     if (!projectDoc.exists || projectDoc.data().authorId !== uid) {
       return res.status(403).send("Unauthorized action.");
@@ -189,15 +189,13 @@ router.post("/:id/post-update", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    await logActivity(
-      uid,
-      req.user.username || projectDoc.data().author,
-      req.user.photoUrl || req.user.picture,
-      'devlog',
-      projectId,
-      projectDoc.data().title,
-      { title: title }
-    );
+    // Consultar Firestore para username actualizado
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const devName = userData.username || req.user.username || projectDoc.data().author;
+    const devAvatar = userData.photoUrl || req.user.avatarUrl || null;
+
+    await logActivity(uid, devName, devAvatar, 'devlog', projectId, projectDoc.data().title, { title: title });
 
     res.redirect(`/support-developers/${projectId}?tab=updates&success=Devlog+Posted`);
 

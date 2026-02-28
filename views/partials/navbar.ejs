@@ -1,3 +1,4 @@
+<!-- Barra de navegacion principal con links, notificaciones y acciones de usuario -->
 <header class="site-header">
   <div class="container">
     <div class="nav">
@@ -12,6 +13,7 @@
         <span class="nav-toggle-line"></span>
       </button>
 
+      <%/* Links de navegacion: la clase is-active se aplica segun la pagina actual */%>
       <nav id="navMenu" class="nav-menu" aria-label="Primary navigation">
         <a class="nav-link <%= (typeof active !== 'undefined' && active === 'index') ? 'is-active' : '' %>" href="/">
           Home
@@ -27,24 +29,58 @@
           <i class="fas fa-bolt" style="color: #f59e0b; margin-right: 5px;"></i> Versus
         </a>
 
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'discover') ? 'is-active' : '' %>"
+          href="/discover">
+          <i class="fas fa-fire" style="color: #ec4899; margin-right: 5px;"></i> Discover
+        </a>
+
+        <a class="nav-link <%= (typeof active !== 'undefined' && active === 'challenges') ? 'is-active' : '' %>"
+          href="/challenges">
+          <i class="fas fa-trophy" style="color: #fbbf24; margin-right: 5px;"></i> Challenges
+        </a>
+
         <a class="nav-link <%= (typeof active !== 'undefined' && active === 'features') ? 'is-active' : '' %>"
           href="/features">
-          New Features
+          <i class="fas fa-sparkles" style="color: #a78bfa; margin-right: 5px;"></i> Features
         </a>
 
         <a class="nav-link <%= (typeof active !== 'undefined' && active === 'support') ? 'is-active' : '' %>"
           href="/support-developers">
-          Support Developers
+          <i class="fas fa-heart" style="color: #f472b6; margin-right: 5px;"></i> Support
         </a>
 
-      </nav>
-      </nav>
+        <%/* Login/Register solo visible dentro del menú hamburguesa en móvil */%>
+        <% if (!locals.user) { %>
+          <div class="nav-mobile-auth">
+            <a class="btn btn-ghost btn-sm" href="/auth/login" style="width: 100%; justify-content: center;">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a class="btn btn-primary btn-sm" href="/auth/register" style="width: 100%; justify-content: center;">
+              <i class="fas fa-user-plus"></i> Register
+            </a>
+          </div>
+        <% } %>
 
       </nav>
 
+      <!-- Acciones: si logueado muestra notificaciones + avatar; si no, login/register -->
       <div class="nav-actions">
 
         <% if (locals.user) { %>
+          <!-- Campana de notificaciones con dropdown y badge de conteo -->
+          <div class="notif-wrapper">
+            <button class="notif-bell" id="notifBell" title="Notifications">
+              <i class="fas fa-bell"></i>
+              <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown" style="display: none;">
+              <div class="notif-header">
+                <span>Notifications</span>
+                <button id="notifReadAll">Mark all as read</button>
+              </div>
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
 
           <a href="/profile" class="btn btn-ghost btn-sm"
             style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 50px;">
@@ -60,13 +96,10 @@
 
           <% } else { %>
 
-            <a class="btn btn-ghost btn-sm" href="/auth/login">
-              Login
-            </a>
-
-            <a class="btn btn-primary btn-sm" href="/auth/register">
-              Register
-            </a>
+            <div class="nav-auth">
+              <a class="btn btn-ghost btn-sm" href="/auth/login">Login</a>
+              <a class="btn btn-primary btn-sm" href="/auth/register">Register</a>
+            </div>
 
             <% } %>
 

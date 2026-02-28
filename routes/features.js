@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { getNewReleasesGames } = require("../services/igdbClient");
 
-/* GET /features page. */
+// Pagina de lanzamientos recientes — trae juegos nuevos de IGDB
 router.get("/", async (req, res, next) => {
   try {
-    // Pedimos 24 juegos para llenar bien la pantalla
+    // 24 juegos para que la grid se vea llena en desktop
     const newGames = await getNewReleasesGames(24);
 
     res.render("layout", {

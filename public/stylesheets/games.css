@@ -100,8 +100,84 @@
   display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
 }
 .section-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0; }
-.btn-see-all { font-size: 0.9rem; color: #9ca3af; text-decoration: none; transition: color 0.2s; }
-.btn-see-all:hover { color: #fff; }
+/* "See all" link-button with arrow */
+.btn-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+}
+.btn-see-all:hover {
+  color: #fff;
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+.btn-see-all i {
+  font-size: 0.7rem;
+  transition: transform 0.25s ease;
+}
+.btn-see-all:hover i {
+  transform: translateX(3px);
+}
+
+/* "Back to Games" button */
+.btn-back-to-games {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: all 0.25s ease;
+}
+.btn-back-to-games:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateX(-2px);
+}
+.btn-back-to-games i {
+  font-size: 0.7rem;
+  transition: transform 0.25s ease;
+}
+.btn-back-to-games:hover i {
+  transform: translateX(-3px);
+}
+
+/* "Clear search" pill button */
+.btn-clear-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  padding: 5px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-clear-search:hover {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #fca5a5;
+}
+.btn-clear-search i {
+  font-size: 0.7rem;
+}
 
 .games-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px;

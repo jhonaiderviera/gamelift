@@ -1,3 +1,4 @@
+<!-- Catalogo de juegos: hero con buscador, secciones por categoria y modo busqueda -->
 <link rel="stylesheet" href="/stylesheets/games.css">
 
 <div class="container" style="padding-top: 20px; padding-bottom: 60px;">
@@ -12,6 +13,7 @@
         Search through thousands of titles, discover new releases, or let fate decide.
       </p>
 
+      <!-- Buscador con boton de busqueda y dado aleatorio -->
       <div class="hero-search-container">
         <form id="gamesSearchForm" class="search-form" autocomplete="off">
           <i class="fas fa-search search-icon"></i>
@@ -40,25 +42,29 @@
     </div>
   </section>
 
+  <!-- Modo normal: secciones de new releases, coming soon y trending -->
   <div id="normalMode">
 
+    <%/* Seccion de nuevos lanzamientos (o categoria activa) */%>
     <% if (data.newReleases && data.newReleases.length > 0) { %>
       <section class="games-section">
         <div class="section-header">
           <h2 class="section-title"><%= data.sectionTitle || "New Releases" %></h2>
           
+          <%/* Si es vista de categoria, mostrar boton 'back'; si no, 'see all' */%>
           <% if (!data.isCategoryView) { %>
             <div class="section-nav">
-              <a href="/games/category/new" class="btn-see-all">See all</a>
+              <a href="/games/category/new" class="btn-see-all">See all <i class="fas fa-arrow-right"></i></a>
             </div>
           <% } else { %>
             <div class="section-nav">
-              <a href="/games" class="btn-ghost">Back to Games</a>
+              <a href="/games" class="btn-back-to-games"><i class="fas fa-arrow-left"></i> Back to Games</a>
             </div>
           <% } %>
         </div>
 
         <div class="games-grid">
+          <%/* Cada card tiene data-attrs para las acciones JS de libreria/favoritos */%>
           <% data.newReleases.forEach(game => { %>
             <article class="game-card" data-game-id="<%= game.id %>" data-name="<%= game.name %>" data-cover="<%= game.coverUrl %>" tabindex="0">
               <a href="/games/<%= game.id %>" class="card-link-wrapper">
@@ -93,12 +99,13 @@
       </section>
     <% } %>
 
+    <%/* Seccion Coming Soon: solo visible en vista general, no en categoria */%>
     <% if (!data.isCategoryView && data.upcomingGames && data.upcomingGames.length > 0) { %>
       <section class="games-section" style="margin-top: 60px;">
         <div class="section-header">
           <h2 class="section-title">Coming Soon</h2>
           <div class="section-nav">
-            <a href="/games/category/upcoming" class="btn-see-all">See all</a>
+            <a href="/games/category/upcoming" class="btn-see-all">See all <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
 
@@ -125,12 +132,13 @@
       </section>
     <% } %>
 
+    <%/* Seccion Trending Now: juegos populares del momento */%>
     <% if (!data.isCategoryView && data.popularGames && data.popularGames.length > 0) { %>
       <section class="games-section" style="margin-top: 60px;">
         <div class="section-header">
           <h2 class="section-title">Trending Now</h2>
           <div class="section-nav">
-            <a href="/games/category/popular" class="btn-see-all">See all</a>
+            <a href="/games/category/popular" class="btn-see-all">See all <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
 
@@ -169,11 +177,14 @@
 
   </div>
 
+  <!-- Modo busqueda: se muestra al buscar, con grid de resultados y estados de carga/vacio/error -->
   <div id="searchMode" class="hidden">
     <div class="section-header">
-      <div>
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
         <h2 class="section-title" id="resultsTitle">Search Results</h2>
-        <button onclick="window.location.reload()" class="btn-ghost" style="margin-top:5px; font-size:0.8rem;">Clear Search</button>
+        <button id="btnClearSearch" class="btn-clear-search">
+          <i class="fas fa-times"></i> Clear
+        </button>
       </div>
     </div>
     

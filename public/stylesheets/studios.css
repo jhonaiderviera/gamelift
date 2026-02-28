@@ -150,3 +150,38 @@
 .studio-card:hover::before {
     opacity: 1;
 }
+
+/* === RESPONSIVE — Adaptación móvil === */
+@media (max-width: 768px) {
+    .hall-title {
+        font-size: 2.2rem;
+    }
+    .hall-subtitle {
+        font-size: 1rem;
+    }
+    .hall-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .hall-header {
+        margin-bottom: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hall-title {
+        font-size: 1.8rem;
+    }
+    .studio-card {
+        padding: 18px;
+        gap: 14px;
+    }
+    .studio-logo-wrapper {
+        width: 55px;
+        height: 55px;
+        padding: 10px;
+    }
+    .studio-name {
+        font-size: 1.1rem;
+    }
+}

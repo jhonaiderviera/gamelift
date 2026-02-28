@@ -1,13 +1,12 @@
-/* Ubicación: /routes/versus.js */
+/* Ubicacion: /routes/versus.js — Batalla diaria entre dos juegos */
 const express = require("express");
 const router = express.Router();
 const { db, admin } = require("../services/firebase");
 const { getTrendingGames } = require("../services/igdbClient");
 
-// Función auxiliar: Fecha formato YYYY-MM-DD
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 
-// GET: La Arena de Batalla (Diaria)
+// Mostrar la batalla del dia (o una fecha pasada si se pasa por URL para el historial)
 router.get("/:date?", async (req, res) => {
     try {
         // Si viene fecha en URL, usamos esa (para el historial). Si no, HOY.
@@ -20,10 +19,9 @@ router.get("/:date?", async (req, res) => {
         let battleData;
 
         if (docSnap.exists) {
-            // Si ya existe, la cargamos
             battleData = docSnap.data();
         } else {
-            // Si NO existe y es HOY, creamos una nueva
+            // No existe y es hoy → crear batalla nueva con juegos trending de IGDB
             if (isToday) {
                 const gamesPool = await getTrendingGames(60);
 
@@ -68,7 +66,7 @@ router.get("/:date?", async (req, res) => {
             }
         }
 
-        // Calcular porcentajes para la vista
+        // Porcentajes para las barras de progreso en la vista
         const total = battleData.totalVotes || 0;
         const p1 = total === 0 ? 50 : Math.round((battleData.game1.votes / total) * 100);
         const p2 = total === 0 ? 50 : 100 - p1;
@@ -88,7 +86,7 @@ router.get("/:date?", async (req, res) => {
     }
 });
 
-// POST: Votar
+// Registrar un voto — usa transaccion para que los contadores no se pisen entre usuarios
 router.post("/vote", async (req, res) => {
     const { date, winnerSide } = req.body;
 
@@ -97,6 +95,7 @@ router.post("/vote", async (req, res) => {
     try {
         const docRef = db.collection('daily_versus').doc(date);
 
+        // Transaccion porque varios usuarios votan al mismo tiempo
         await db.runTransaction(async (t) => {
             const doc = await t.get(docRef);
             if (!doc.exists) throw "Document does not exist!";

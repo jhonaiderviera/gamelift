@@ -1,8 +1,16 @@
+<!-- Pagina de inicio: hero slider, top games globales/locales, versus y community pulse -->
 <link rel="stylesheet" href="/stylesheets/home.css">
 
+<%/* Precargar imagenes del hero para que el navegador las descargue de inmediato */%>
+<% (data.heroSlides || []).forEach((s, idx) => { %>
+  <link rel="preload" as="image" href="<%= s.imageUrl %>" <% if (idx === 0) { %>fetchpriority="high"<% } %>>
+<% }) %>
+
+<!-- Hero slider: carrusel de juegos destacados con puntuaciones GameLift y Global -->
 <section class="container section">
   <div class="hero-frame" data-carousel tabindex="0" aria-label="Featured games carousel">
     <div class="hero-track" data-carousel-track>
+      <%/* Recorrer cada slide del hero con su imagen, titulo y scores */%>
       <% (data.heroSlides || []).forEach((s, idx)=> { %>
         <article class="hero-slide" data-carousel-slide aria-hidden="<%= idx === 0 ? 'false' : 'true' %>">
           <div class="hero-bg" style="background-image:url('<%= s.imageUrl %>')"></div>
@@ -20,6 +28,7 @@
               </div>
             </div>
 
+            <!-- Puntuaciones: GameLift (comunidad) vs Global (critica) -->
             <div class="hero-scores">
               <div class="score-card gamelift">
                 <div
@@ -71,6 +80,7 @@
   </div>
 </section>
 
+<!-- Seccion Global Legends: top juegos segun IGDB/Metacritic -->
 <section class="container section">
   <div class="section-head" style="margin-bottom: 20px;">
     <div style="display:flex; align-items:center; gap:10px;">
@@ -81,12 +91,13 @@
   </div>
 
   <div class="grid">
+    <%/* Recorrer los juegos top globales ordenados por rating de critica */%>
     <% if(data.globalTop && data.globalTop.length> 0) { %>
       <% data.globalTop.forEach(g=> { %>
         <article class="game-card">
           <div class="game-cover">
             <a href="/games/<%= g.id %>" style="display: block; width: 100%; height: 100%;">
-              <img src="<%= g.coverUrl %>" alt="<%= g.name %>" loading="lazy">
+              <img src="<%= g.coverUrl %>" alt="<%= g.name %>" fetchpriority="high">
             </a>
             <span class="score score-good">
               <%= Math.round(g.rating) %>
@@ -108,6 +119,7 @@
   </div>
 </section>
 
+<!-- Seccion Community Favorites: mejores juegos segun la comunidad de GameLift -->
 <section class="container section"
   style="background: rgba(139, 92, 246, 0.05); padding: 30px; border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.2);">
   <div class="section-head" style="margin-bottom: 20px;">
@@ -152,6 +164,7 @@
   </div>
 </section>
 
+<!-- Seccion Versus Arena: batalla diaria en vivo + historial de batallas pasadas -->
 <section class="container section-margin" style="margin-bottom: 80px;">
 
   <div class="section-header" style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
@@ -159,6 +172,7 @@
     <div style="height: 2px; flex: 1; background: linear-gradient(90deg, #374151, transparent);"></div>
   </div>
 
+  <%/* Si hay batalla del dia, mostrar la tarjeta de batalla en vivo */%>
   <% if (data.todaysBattle) { %>
     <div class="live-battle-card">
       <div class="live-badge"><span class="pulse-dot"></span> LIVE NOW</div>
@@ -216,6 +230,7 @@
         </a>
       </div>
 
+      <%/* Hall of Legends: historial de batallas pasadas con ganadores */%>
       <% if (data.versusHistory && data.versusHistory.length> 0) { %>
         <div class="hall-grid">
           <% data.versusHistory.forEach(battle=> { %>
@@ -237,6 +252,7 @@
                   <p class="defeated">Defeated <%= (battle.winner.id===battle.game1.id) ? battle.game2.name :
                       battle.game1.name %>
                   </p>
+                  <%/* Calcular porcentajes de votos para la barra de progreso */%>
                   <% const total=(battle.game1.votes || 0) + (battle.game2.votes || 0); const p1=total===0 ? 50 :
                     Math.round((battle.game1.votes/total)*100); %>
                     <div class="mini-bar-track">
@@ -259,66 +275,124 @@
           <% } %>
 </section>
 
+<!-- Community Pulse: feed de actividad social (reviews, follows, donaciones, etc.) -->
 <section class="container" style="margin-top: 60px; margin-bottom: 60px;">
-  <div class="section-header" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
-    <h2 class="h2"><i class="fas fa-bolt" style="color:#f59e0b;"></i> Community Pulse</h2>
+  <div class="section-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <h2 class="h2"><i class="fas fa-bolt" style="color:#f59e0b;"></i> Community Pulse</h2>
+      <%/* Badge indica si el feed es de 'following' o 'global' */%>
+      <% if (data.activityMode === 'following') { %>
+        <span class="pulse-badge following"><i class="fas fa-users"></i> Following</span>
+      <% } else { %>
+        <span class="pulse-badge global"><i class="fas fa-globe"></i> Global</span>
+      <% } %>
+    </div>
   </div>
 
-  <div class="activity-feed-grid">
-    <% if (data.activities && data.activities.length> 0) { %>
-      <% data.activities.forEach(act=> { %>
-        <div class="activity-card">
+  <div class="activity-feed-grid" id="activityFeed">
+    <% if (data.activities && data.activities.length > 0) { %>
+      <%/* Recorrer actividades: las primeras 4 visibles, el resto ocultas */%>
+      <% data.activities.forEach((act, idx) => { %>
+        <div class="activity-card<%= idx >= 4 ? ' activity-hidden' : '' %>">
+          <%/* Icono cambia segun tipo: review, donate, follow, devlog, collection, comment */%>
           <div class="act-icon <%= act.type %>">
-            <% if(act.type=='review' ) { %><i class="fas fa-star"></i>
-              <% } %>
-                <% if(act.type=='donate' ) { %><i class="fas fa-heart"></i>
-                  <% } %>
-                    <% if(act.type=='follow' ) { %><i class="fas fa-user-plus"></i>
-                      <% } %>
-                        <% if(act.type=='devlog' ) { %><i class="fas fa-bullhorn"></i>
-                          <% } %>
+            <% if (act.type === 'review') { %><i class="fas fa-star"></i>
+            <% } else if (act.type === 'donate') { %><i class="fas fa-heart"></i>
+            <% } else if (act.type === 'follow') { %><i class="fas fa-user-plus"></i>
+            <% } else if (act.type === 'devlog') { %><i class="fas fa-bullhorn"></i>
+            <% } else if (act.type === 'collection') { %><i class="fas fa-layer-group"></i>
+            <% } else if (act.type === 'comment') { %><i class="fas fa-comment"></i>
+            <% } %>
           </div>
           <div class="act-content">
             <div class="act-header">
               <a href="/profile/u/<%= act.userId || act.uid || act.authorId || act.id %>" class="user-link">
-                <img src="<%= act.userAvatar %>" alt="Avatar">
-                <span>
-                  <%= act.username %>
-                </span>
+                <img
+                  src="<%= (act.userAvatar && act.userAvatar.startsWith('http')) ? act.userAvatar : 'https://ui-avatars.com/api/?name=' + (act.username || 'U') + '&background=random&color=fff&size=64' %>"
+                  alt="<%= act.username %>"
+                  onerror="this.src='https://ui-avatars.com/api/?name=<%= (act.username || 'U').charAt(0) %>&background=6b7280&color=fff&size=64'"
+                >
+                <span><%= act.username %></span>
               </a>
-              <span class="act-time">
-                <%= act.timeAgo %>
-              </span>
+              <span class="act-time"><%= act.timeAgo %></span>
             </div>
+            <%/* Texto de actividad: diferente segun el tipo de accion del usuario */%>
             <p class="act-text">
-              <% if(act.type=='review' ) { %>
-                reviewed <strong><a href="/games/<%= act.targetId %>" style="color: #fff; border:none;">
-                    <%= act.targetName %>
-                  </a></strong> with a score of <span class="score-mini">
-                  <%= act.extraData.score %>
-                </span>
-                <% } else if (act.type=='donate' ) { %>
-                  donated <strong>$<%= act.extraData.amount %></strong> to <a
-                    href="/support-developers/<%= act.targetId %>">
-                    <%= act.targetName %>
-                  </a>
-                  <% } else if (act.type=='follow' ) { %>
-                    started following <a href="/profile/u/<%= act.targetId %>">
-                      <%= act.targetName %>
-                    </a>
-                    <% } else if (act.type=='devlog' ) { %>
-                      posted an update on <strong>
-                        <%= act.targetName %>
-                      </strong>: "<%= act.extraData.title %>"
-                        <% } %>
+              <% if (act.type === 'review') { %>
+                reviewed <strong><a href="/games/<%= act.targetId %>#review-<%= act.targetId %>_<%= act.userId %>" class="act-link"><%= act.targetName %></a></strong>
+                with a score of <span class="score-mini"><%= act.extraData?.score %></span>
+              <% } else if (act.type === 'donate') { %>
+                donated <strong>$<%= act.extraData?.amount %></strong> to
+                <a href="/support-developers/<%= act.targetId %>" class="act-link"><%= act.targetName %></a>
+              <% } else if (act.type === 'follow') { %>
+                started following <a href="/profile/u/<%= act.targetId %>" class="act-link"><%= act.targetName %></a>
+              <% } else if (act.type === 'devlog') { %>
+                posted an update on <strong><%= act.targetName %></strong>: "<%= act.extraData?.title %>"
+              <% } else if (act.type === 'collection') { %>
+                created a new collection <strong><a href="/collections/<%= act.targetId %>" class="act-link"><%= act.targetName %></a></strong>
+              <% } else if (act.type === 'comment') { %>
+                commented on a review of <strong><a href="/games/<%= act.targetId %><%= act.extraData?.reviewId ? '#review-' + act.extraData.reviewId : '' %>" class="act-link"><%= act.targetName %></a></strong>
+                <% if (act.extraData?.commentPreview) { %>
+                  — "<span style="color: var(--muted-mid, #9ca3af); font-style: italic;"><%= act.extraData.commentPreview %><%= act.extraData.commentPreview.length >= 60 ? '...' : '' %></span>"
+                <% } %>
+              <% } %>
             </p>
           </div>
         </div>
-        <% }) %>
-          <% } else { %>
-            <div class="empty-feed">No activity yet. Be the first!</div>
-            <% } %>
+      <% }) %>
+    <% } else { %>
+      <div class="empty-feed">
+        <i class="fas fa-satellite-dish" style="font-size: 2rem; margin-bottom: 12px; opacity: 0.4;"></i>
+        <% if (data.activityMode === 'following') { %>
+          <p>No recent activity from people you follow.</p>
+          <a href="/games" class="empty-feed-link">Discover games & connect with players</a>
+        <% } else if (locals.user) { %>
+          <p>No activity yet. Follow other players to see their updates here!</p>
+          <a href="/games" class="empty-feed-link">Explore the catalog</a>
+        <% } else { %>
+          <p>No activity yet. Sign in and follow players to build your feed!</p>
+          <a href="/auth/login" class="empty-feed-link">Log in to get started</a>
+        <% } %>
+      </div>
+    <% } %>
   </div>
+
+  <% if (data.activities && data.activities.length > 4) { %>
+    <div class="pulse-toggle-wrap">
+      <button class="pulse-toggle-btn" id="pulseToggle" onclick="togglePulse()">
+        <span id="pulseToggleText">Show all (<%= data.activities.length - 4 %> more)</span>
+        <i class="fas fa-chevron-down" id="pulseToggleIcon"></i>
+      </button>
+    </div>
+  <% } %>
 </section>
 
-<script src="/javascripts/hero-slider.js" defer></script>
+<!-- Script para expandir/colapsar el feed de actividad -->
+<script>
+function togglePulse() {
+  const feed = document.getElementById('activityFeed');
+  const btn = document.getElementById('pulseToggle');
+  const text = document.getElementById('pulseToggleText');
+  const icon = document.getElementById('pulseToggleIcon');
+  const hidden = feed.querySelectorAll('.activity-hidden');
+  const visible = feed.querySelectorAll('.activity-card:not(.activity-hidden)');
+  const isExpanded = btn.classList.contains('expanded');
+
+  if (isExpanded) {
+    feed.querySelectorAll('.activity-card').forEach((card, i) => {
+      if (i >= 4) card.classList.add('activity-hidden');
+    });
+    btn.classList.remove('expanded');
+    text.textContent = 'Show all (' + (feed.querySelectorAll('.activity-card').length - 4) + ' more)';
+    icon.style.transform = 'rotate(0deg)';
+    feed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    feed.querySelectorAll('.activity-hidden').forEach(card => {
+      card.classList.remove('activity-hidden');
+    });
+    btn.classList.add('expanded');
+    text.textContent = 'Show less';
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+</script>

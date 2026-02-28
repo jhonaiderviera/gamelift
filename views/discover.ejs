@@ -1,0 +1,53 @@
+<!-- Pagina Discover: sistema tipo swipe/Tinder para descubrir juegos -->
+<div class="discover-container">
+
+  <div class="discover-header">
+    <div class="discover-title">
+      <i class="fas fa-fire"></i>
+      <h1>Discover</h1>
+    </div>
+    <span class="discover-counter" id="discoverCounter"></span>
+  </div>
+
+  <!-- Pila de cards: se generan dinamicamente por JS desde __discoverGames -->
+  <div class="card-stack" id="cardStack">
+  </div>
+
+  <!-- Empty state -->
+  <div class="discover-empty" id="discoverEmpty" style="display: none;">
+    <div class="discover-empty-content">
+      <i class="fas fa-gamepad"></i>
+      <h2>You've seen them all!</h2>
+      <p>Come back later for more recommendations.</p>
+      <a href="/discover" class="discover-reload-btn">
+        <i class="fas fa-redo"></i> Load More Games
+      </a>
+    </div>
+  </div>
+
+  <!-- Botones de accion: skip, info y agregar al backlog -->
+  <div class="discover-actions" id="discoverActions">
+    <button class="action-btn action-skip" id="btnSkip" title="Skip (Left Arrow)">
+      <i class="fas fa-times"></i>
+    </button>
+    <button class="action-btn action-info" id="btnInfo" title="View Details">
+      <i class="fas fa-info"></i>
+    </button>
+    <button class="action-btn action-backlog" id="btnBacklog" title="Add to Backlog (Right Arrow)">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- Keyboard hint -->
+  <div class="discover-hint">
+    <span><kbd>&larr;</kbd> Skip</span>
+    <span><kbd>&rarr;</kbd> Backlog</span>
+  </div>
+
+</div>
+
+<!-- Datos del servidor inyectados como variables globales para el swiper JS -->
+<script>
+  window.__discoverGames = <%- JSON.stringify(data.games || []) %>;
+  window.__isLoggedIn = <%= locals.user ? 'true' : 'false' %>;
+</script>

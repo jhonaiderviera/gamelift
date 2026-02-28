@@ -6,12 +6,13 @@ const {
   getRandomFeaturedGames
 } = require("../services/igdbClient");
 
-// GET /api/igdb/search?q=...
+// Proxy de busqueda a IGDB — el frontend lo llama para el search bar y modales
 router.get("/search", async (req, res) => {
   try {
     const q = String(req.query.q || "").trim();
     if (!q) return res.json({ ok: true, data: [] });
 
+    // Buscar hasta 20 juegos que coincidan con el termino
     const data = await searchGames(q, 20);
     return res.json({ ok: true, data });
   } catch (e) {
@@ -19,7 +20,7 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// GET /api/igdb/random?limit=20
+// Juegos aleatorios destacados — usado internamente para discover y otras secciones
 router.get("/random", async (req, res) => {
   try {
     const limit = Number(req.query.limit || 20);

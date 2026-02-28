@@ -161,3 +161,35 @@
         font-size: 2.5rem;
     }
 }
+
+@media (max-width: 480px) {
+    /* Hero compañia — mas compacto en movil pequeño */
+    .company-hero-premium {
+        padding: 30px 16px;
+        border-radius: 16px;
+        gap: 24px;
+    }
+    .company-logo-premium {
+        width: 100px;
+        height: 100px;
+        padding: 16px;
+        border-radius: 20px;
+    }
+    .company-info-premium h1 {
+        font-size: 1.8rem;
+    }
+    .company-info-premium p {
+        font-size: 0.95rem;
+    }
+    /* Grid de juegos — 2 columnas en movil */
+    .games-grid-premium {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 16px;
+    }
+    .game-body-premium {
+        padding: 14px;
+    }
+    .game-title-premium {
+        font-size: 1rem;
+    }
+}

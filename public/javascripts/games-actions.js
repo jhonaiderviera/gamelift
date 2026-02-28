@@ -1,17 +1,18 @@
-/* Ubicación: /public/javascripts/games-actions.js */
+/* Acciones de juegos: agregar a libreria, favoritos, etc.
+   Funciona tanto en tarjetas del catalogo como en la pagina de detalle */
 
 document.addEventListener('DOMContentLoaded', () => {
-  
-  // Detectar botones en Catálogo (clase .action-btn) y en Detalle (clase .js-manage-...)
+
+  // Buscar todos los botones de accion — hay dos contextos: catalogo (.action-btn) y detalle (.js-manage-...)
   const btns = document.querySelectorAll('.action-btn, .js-manage-library, .js-manage-favorite');
 
+  // Funcion principal: toggle de agregar/quitar un juego de la libreria o favoritos
   const toggleAction = async (btn) => {
-    // Determinar tipo de acción (Librería o Favorito)
+    // Determinar si es accion de libreria o favorito para elegir el endpoint correcto
     const isLibrary = btn.classList.contains('library') || btn.classList.contains('js-manage-library');
     const endpoint = isLibrary ? '/users/library/toggle' : '/users/favorites/toggle';
 
-    // Obtener datos del juego
-    // Caso 1: Desde tarjeta del catálogo
+    // Sacar los datos del juego — depende de si estamos en una tarjeta o en la vista detalle
     let card = btn.closest('.game-card');
     let gameId, gameName, coverUrl;
 
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       gameName = card.dataset.name;
       coverUrl = card.dataset.cover;
     } else {
-      // Caso 2: Desde pantalla de detalle (buscamos el contenedor padre con los datos)
+      // En la vista detalle, los datos estan en el header
       const container = document.querySelector('.detail-header');
       if (container) {
         gameId = container.dataset.gameId;
@@ -31,12 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!gameId) return console.error("No game ID found");
 
-    // Guardar estado visual original para restaurar si falla
+    // Guardamos el HTML original del boton por si falla el fetch y hay que revertir
     const originalContent = btn.innerHTML;
-    // Detectar si es un botón grande (pantalla detalle) o pequeño (tarjeta)
+    // Hay dos tamanios de boton: grande (detalle) y chico (tarjeta del catalogo)
     const isDetailBtn = btn.tagName === 'BUTTON' && btn.classList.contains('btn'); 
     
-    // Mostrar estado de carga
+    // Spinner de carga mientras esperamos la respuesta del server
     if (isDetailBtn) {
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     } else {
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.disabled = true;
 
     try {
+      // Peticion POST al toggle — el server decide si agrega o remueve
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
@@ -52,15 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.status === 401) {
-        // Si no está logueado, redirigir al login
+        // No esta logueado, lo mandamos al login
         window.location.href = '/auth/login';
         return;
       }
 
       const data = await response.json();
 
+      // Invalidar caché de sessionStorage para que el proximo checkState traiga datos frescos
+      sessionStorage.removeItem(CACHE_KEY);
+
       if (data.status === 'added') {
-        // --- ESTADO: AGREGADO ---
+        // Juego agregado — actualizar icono y clase CSS
         btn.classList.add('active');
         
         if (isDetailBtn) {
@@ -74,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
       } else {
-        // --- ESTADO: REMOVIDO ---
+        // Juego removido — volver al icono original
         btn.classList.remove('active');
         
         if (isDetailBtn) {
@@ -91,14 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = originalContent;
     } finally {
       btn.disabled = false;
-      // Restaurar icono de carpeta en tarjeta tras 1.5s si se agregó correctamente
+      // En tarjetas, despues de 1.5s cambiamos el check a icono de carpeta (mas limpio visualmente)
       if (!isDetailBtn && isLibrary && btn.classList.contains('active')) {
         setTimeout(() => btn.innerHTML = '<i class="fas fa-folder"></i>', 1500);
       }
     }
   };
 
-  // Asignar Click Listener a todos los botones detectados
+  // Registrar click en cada boton — prevenimos propagacion para que no se dispare el link de la tarjeta
   btns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -107,34 +112,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Check inicial de estado (Cargar qué juegos tiene ya el usuario)
+  // Al cargar la pagina, pedimos la lista de juegos del usuario para marcar los botones correctamente
+  // OPTIMIZADO: cachea en sessionStorage para no hacer fetch en cada navegacion (ahorra ~70 lecturas/pagina)
+  const CACHE_KEY = 'gl_myGames';
+  const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de caché — suficiente para navegar sin gastar lecturas
+
   const checkState = async () => {
     try {
-      const res = await fetch('/users/my-games');
-      if (!res.ok) return;
-      const { library, favorites } = await res.json();
+      let library, favorites;
 
-      // Actualizar botones de Librería
-      library.forEach(id => {
-        // Selectores para botones en catálogo y detalle
+      // Intentar leer de caché primero
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.ts < CACHE_TTL) {
+          library = parsed.library;
+          favorites = parsed.favorites;
+        }
+      }
+
+      // Si no hay caché valida, fetch al server
+      if (!library) {
+        const res = await fetch('/users/my-games');
+        if (!res.ok) return;
+        const data = await res.json();
+        library = data.library;
+        favorites = data.favorites;
+        // Guardar en sessionStorage con timestamp
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ library, favorites, ts: Date.now() }));
+      }
+
+      // Marcar como activos los botones de juegos que ya estan en la libreria
+      // library ahora puede ser un objeto {id: status} o un array — soportamos ambos
+      const libraryIds = Array.isArray(library) ? library : Object.keys(library || {});
+      libraryIds.forEach(id => {
         const selectors = [
           `.game-card[data-game-id="${id}"] .action-btn.library`,
           `.game-card[data-id="${id}"] .action-btn.library`,
-          `.detail-header[data-game-id="${id}"] .js-manage-library` // Selector específico detalle
+          `.detail-header[data-game-id="${id}"] .js-manage-library`
         ];
-        
+
         document.querySelectorAll(selectors.join(',')).forEach(btn => {
           btn.classList.add('active');
-          if (btn.classList.contains('btn')) { // Es botón de detalle
+          if (btn.classList.contains('btn')) {
             btn.innerHTML = '<i class="fas fa-check"></i> In Library';
-          } else { // Es botón de tarjeta
+          } else {
             btn.innerHTML = '<i class="fas fa-folder"></i>';
           }
         });
       });
 
-      // Actualizar botones de Favoritos
-      favorites.forEach(id => {
+      // Lo mismo pero para los favoritos
+      const favIds = Array.isArray(favorites) ? favorites : Object.keys(favorites || {});
+      favIds.forEach(id => {
         const selectors = [
           `.game-card[data-game-id="${id}"] .action-btn.favorite`,
           `.game-card[data-id="${id}"] .action-btn.favorite`,

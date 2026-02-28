@@ -4,13 +4,14 @@ const { db, admin } = require("../services/firebase");
 const { logActivity } = require("../services/activityLogger");
 const { isAuthenticated, getUid } = require("../middleware/auth");
 
-// 1. VER DETALLE DE UNA COLECCION
+// Cargar una coleccion por ID y mostrar su detalle — cualquiera puede verla, pero solo el dueno la edita
 router.get('/:id', async (req, res) => {
   try {
     const doc = await db.collection('collections').doc(req.params.id).get();
     if (!doc.exists) return res.render('error', { message: "Collection not found", error: { status: 404 } });
 
     const collection = { id: doc.id, ...doc.data() };
+    // Checar si el usuario logueado es el dueno para mostrar botones de edicion
     const isOwner = req.user && getUid(req) === collection.userId;
 
     res.render('layout', {
@@ -23,23 +24,30 @@ router.get('/:id', async (req, res) => {
   } catch (e) { console.error(e); res.redirect('/'); }
 });
 
-// 2. CREAR COLECCION (SOPORTA JSON Y FORMULARIO)
+// Crear coleccion nueva — soporta tanto JSON (desde modal) como form submit clasico
 router.post('/create', isAuthenticated, async (req, res) => {
   try {
     const { title } = req.body;
     const uid = getUid(req);
 
     if (!title || title.trim() === "") {
+      // Responder distinto segun si es AJAX o formulario tradicional
       if (req.headers['content-type'] === 'application/json') {
         return res.json({ success: false, msg: "Title is required" });
       }
       return res.redirect('/profile?error=Title+required');
     }
 
+    // Traer datos frescos del usuario desde Firestore (no del session que puede estar desactualizado)
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const username = userData.username || req.user.username || "User";
+    const userAvatar = userData.photoUrl || req.user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
+
     const newCol = {
       userId: uid,
-      username: req.user.username || "User",
-      userAvatar: req.user.photoUrl || "https://ui-avatars.com/api/?name=User",
+      username,
+      userAvatar,
       title: title.trim(),
       games: [],
       createdAt: new Date()
@@ -47,6 +55,7 @@ router.post('/create', isAuthenticated, async (req, res) => {
 
     const ref = await db.collection('collections').add(newCol);
 
+    // Registrar actividad en el muro social — si falla no pasa nada, no queremos romper la creacion
     try {
       await logActivity(uid, newCol.username, newCol.userAvatar, 'collection', ref.id, newCol.title, { action: 'created' });
     } catch (e) { console.error("Log error:", e.message); }
@@ -65,7 +74,7 @@ router.post('/create', isAuthenticated, async (req, res) => {
   }
 });
 
-// 3. ANADIR JUEGO A COLECCION
+// Meter un juego en una coleccion — verifica que sea el dueno y que no este repetido
 router.post('/:id/add', isAuthenticated, async (req, res) => {
   const listId = req.params.id;
   const { gameId, gameName, gameCover } = req.body;
@@ -78,10 +87,12 @@ router.post('/:id/add', isAuthenticated, async (req, res) => {
     if (!doc.exists) {
       return res.status(404).json({ success: false, msg: 'Collection not found' });
     }
+    // Solo el dueno puede agregar juegos a su coleccion
     if (doc.data().userId !== uid) {
       return res.status(403).json({ success: false, msg: 'Unauthorized' });
     }
 
+    // Revisar si el juego ya esta para no duplicar
     const currentGames = doc.data().games || [];
     const exists = currentGames.find(g => g.id == gameId);
     if (exists) {
@@ -105,7 +116,7 @@ router.post('/:id/add', isAuthenticated, async (req, res) => {
   }
 });
 
-// 4. BORRAR JUEGO
+// Quitar un juego de la coleccion — filtra el array y actualiza el doc completo
 router.post('/:id/remove', isAuthenticated, async (req, res) => {
   try {
     const listId = req.params.id;
@@ -123,7 +134,7 @@ router.post('/:id/remove', isAuthenticated, async (req, res) => {
   } catch (e) { res.redirect('back'); }
 });
 
-// 5. BORRAR COLECCION
+// Eliminar coleccion entera — solo si el que pide es el dueno
 router.post('/:id/delete', isAuthenticated, async (req, res) => {
   try {
     const listId = req.params.id;

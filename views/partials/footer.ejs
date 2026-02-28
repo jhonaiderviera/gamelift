@@ -1,57 +1,104 @@
 <footer class="site-footer">
+
+  <!-- Gradient divider -->
+  <div class="footer-divider"></div>
+
   <div class="container">
-    
-    <div class="footer-content">
-      
-      <div class="footer-col brand-col">
-        <a href="/" class="footer-brand">GAMELIFT</a>
-        <p class="footer-desc">
-          Your ultimate platform to discover, track, and rate video games. 
-          Connecting players with their next favorite adventures.
+
+    <!-- Top section: brand + newsletter -->
+    <div class="footer-top">
+      <div class="footer-top-brand">
+        <a href="/" class="footer-logo">
+          <span class="footer-logo-icon"><i class="fas fa-gamepad"></i></span>
+          <span class="footer-logo-text">GAMELIFT</span>
+        </a>
+        <p class="footer-tagline">
+          Discover, track, and rate your favorite games.<br />
+          Built by gamers, for gamers.
         </p>
       </div>
+
+      <div class="footer-newsletter">
+        <h4 class="footer-newsletter-title">Stay in the loop</h4>
+        <p class="footer-newsletter-desc">Get updates on new features and game drops.</p>
+        <form class="footer-newsletter-form" onsubmit="event.preventDefault();">
+          <input type="email" placeholder="your@email.com" class="footer-newsletter-input" />
+          <button type="submit" class="footer-newsletter-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main links grid -->
+    <div class="footer-grid">
 
       <div class="footer-col">
         <h4 class="footer-heading">Explore</h4>
         <ul class="footer-links">
-          <li><a href="/games">Game Catalog</a></li>
-          <li><a href="/features">New Releases</a></li>
-          <li><a href="/support-developers">Support Developers</a></li>
+          <li><a href="/games"><i class="fas fa-compass"></i> Game Catalog</a></li>
+          <li><a href="/features"><i class="fas fa-star"></i> New Releases</a></li>
+          <li><a href="/versus"><i class="fas fa-bolt"></i> Versus Mode</a></li>
+          <li><a href="/support-developers"><i class="fas fa-heart"></i> Support Devs</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4 class="footer-heading">Community</h4>
+        <h4 class="footer-heading">Account</h4>
         <ul class="footer-links">
           <% if (locals.user) { %>
-            <li><a href="/profile">My Profile</a></li>
-            <li><a href="/auth/logout">Log Out</a></li>
+            <li><a href="/profile"><i class="fas fa-user"></i> My Profile</a></li>
+            <li><a href="/collections"><i class="fas fa-layer-group"></i> Collections</a></li>
+            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
           <% } else { %>
-            <li><a href="/auth/login">Log In</a></li>
-            <li><a href="/auth/register">Sign Up</a></li>
+            <li><a href="/auth/login"><i class="fas fa-sign-in-alt"></i> Log In</a></li>
+            <li><a href="/auth/register"><i class="fas fa-user-plus"></i> Sign Up</a></li>
           <% } %>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Privacy Policy</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4 class="footer-heading">Project</h4>
-        <p class="footer-text">
-          Developed as a Final Degree Project (DAW).
-        </p>
+        <h4 class="footer-heading">Legal & Help</h4>
+        <ul class="footer-links">
+          <li><a href="/auth/legal/terms"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+          <li><a href="/auth/legal/privacy"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+          <li><a href="/contact"><i class="fas fa-envelope"></i> Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Connect</h4>
         <div class="footer-socials">
-          <a href="#" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          <a href="#" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-          <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" target="_blank" aria-label="GitHub" class="social-btn">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="#" target="_blank" aria-label="LinkedIn" class="social-btn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="#" target="_blank" aria-label="Twitter" class="social-btn">
+            <i class="fab fa-x-twitter"></i>
+          </a>
+          <a href="#" target="_blank" aria-label="Discord" class="social-btn">
+            <i class="fab fa-discord"></i>
+          </a>
         </div>
+        <p class="footer-project-badge">
+          <i class="fas fa-graduation-cap"></i> Final Degree Project (DAW)
+        </p>
       </div>
 
     </div>
 
+    <!-- Bottom bar -->
     <div class="footer-bottom">
-      <p>&copy; <%= new Date().getFullYear() %> GameLift. Made with <span style="color: #ef4444;">&hearts;</span> and Node.js.</p>
-      <p class="footer-version">v1.0.0 Beta</p>
+      <p class="footer-copy">&copy; <%= new Date().getFullYear() %> GameLift. All rights reserved.</p>
+      <div class="footer-bottom-right">
+        <span class="footer-tech">
+          Made with <span class="footer-heart">&hearts;</span>
+          <i class="fab fa-node-js"></i> Node.js &middot; <i class="fab fa-js"></i> Express &middot; <i class="fas fa-fire"></i> Firebase
+        </span>
+        <span class="footer-version">v1.0.0</span>
+      </div>
     </div>
 
   </div>

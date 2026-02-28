@@ -1,13 +1,16 @@
+// URLs base de IGDB (pertenece a Twitch/Amazon, requiere credenciales de Twitch)
 const IGDB_BASE_URL = "https://api.igdb.com/v4";
 const TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token";
 
+// Token de acceso cacheado — evita pedir uno nuevo en cada request
 let cachedToken = null;
 let cachedTokenExpiry = 0;
 
-// Caché para el carrusel aleatorio (6h)
+// Pool de juegos destacados cacheado por 6 horas para el carrusel del home
 let cachedFeaturedPool = null;
 let cachedFeaturedPoolExpiry = 0;
 
+// Valida que una variable de entorno exista, si no lanza error para que no falle silenciosamente
 function mustGetEnv(name) {
   const v = process.env[name];
   if (!v) throw new Error(`Missing env var: ${name}`);
@@ -15,9 +18,11 @@ function mustGetEnv(name) {
 }
 
 // --- AUTENTICACIÓN ---
+// Pide un token OAuth2 a Twitch (IGDB usa la misma auth que Twitch)
+// El token se cachea hasta que expire, restando 60s de margen de seguridad
 async function getAccessToken() {
   const now = Date.now();
-  if (cachedToken && now < cachedTokenExpiry) return cachedToken;
+  if (cachedToken && now < cachedTokenExpiry) return cachedToken; // Si aún es válido, lo reutilizamos
 
   const clientId = mustGetEnv("IGDB_CLIENT_ID");
   const clientSecret = mustGetEnv("IGDB_CLIENT_SECRET");
@@ -36,17 +41,20 @@ async function getAccessToken() {
   const json = await res.json();
   cachedToken = json.access_token;
   const expiresInMs = (json.expires_in || 3600) * 1000;
-  cachedTokenExpiry = now + expiresInMs - 60_000;
+  cachedTokenExpiry = now + expiresInMs - 60_000; // 60s antes de que expire para no cortar a mitad de request
   return cachedToken;
 }
 
 // --- UTILIDADES ---
+// IGDB a veces devuelve URLs sin protocolo (ej: "//images.igdb.com/..."), esto le pone https
 function normalizeIgdbImageUrl(url) {
   if (!url) return null;
   if (url.startsWith("//")) return `https:${url}`;
   return url;
 }
 
+// Función genérica para hacer queries a cualquier endpoint de IGDB
+// El body usa el lenguaje propio de IGDB (parecido a SQL pero con su sintaxis rara)
 async function igdbQuery(endpoint, body) {
   const clientId = mustGetEnv("IGDB_CLIENT_ID");
   const token = await getAccessToken();
@@ -68,6 +76,7 @@ async function igdbQuery(endpoint, body) {
   return res.json();
 }
 
+// Mezcla aleatoria tipo Fisher-Yates — para que el carrusel no muestre siempre lo mismo
 function shuffleCopy(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -77,6 +86,7 @@ function shuffleCopy(arr) {
   return a;
 }
 
+// Busca la mejor imagen grande de un juego: prioriza artwork > screenshot > cover
 function pickIgdbBigHeroFallback(g) {
   const art = g.artworks?.[0]?.url || null;
   const shot = g.screenshots?.[0]?.url || null;
@@ -90,6 +100,7 @@ function pickIgdbBigHeroFallback(g) {
     .replace("t_cover_big", "t_1080p");
 }
 
+// Transforma la respuesta cruda de IGDB a un objeto limpio para las tarjetas de juego
 function mapGameCard(g) {
   const cover = normalizeIgdbImageUrl(g.cover?.url)
     ? normalizeIgdbImageUrl(g.cover.url).replace("t_thumb", "t_cover_big")
@@ -106,7 +117,9 @@ function mapGameCard(g) {
 }
 
 // --- FUNCIONES API ---
+// Cada función hace una query distinta a IGDB y devuelve los juegos ya formateados
 
+// Juegos trending — los que más reviews tienen (rating_count > 200)
 async function getTrendingGames(limit = 10) {
   const body = `
     fields id,name,slug,rating,rating_count,cover.url,artworks.url,screenshots.url;
@@ -118,6 +131,7 @@ async function getTrendingGames(limit = 10) {
   return (games || []).map(mapGameCard);
 }
 
+// Busca juegos por nombre — sanitiza las comillas para evitar inyección en la query de IGDB
 async function searchGames(query, limit = 20) {
   const safe = String(query || "").replace(/"/g, "");
   const body = `
@@ -140,6 +154,8 @@ async function searchGames(query, limit = 20) {
   }));
 }
 
+// Carga un pool grande de juegos destacados y lo cachea por 6 horas
+// De ahí después se toman subconjuntos aleatorios para el carrusel del home
 async function getFeaturedPool(poolSize = 300) {
   const now = Date.now();
   if (cachedFeaturedPool && now < cachedFeaturedPoolExpiry) return cachedFeaturedPool;
@@ -165,18 +181,20 @@ async function getFeaturedPool(poolSize = 300) {
     heroFallbackUrl: pickIgdbBigHeroFallback(g),
     genres: (g.genres || []).map((x) => x.name).slice(0, 2),
   }));
-  cachedFeaturedPoolExpiry = now + 1000 * 60 * 60 * 6;
+  cachedFeaturedPoolExpiry = now + 1000 * 60 * 60 * 6; // 6 horas de caché
   return cachedFeaturedPool;
 }
 
+// Devuelve juegos aleatorios del pool cacheado — para que el carrusel varíe en cada visita
 async function getRandomFeaturedGames(limit = 10) {
-  const pool = await getFeaturedPool(300);
+  const pool = await getFeaturedPool(100);
   return shuffleCopy(pool).slice(0, limit);
 }
 
+// Lanzamientos recientes — busca juegos de los últimos 4 meses con al menos 5 reviews
 async function getNewReleasesGames(limit = 10) {
   const nowSec = Math.floor(Date.now() / 1000);
-  const fromSec = nowSec - 120 * 24 * 60 * 60; // 4 meses
+  const fromSec = nowSec - 120 * 24 * 60 * 60; // 4 meses atrás en segundos UNIX
   const body = `
     fields id,name,slug,rating,rating_count,first_release_date,cover.url,artworks.url,screenshots.url;
     where first_release_date != null
@@ -190,6 +208,7 @@ async function getNewReleasesGames(limit = 10) {
   return (games || []).map(mapGameCard);
 }
 
+// Mejor calificados de todos los tiempos — rating_count > 500 para filtrar juegos nicho
 async function getBestRatedGames(limit = 10) {
   const body = `
     fields id,name,slug,rating,rating_count,cover.url,artworks.url,screenshots.url;
@@ -202,8 +221,8 @@ async function getBestRatedGames(limit = 10) {
 }
 
 // --- DETALLE DEL JUEGO ---
+// Trae toda la info de un juego para la página de detalle (screenshots, videos, plataformas, etc.)
 async function getGameDetails(id) {
-  // AÑADIDO: platforms.id para los logos
   const body = `
     fields 
       name, slug, summary, storyline,
@@ -252,6 +271,7 @@ async function getGameDetails(id) {
   };
 }
 
+// Próximos lanzamientos — juegos con fecha futura y algo de hype (hypes > 5)
 async function getUpcomingGames(limit = 10) {
   const nowSec = Math.floor(Date.now() / 1000);
   
@@ -268,6 +288,7 @@ async function getUpcomingGames(limit = 10) {
 }
 
 module.exports = {
+  igdbQuery,
   getTrendingGames,
   searchGames,
   getRandomFeaturedGames,

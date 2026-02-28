@@ -1,3 +1,4 @@
+<%/* Mapa de plataformas: asocia IDs de IGDB con iconos de Font Awesome */%>
 <% const platformMap={ 6: { icon: 'fab fa-windows' , name: 'PC (Windows)' }, 14: { icon: 'fab fa-apple' , name: 'Mac' },
   3: { icon: 'fab fa-linux' , name: 'Linux' }, 48: { icon: 'fab fa-playstation' , name: 'PS4' }, 167:{
   icon: 'fab fa-playstation' , name: 'PS5' }, 9: { icon: 'fab fa-playstation' , name: 'PS3' }, 49: { icon: 'fab fa-xbox'
@@ -5,8 +6,10 @@
   }, 130:{ icon: 'fas fa-gamepad' , name: 'Nintendo Switch' }, 34: { icon: 'fab fa-android' , name: 'Android' }, 39: {
   icon: 'fab fa-app-store-ios' , name: 'iOS' } }; %>
 
+  <!-- Pagina detalle del juego: hero, info, reviews, sidebar y modales -->
   <div class="detail-page">
 
+    <!-- Hero con fondo backdrop y datos principales del juego -->
     <div class="detail-hero">
       <div class="detail-hero__bg" style="background-image: url('<%= data.backdropUrl || data.coverUrl %>');"></div>
       <div class="detail-hero__overlay"></div>
@@ -40,8 +43,10 @@
             <% } %>
           </div>
           
+          <!-- Acciones: agregar a libreria, favoritos y colecciones -->
           <div class="detail-actions">
-             
+
+             <%/* Si ya esta en la libreria, mostrar selector de estado; si no, boton de agregar */%>
              <div class="status-selector-wrapper" style="position: relative; display: inline-block;">
                 <% if (data.libraryStatus) { %>
                   <select id="gameStatusSelect" onchange="updateGameStatus(this.value)" class="btn btn-primary" 
@@ -73,6 +78,7 @@
           </div>
         </div>
 
+        <!-- Puntuaciones: GameLift (comunidad) y Global (critica) con colores dinamicos -->
         <div class="detail-scores">
           <div class="score-box gamelift">
             <div
@@ -116,6 +122,7 @@
           <% } %>
       </section>
 
+      <%/* Trailer de YouTube (si existe) */%>
       <% if (data.videos && data.videos.length> 0) { %>
         <section style="margin-top: 40px;">
           <h3 class="section-title">Trailer</h3>
@@ -137,9 +144,53 @@
             </section>
             <% } %>
 
+              <!-- Rastreador de precios via CheapShark API -->
+              <section class="deals-section" style="margin-top: 50px;">
+                <div class="deals-header">
+                  <h3 class="section-title"><i class="fas fa-tags"></i> Best Deals</h3>
+                  <span class="deals-powered">powered by CheapShark</span>
+                </div>
+
+                <%/* Recorrer ofertas: muestra tienda, precio de venta y descuento */%>
+                <% if (data.deals && data.deals.length > 0) { %>
+                  <div class="deals-grid">
+                    <% data.deals.forEach(deal => { %>
+                      <a href="<%= deal.dealUrl %>" target="_blank" rel="noopener noreferrer" class="deal-card">
+                        <div class="deal-store">
+                          <img src="<%= deal.storeLogo %>" alt="<%= deal.storeName %>" class="deal-store-logo"
+                            onerror="this.style.display='none'">
+                          <span class="deal-store-name"><%= deal.storeName %></span>
+                        </div>
+                        <div class="deal-prices">
+                          <% if (deal.isFree) { %>
+                            <span class="deal-price-free">FREE</span>
+                          <% } else { %>
+                            <span class="deal-price-new">$<%= deal.salePrice %></span>
+                            <% if (deal.isOnSale && deal.normalPrice !== deal.salePrice) { %>
+                              <span class="deal-price-old">$<%= deal.normalPrice %></span>
+                            <% } %>
+                          <% } %>
+                        </div>
+                        <% if (deal.isOnSale && deal.savingsPercent > 0) { %>
+                          <span class="deal-savings">-<%= deal.savingsPercent %>%</span>
+                        <% } %>
+                        <span class="deal-go"><i class="fas fa-external-link-alt"></i></span>
+                      </a>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <div class="deals-empty">
+                    <i class="fas fa-store-slash"></i>
+                    <p>No deals found for this game right now.</p>
+                  </div>
+                <% } %>
+              </section>
+
+              <!-- Seccion de reviews con formulario y listado -->
               <section style="margin-top: 60px;" id="reviewSection">
                 <h3 class="section-title">User Reviews</h3>
 
+                <%/* Si el usuario esta logueado, mostrar formulario de review con sliders */%>
                 <% if (user) { %>
                   <div class="review-form-card">
                     <div class="review-header">
@@ -203,10 +254,12 @@
                     </div>
                     <% } %>
 
-                      <div class="reviews-list" style="margin-top: 30px;">
+                      <!-- Listado de reviews existentes con reacciones y comentarios -->
+                      <div class="reviews-list" style="margin-top: 30px;" data-current-uid="<%= user ? (user.uid || user.id || '') : '' %>">
+                        <%/* Recorrer cada review con datos del autor, score y contenido */%>
                         <% if (data.reviews && data.reviews.length> 0) { %>
                           <% data.reviews.forEach(review=> { %>
-                            <div class="review-card-display">
+                            <div class="review-card-display" id="review-<%= review.id %>">
                               <div class="review-display-header">
                                 <% if (review.userId) { %>
                                   <a href="/profile/u/<%= review.userId %>" class="reviewer-info"
@@ -244,15 +297,94 @@
                                       </div>
                               </div>
 
-                              <div class="review-content <%= review.hasSpoilers ? 'is-spoiler' : '' %>"
+                              <%/* Logica de spoilers: ocultar contenido si tiene spoilers y no es el autor */%>
+                              <% const isReviewAuthor = user && (user.uid === review.userId || user.id === review.userId); %>
+                              <% const showSpoiler = review.hasSpoilers && !isReviewAuthor; %>
+                              <div class="review-content <%= showSpoiler ? 'is-spoiler' : '' %>"
                                 onclick="this.classList.remove('is-spoiler')">
-                                <% if (review.hasSpoilers) { %>
+                                <% if (showSpoiler) { %>
                                   <div class="spoiler-overlay"><i class="fas fa-eye-slash"></i><span>Spoiler Alert!
                                       Click to reveal</span></div>
-                                  <% } %>
+                                <% } %>
+                                <% if (review.hasSpoilers && isReviewAuthor) { %>
+                                  <span class="spoiler-author-badge"><i class="fas fa-exclamation-triangle"></i> Spoiler</span>
+                                <% } %>
                                     <p>
                                       <%= review.text %>
                                     </p>
+                              </div>
+
+                              <%/* Preparar datos de reacciones: conteos, top emojis y reaccion del usuario actual */%>
+                              <%
+                                const rc = review.reactionCounts || {};
+                                const totalReactions = Object.values(rc).reduce((s, v) => s + (v || 0), 0);
+                                const emojiMap = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' };
+                                const labelMap = { like: 'Like', love: 'Love', haha: 'Haha', wow: 'Wow', sad: 'Sad', angry: 'Angry' };
+                                const topEmojis = Object.entries(rc).filter(([,v]) => v > 0).sort((a,b) => b[1] - a[1]).slice(0, 3).map(([k]) => emojiMap[k]);
+                                const userRx = review.userReaction || null;
+                                const commentCnt = review.commentCount || 0;
+                              %>
+
+                              <!-- Reaction + Comment Interaction -->
+                              <div class="review-interactions" data-review-id="<%= review.id %>" data-game-id="<%= data.id %>">
+
+                                <!-- Reaction summary -->
+                                <% if (totalReactions > 0 || commentCnt > 0) { %>
+                                <div class="reaction-summary-bar">
+                                  <% if (totalReactions > 0) { %>
+                                  <span class="reaction-summary-left">
+                                    <span class="reaction-emoji-icons"><%= topEmojis.join('') %></span>
+                                    <span class="reaction-total"><%= totalReactions %></span>
+                                  </span>
+                                  <% } %>
+                                  <% if (commentCnt > 0) { %>
+                                  <span class="reaction-summary-right">
+                                    <span class="comment-count-summary"><%= commentCnt %> comment<%= commentCnt !== 1 ? 's' : '' %></span>
+                                  </span>
+                                  <% } %>
+                                </div>
+                                <% } %>
+
+                                <!-- Action buttons -->
+                                <div class="review-action-bar">
+                                  <div class="reaction-btn-wrapper">
+                                    <button class="btn-react <%= userRx ? 'active reaction-' + userRx : '' %>"
+                                      data-current="<%= userRx || '' %>">
+                                      <span class="react-emoji"><%= userRx ? emojiMap[userRx] : '👍' %></span>
+                                      <span class="react-label"><%= userRx ? labelMap[userRx] : 'Like' %></span>
+                                    </button>
+                                    <div class="emoji-picker">
+                                      <button data-reaction="like" title="Like">👍</button>
+                                      <button data-reaction="love" title="Love">❤️</button>
+                                      <button data-reaction="haha" title="Haha">😂</button>
+                                      <button data-reaction="wow" title="Wow">😮</button>
+                                      <button data-reaction="sad" title="Sad">😢</button>
+                                      <button data-reaction="angry" title="Angry">😡</button>
+                                    </div>
+                                  </div>
+                                  <button class="btn-comment-toggle">
+                                    <i class="far fa-comment"></i>
+                                    <span>Comment</span>
+                                  </button>
+                                </div>
+
+                                <!-- Comments section (hidden by default) -->
+                                <div class="review-comments-section" hidden>
+                                  <div class="comments-list"></div>
+                                  <% if (user) { %>
+                                  <div class="comment-input-row">
+                                    <img class="comment-avatar-self" src="<%= user.photoURL || user.photoUrl || user.picture || ('https://ui-avatars.com/api/?background=random&color=fff&name=' + (user.displayName || user.username || 'U')) %>" alt="">
+                                    <div class="comment-input-wrapper">
+                                      <input type="text" class="comment-input" placeholder="Write a comment..." maxlength="1000">
+                                      <button class="btn-send-comment" title="Send"><i class="fas fa-paper-plane"></i></button>
+                                    </div>
+                                  </div>
+                                  <% } else { %>
+                                  <div class="comment-login-prompt">
+                                    <a href="/auth/login">Log in</a> to comment
+                                  </div>
+                                  <% } %>
+                                </div>
                               </div>
                             </div>
                             <% }) %>
@@ -265,6 +397,7 @@
               </section>
     </div>
 
+    <!-- Sidebar: plataformas disponibles, ano de lanzamiento y desarrollador -->
     <aside class="detail-sidebar">
       <div class="sidebar-card">
         <ul class="info-list">
@@ -296,6 +429,7 @@
   </div>
   </div>
 
+  <!-- Modal para agregar el juego a una coleccion existente o crear una nueva -->
   <div id="collectionModal" class="modal-wrapper">
     <div class="modal-backdrop" onclick="closeCollectionModal()"></div>
     <div class="modal-box">
@@ -506,21 +640,14 @@
     }
   </style>
 
+  <!-- Script principal: maneja reviews, libreria, favoritos y colecciones via AJAX -->
   <script>
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast-notification');
-      const msgSpan = document.getElementById('toast-message');
-      msgSpan.innerText = message;
-      if (type === 'error') { toast.classList.add('error'); toast.querySelector('i').className = 'fas fa-exclamation-circle toast-icon'; }
-      else { toast.classList.remove('error'); toast.querySelector('i').className = 'fas fa-check-circle toast-icon'; }
-      toast.classList.add('show');
-      setTimeout(() => { toast.classList.remove('show'); }, 3000);
-    }
+    // showToast is now global (defined in main.js)
 
     function openCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.add('show'); }
     function closeCollectionModal() { const modal = document.getElementById('collectionModal'); if (modal) modal.classList.remove('show'); }
 
-    // 1. REVIEWS
+    // 1. REVIEWS — Calcula el promedio de los 4 sliders en tiempo real
     function updateReviewScore() {
       const s = parseInt(document.getElementById('input-story').value) || 0;
       const g = parseInt(document.getElementById('input-gameplay').value) || 0;

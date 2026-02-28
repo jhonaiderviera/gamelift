@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const admin = require("firebase-admin");
-const { db } = require("../services/firebase");
-const axios = require("axios");
+const { admin, db } = require("../services/firebase");
 const { getNewReleasesGames } = require("../services/igdbClient");
 
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-// CONFIGURACION DE CORREO
+// Rutas de autenticacion: login, registro, logout, recuperacion de contrasena y paginas legales
+
+// Transporter de nodemailer para enviar correos de recuperacion
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Fondo de pantalla aleatorio de juegos
+// Trae un fondo random de IGDB para las pantallas de login/registro (mas visual)
 async function getRandomBackground() {
   try {
     const games = await getNewReleasesGames(20);
@@ -25,6 +25,7 @@ async function getRandomBackground() {
       const randomGame = games[Math.floor(Math.random() * games.length)];
       let bgUrl = randomGame.coverUrl;
       if (bgUrl) {
+        // Cambiar resolucion del cover a 1080p para que se vea bien de fondo
         bgUrl = bgUrl.replace("t_cover_big", "t_1080p").replace("t_thumb", "t_1080p");
       }
       return bgUrl || "/images/Community.png";
@@ -37,7 +38,7 @@ async function getRandomBackground() {
 
 /* --- RUTAS GET (Vistas) --- */
 
-// 1. Mostrar Pantalla de Login
+// Pantalla de login con fondo aleatorio de juegos
 router.get("/login", async (req, res) => {
   const bgImage = await getRandomBackground();
   res.render("layout", {
@@ -49,7 +50,7 @@ router.get("/login", async (req, res) => {
   });
 });
 
-// 2. Mostrar Pantalla de Registro
+// Pantalla de registro — mismo fondo aleatorio que login
 router.get("/register", async (req, res) => {
   const bgImage = await getRandomBackground();
   res.render("layout", {
@@ -61,7 +62,28 @@ router.get("/register", async (req, res) => {
   });
 });
 
-// 3. Cerrar Sesion
+// Paginas legales — estaticas, sin data dinamica
+router.get("/legal/terms", (req, res) => {
+  res.render("layout", {
+    title: "Terms of Service | GameLift",
+    page: "legal/terms",
+    active: "register",
+    error: null,
+    data: {}
+  });
+});
+
+router.get("/legal/privacy", (req, res) => {
+  res.render("layout", {
+    title: "Privacy Policy | GameLift",
+    page: "legal/privacy",
+    active: "register",
+    error: null,
+    data: {}
+  });
+});
+
+// Logout — simplemente borra la cookie de sesion y redirige al home
 router.get("/logout", (req, res) => {
   res.clearCookie("session");
   res.redirect("/");
@@ -69,28 +91,73 @@ router.get("/logout", (req, res) => {
 
 /* --- RUTAS POST (Logica) --- */
 
-// 4. Procesar Registro
+// Registro — crea usuario en Firebase Auth + doc en Firestore + auto-login
 router.post("/register", async (req, res) => {
   const { email, password, username, isDeveloper } = req.body;
 
+  // Validacion de entrada
+  const trimmedUsername = String(username || '').trim();
+  const trimmedEmail = String(email || '').trim().toLowerCase();
+
+  if (!trimmedEmail || !password || !trimmedUsername) {
+    const bgImage = await getRandomBackground();
+    return res.render("layout", {
+      title: "Register | GameLift", page: "register", active: "register",
+      error: "All fields are required.", data: { bgImage }
+    });
+  }
+
+  if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
+    const bgImage = await getRandomBackground();
+    return res.render("layout", {
+      title: "Register | GameLift", page: "register", active: "register",
+      error: "Username must be 2-30 characters.", data: { bgImage }
+    });
+  }
+
+  if (password.length < 6) {
+    const bgImage = await getRandomBackground();
+    return res.render("layout", {
+      title: "Register | GameLift", page: "register", active: "register",
+      error: "Password must be at least 6 characters.", data: { bgImage }
+    });
+  }
+
   try {
+    // Crear usuario en Firebase Auth (ahi se guarda la contrasena encriptada)
     const userRecord = await admin.auth().createUser({
-      email: email,
+      email: trimmedEmail,
       password: password,
-      displayName: username,
+      displayName: trimmedUsername,
     });
 
     const userRole = (isDeveloper === 'true' || isDeveloper === 'on') ? 'developer' : 'user';
 
+    // Crear doc en Firestore con datos de perfil (NO guardamos password aqui)
     await db.collection("users").doc(userRecord.uid).set({
-      username: username,
-      email: email,
+      username: trimmedUsername,
+      email: trimmedEmail,
       photoUrl: null,
+      followers: [],
+      following: [],
       createdAt: new Date(),
       role: userRole
     });
 
-    res.redirect("/auth/login");
+    // Auto-login despues de registrarse — setea cookie y redirige, sin pasar por /login
+    const sessionData = {
+      uid: userRecord.uid,
+      email: trimmedEmail,
+      username: trimmedUsername,
+      avatarUrl: null
+    };
+
+    res.cookie("session", JSON.stringify(sessionData), {
+      httpOnly: true,
+      maxAge: 3600 * 1000
+    });
+
+    res.redirect("/");
 
   } catch (error) {
     console.error("Error creating user:", error);
@@ -106,26 +173,46 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// 5. Procesar Login
+// Login — autentica contra Firebase Auth REST API y crea cookie de sesion
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const apiKey = process.env.FIREBASE_API_KEY;
+  const apiKey = process.env.FIREBASE_API_KEY; // necesaria para la REST API de Firebase
 
   if (!apiKey) {
     return res.status(500).send("Falta configurar FIREBASE_API_KEY en .env");
   }
 
   try {
+    // Usamos la REST API de Firebase (no el Admin SDK) porque necesitamos validar la contrasena
     const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
 
-    const response = await axios.post(url, {
-      email,
-      password,
-      returnSecureToken: true
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, returnSecureToken: true })
     });
 
-    const { idToken, localId } = response.data;
+    const data = await response.json();
 
+    // Mapear codigos de error de Firebase a mensajes amigables
+    if (!response.ok || data.error) {
+      const code = data.error?.message;
+      let msg = "Invalid email or password.";
+      if (code === "EMAIL_NOT_FOUND") msg = "User not found.";
+      if (code === "INVALID_PASSWORD") msg = "Incorrect password.";
+      if (code === "USER_DISABLED") msg = "This account has been disabled.";
+      if (code === "TOO_MANY_ATTEMPTS_TRY_LATER") msg = "Too many attempts. Try again later.";
+
+      const bgImage = await getRandomBackground();
+      return res.render("layout", {
+        title: "Login | GameLift", page: "login", active: "login",
+        error: msg, data: { bgImage }
+      });
+    }
+
+    const { idToken, localId } = data;
+
+    // Traer datos del perfil de Firestore para la sesion (username, avatar, etc)
     const userDoc = await db.collection("users").doc(localId).get();
     const userData = userDoc.exists ? userDoc.data() : {};
 
@@ -145,14 +232,7 @@ router.post("/login", async (req, res) => {
     res.redirect("/");
 
   } catch (error) {
-    console.error("Login Error:", error.response?.data?.error?.message || error.message);
-
-    let msg = "Invalid email or password.";
-    const code = error.response?.data?.error?.message;
-    if (code === "EMAIL_NOT_FOUND") msg = "User not found.";
-    if (code === "INVALID_PASSWORD") msg = "Incorrect password.";
-    if (code === "USER_DISABLED") msg = "This account has been disabled.";
-    if (code === "TOO_MANY_ATTEMPTS_TRY_LATER") msg = "Too many attempts. Try again later.";
+    console.error("Login Error:", error.message);
 
     const bgImage = await getRandomBackground();
 
@@ -160,15 +240,13 @@ router.post("/login", async (req, res) => {
       title: "Login | GameLift",
       page: "login",
       active: "login",
-      error: msg,
+      error: "An error occurred. Please try again.",
       data: { bgImage }
     });
   }
 });
 
-// ==========================================
-// 6. MOSTRAR FORMULARIO "OLVIDE CONTRASENA"
-// ==========================================
+// Formulario de "olvide mi contrasena"
 router.get('/forgot-password', async (req, res) => {
   res.render('layout', {
     title: 'Recover Password',
@@ -177,16 +255,16 @@ router.get('/forgot-password', async (req, res) => {
   });
 });
 
-// ==========================================
-// 7. POST: ENVIAR EL CORREO DE RECUPERACION
-// ==========================================
+// Procesar solicitud de recuperacion — genera token y envia email con link de reset
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
 
+    // Buscar si existe una cuenta con ese email en Firestore
     const userRef = db.collection('users').where('email', '==', email);
     const snapshot = await userRef.get();
 
+    // Mensaje generico por seguridad (no revelar si el email existe o no)
     if (snapshot.empty) {
       req.flash('success', 'If an account exists, an email has been sent.');
       return res.redirect('/auth/forgot-password');
@@ -194,9 +272,11 @@ router.post('/forgot-password', async (req, res) => {
 
     const userDoc = snapshot.docs[0];
 
+    // Token crypto random + expiracion de 1 hora
     const token = crypto.randomBytes(20).toString('hex');
-    const expires = Date.now() + 3600000; // 1 hora
+    const expires = Date.now() + 3600000;
 
+    // Guardar token en Firestore para verificarlo cuando el usuario haga click
     await db.collection('users').doc(userDoc.id).update({
       resetPasswordToken: token,
       resetPasswordExpires: expires
@@ -239,13 +319,12 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// ==========================================
-// 8. GET: VERIFICAR TOKEN DE RESET
-// ==========================================
+// Verificar que el token de reset sea valido y no haya expirado antes de mostrar el form
 router.get('/reset-password/:token', async (req, res) => {
   try {
     const { token } = req.params;
 
+    // Buscar en Firestore el usuario que tiene este token
     const checkTokenSnap = await db.collection('users')
       .where('resetPasswordToken', '==', token)
       .get();
@@ -277,9 +356,7 @@ router.get('/reset-password/:token', async (req, res) => {
   }
 });
 
-// ==========================================
-// 9. POST: GUARDAR LA NUEVA CONTRASENA
-// ==========================================
+// Guardar la nueva contrasena — actualiza Firebase Auth y limpia tokens en Firestore
 router.post('/reset-password/:token', async (req, res) => {
   try {
     const { password, confirm } = req.body;
@@ -290,6 +367,7 @@ router.post('/reset-password/:token', async (req, res) => {
       return res.redirect('back');
     }
 
+    // Verificar token + que no haya expirado en una sola query compuesta
     const userRef = db.collection('users')
       .where('resetPasswordToken', '==', token)
       .where('resetPasswordExpires', '>', Date.now());
@@ -303,12 +381,12 @@ router.post('/reset-password/:token', async (req, res) => {
 
     const userDoc = snapshot.docs[0];
 
-    // Actualizar en Firebase Auth (la unica fuente de verdad para passwords)
+    // Firebase Auth es la UNICA fuente de verdad para contrasenas, Firestore solo guarda perfil
     await admin.auth().updateUser(userDoc.id, {
       password: password
     });
 
-    // Limpiar tokens de reset en Firestore (NO guardamos password aqui)
+    // Limpiar tokens de reset para que no se puedan reutilizar
     await db.collection('users').doc(userDoc.id).update({
       resetPasswordToken: null,
       resetPasswordExpires: 0

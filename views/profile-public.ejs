@@ -217,7 +217,14 @@
                   <%= review.average %>
                 </div>
               </div>
-              <p class="review-text">"<%= review.text %>"</p>
+              <% if (review.hasSpoilers) { %>
+                <div class="review-text-spoiler" onclick="this.classList.remove('review-text-spoiler'); this.querySelector('.spoiler-overlay-mini')?.remove();" style="position:relative; cursor:pointer;">
+                  <div class="spoiler-overlay-mini"><i class="fas fa-eye-slash"></i> Spoiler - Click to reveal</div>
+                  <p class="review-text" style="filter:blur(6px); opacity:0.4; pointer-events:none;">"<%= review.text %>"</p>
+                </div>
+              <% } else { %>
+                <p class="review-text">"<%= review.text %>"</p>
+              <% } %>
             </div>
             <% }) %>
         </div>

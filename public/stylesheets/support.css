@@ -217,3 +217,34 @@ input[type="number"] {
   border-radius: 20px;
   color: var(--muted);
 }
+
+/* === RESPONSIVE — Adaptación móvil === */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .project-body { padding: 20px; }
+  .donation-card {
+    width: 95%;
+    padding: 25px 20px;
+    border-radius: 16px;
+  }
+  .amount-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .payment-methods {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .modal-header h3 { font-size: 1.2rem; }
+  .state-container { padding: 40px 20px; }
+}
+
+@media (max-width: 480px) {
+  .support-hero { margin-bottom: 30px; }
+  .project-media { height: 160px; }
+  .project-title { font-size: 1.1rem; }
+  .btn-confirm-donation { font-size: 1rem; padding: 14px; }
+}

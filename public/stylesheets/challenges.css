@@ -1,0 +1,359 @@
+/* =========================================
+   CHALLENGES.CSS - Monthly Backlog Challenges
+   ========================================= */
+
+/* ── Container ── */
+.challenges-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+/* ── Header ── */
+.challenges-header {
+  margin-bottom: 32px;
+}
+
+.challenges-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.challenges-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.challenges-title i {
+  font-size: 1.6rem;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.challenges-title h1 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.challenges-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.challenges-month,
+.challenges-countdown {
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.challenges-countdown {
+  color: var(--warning);
+  background: rgba(251, 191, 36, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* ── Summary Bar ── */
+.challenges-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--card-bg);
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.summary-progress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-bar {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.summary-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--gold));
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.summary-text {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.summary-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--gold), #f59e0b);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  animation: badgePulse 2s ease infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.2); }
+}
+
+/* ── Challenge Cards Grid ── */
+.challenges-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.challenge-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.challenge-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.challenge-completed {
+  border-color: rgba(255, 215, 0, 0.2);
+  background: linear-gradient(135deg, var(--card-bg), rgba(255, 215, 0, 0.03));
+}
+
+/* ── Icon ── */
+.challenge-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  font-size: 1.3rem;
+}
+
+/* ── Info ── */
+.challenge-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.challenge-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.challenge-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.challenge-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #000;
+  background: var(--gold);
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.challenge-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.challenge-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+/* ── Progress Bar ── */
+.challenge-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.challenge-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.challenge-progress-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  min-width: 0;
+}
+
+.challenge-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Completed Glow ── */
+.challenge-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0.08;
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+/* ── Tips Section ── */
+.challenges-tips {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.challenges-tips h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.challenges-tips h3 i {
+  color: var(--warning);
+}
+
+.challenges-tips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.challenges-tips li {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  padding-left: 16px;
+  position: relative;
+}
+
+.challenges-tips li::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+.challenges-tips li strong {
+  color: var(--text-secondary);
+}
+
+.challenges-tips li a {
+  color: var(--primary-light);
+  text-decoration: none;
+}
+
+.challenges-tips li a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .challenges-container {
+    padding: 20px 14px 40px;
+  }
+
+  .challenges-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .challenges-title h1 {
+    font-size: 1.4rem;
+  }
+
+  .challenge-card {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .challenge-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  .challenge-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .challenges-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

@@ -1,7 +1,9 @@
+<!-- Pagina Versus: batalla diaria entre dos juegos con sistema de votacion -->
 <link rel="stylesheet" href="/stylesheets/versus.css">
 
 <div class="versus-container">
 
+    <%/* Titulo cambia segun si es la batalla de hoy o una archivada */%>
     <% if (data.isToday) { %>
         <h1 class="versus-title">DAILY BATTLE</h1>
         <p class="versus-subtitle">Vote to see results</p>
@@ -12,6 +14,7 @@
             </p>
             <% } %>
 
+                <!-- Barra de resultados: se muestra despues de votar con porcentajes -->
                 <div id="resultsBar" class="results-bar-container" style="display: none;">
                     <div class="bar-red" style="width: <%= data.p1 %>%;">
                         <span class="percent">
@@ -26,6 +29,7 @@
                     <div class="vs-icon-mini">VS</div>
                 </div>
 
+                <!-- Arena de batalla: dos fighter cards enfrentadas -->
                 <div class="battle-arena" id="arena">
 
                     <div class="fighter-card left" id="fighter1" onclick="handleVote('left')">
@@ -95,6 +99,7 @@
                 </div>
 </div>
 
+<!-- Script de votacion: usa localStorage para evitar doble voto -->
 <script>
     // Variables del servidor inyectadas en JS
     const BATTLE_DATE = "<%= data.date %>";
@@ -102,7 +107,7 @@
     const HAS_VOTED_KEY = "voted_" + BATTLE_DATE;
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Comprobar si ya votó
+        // Al cargar, verificar si ya voto o si es batalla pasada para mostrar resultados
         if (localStorage.getItem(HAS_VOTED_KEY)) {
             showResultsMode();
         } else if (!IS_TODAY) {
@@ -148,6 +153,7 @@
         }
     }
 
+    // Modo resultados: oculta botones de voto, muestra barra y conteos
     function showResultsMode() {
         const bar = document.getElementById('resultsBar');
         if (bar) bar.style.display = 'flex';

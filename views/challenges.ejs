@@ -1,0 +1,85 @@
+<div class="challenges-container">
+
+  <!-- Header -->
+  <div class="challenges-header">
+    <div class="challenges-title-row">
+      <div class="challenges-title">
+        <i class="fas fa-trophy"></i>
+        <h1>Monthly Challenges</h1>
+      </div>
+      <div class="challenges-meta">
+        <span class="challenges-month"><i class="fas fa-calendar"></i> <%= data.monthName %></span>
+        <span class="challenges-countdown"><i class="fas fa-hourglass-half"></i> <%= data.daysLeft %> day<%= data.daysLeft !== 1 ? 's' : '' %> left</span>
+      </div>
+    </div>
+
+    <!-- Summary bar -->
+    <div class="challenges-summary">
+      <div class="summary-progress">
+        <div class="summary-bar">
+          <div class="summary-bar-fill" style="width: <%= Math.round((data.completedCount / data.totalChallenges) * 100) %>%;"></div>
+        </div>
+        <span class="summary-text"><%= data.completedCount %>/<%= data.totalChallenges %> challenges completed</span>
+      </div>
+      <% if (data.completedCount === data.totalChallenges) { %>
+        <div class="summary-badge">
+          <i class="fas fa-crown"></i> All Complete!
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Challenge Cards Grid -->
+  <div class="challenges-grid">
+    <% data.challenges.forEach(function(ch) { %>
+      <div class="challenge-card <%= ch.completed ? 'challenge-completed' : '' %>">
+
+        <!-- Icon -->
+        <div class="challenge-icon" style="color: <%= ch.color %>; background: <%= ch.color %>1a;">
+          <i class="<%= ch.icon %>"></i>
+        </div>
+
+        <!-- Info -->
+        <div class="challenge-info">
+          <div class="challenge-top">
+            <h3 class="challenge-name"><%= ch.title %></h3>
+            <% if (ch.completed) { %>
+              <span class="challenge-badge"><i class="fas fa-check"></i> Done</span>
+            <% } else { %>
+              <span class="challenge-count"><%= ch.current %>/<%= ch.target %></span>
+            <% } %>
+          </div>
+          <p class="challenge-desc"><%= ch.desc %></p>
+
+          <!-- Progress bar -->
+          <div class="challenge-progress">
+            <div class="challenge-progress-bar">
+              <div class="challenge-progress-fill"
+                style="width: <%= ch.percent %>%; background: <%= ch.completed ? 'var(--gold)' : ch.color %>;">
+              </div>
+            </div>
+            <span class="challenge-percent"><%= ch.percent %>%</span>
+          </div>
+        </div>
+
+        <!-- Completed overlay glow -->
+        <% if (ch.completed) { %>
+          <div class="challenge-glow" style="background: <%= ch.color %>;"></div>
+        <% } %>
+      </div>
+    <% }); %>
+  </div>
+
+  <!-- Tips -->
+  <div class="challenges-tips">
+    <h3><i class="fas fa-lightbulb"></i> How to earn progress</h3>
+    <ul>
+      <li><strong>Backlog Buster:</strong> Change a game's status to "Completed" in your library.</li>
+      <li><strong>Review Machine:</strong> Write reviews on game pages.</li>
+      <li><strong>Discovery Explorer:</strong> Swipe right on games in <a href="/discover">Discover</a> mode.</li>
+      <li><strong>Genre Explorer:</strong> Complete games from different genres.</li>
+      <li><strong>Consistent Gamer:</strong> Any activity (reviews, library changes, discover) counts as a day.</li>
+    </ul>
+  </div>
+
+</div>

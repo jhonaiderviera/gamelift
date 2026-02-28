@@ -1,7 +1,10 @@
+// SteamGridDB nos da imágenes hero/banner de juegos — IGDB no siempre tiene buenas
 const SGDB_BASE_URL = "https://www.steamgriddb.com/api/v2";
 
+// Caché en memoria para no bombardear la API con requests repetidos
 const cache = new Map(); // key -> { value, expiresAt }
 
+// Devuelve el valor cacheado o null si expiró
 function cacheGet(key) {
   const item = cache.get(key);
   if (!item) return null;
@@ -12,6 +15,7 @@ function cacheGet(key) {
   return item.value;
 }
 
+// Guarda en caché con TTL — por defecto 1 hora
 function cacheSet(key, value, ttlMs = 1000 * 60 * 60) {
   cache.set(key, { value, expiresAt: Date.now() + ttlMs });
 }
@@ -22,6 +26,8 @@ function mustGetEnv(name) {
   return v;
 }
 
+// Hace un GET a la API de SteamGridDB con la API key del .env
+// Timeout de 3s para que si la API está lenta no nos tranque la página
 async function sgdbGet(path) {
   const key = mustGetEnv("STEAMGRIDDB_API_KEY");
 
@@ -30,6 +36,7 @@ async function sgdbGet(path) {
       Authorization: `Bearer ${key}`,
       Accept: "application/json",
     },
+    signal: AbortSignal.timeout(3000), // 3s máximo — si no responde, tiramos error
   });
 
   if (!res.ok) {
@@ -40,15 +47,18 @@ async function sgdbGet(path) {
   return res.json();
 }
 
+// Busca juegos por nombre en SteamGridDB — devuelve sugerencias para encontrar el ID correcto
 async function autocomplete(term) {
   const safe = encodeURIComponent(term);
   return sgdbGet(`/search/autocomplete/${safe}`);
 }
 
+// Trae todas las imágenes hero disponibles de un juego por su ID de SteamGridDB
 async function heroesByGameId(gameId) {
   return sgdbGet(`/heroes/game/${gameId}`);
 }
 
+// De todas las imágenes hero, elige la mejor: prioriza resolución alta y buen score
 function pickBestHeroMeta(heroes) {
   const list = Array.isArray(heroes) ? heroes : [];
   if (!list.length) return null;
@@ -80,26 +90,26 @@ function pickBestHeroMeta(heroes) {
   return best || null;
 }
 
-/**
- * Returns best hero meta for a game name: { url, width, height }
- */
+// Dado un nombre de juego, busca en SGDB y devuelve la mejor imagen hero
+// Primero busca el juego por nombre (autocomplete), luego pide sus heroes
+// Cachea resultados 6h si encuentra algo, 30min si no (para no reintentar muy seguido)
 async function getHeroMetaByGameName(name) {
   const cacheKey = `heroMetaByName:${String(name).toLowerCase()}`;
   const cached = cacheGet(cacheKey);
-  if (cached !== null) return cached; // can be null
+  if (cached !== null) return cached;
 
   try {
     const ac = await autocomplete(name);
     const first = ac?.data?.[0];
     if (!first?.id) {
-      cacheSet(cacheKey, null, 1000 * 60 * 30);
+      cacheSet(cacheKey, null, 1000 * 60 * 30); // 30min caché para "no encontrado"
       return null;
     }
 
     const heroes = await heroesByGameId(first.id);
     const meta = pickBestHeroMeta(heroes?.data);
 
-    cacheSet(cacheKey, meta, 1000 * 60 * 60 * 6);
+    cacheSet(cacheKey, meta, 1000 * 60 * 60 * 6); // 6 horas de caché exitoso
     return meta;
   } catch (e) {
     cacheSet(cacheKey, null, 1000 * 60 * 30);

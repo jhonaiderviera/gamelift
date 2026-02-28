@@ -299,3 +299,24 @@
         font-size: 1rem;
     }
 }
+
+/* Extra: pantallas muy cortas (landscape en móvil) */
+@media (max-height: 500px) and (max-width: 768px) {
+    .versus-container {
+        height: auto;
+        min-height: calc(100vh - 60px);
+    }
+    .versus-title { font-size: 1.2rem; top: 5px; }
+    .versus-subtitle { display: none; }
+    .vs-badge { width: 50px; height: 50px; font-size: 1.2rem; }
+    .fighter-content h2 { font-size: 1.2rem; }
+    .stats { font-size: 0.75rem; gap: 10px; }
+    .btn-vote { padding: 8px 20px; font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+    .versus-title { font-size: 1.3rem; letter-spacing: 3px; }
+    .results-bar-container { width: 94%; top: 100px; }
+    .fighter-content h2 { font-size: 1.3rem; }
+    .stats { font-size: 0.8rem; gap: 8px; margin-bottom: 15px; }
+}
