@@ -1239,18 +1239,62 @@
 }
 
 @media (max-width: 480px) {
-  .profile-container { padding: 20px 10px; }
-  .avatar-container img { width: 110px; height: 110px; }
-  .name-row h1 { font-size: 1.5rem; }
-  .profile-stats { gap: 20px; }
-  .stat-number { font-size: 1.2rem; }
-  .profile-actions { flex-wrap: wrap; }
-  .btn-action { padding: 8px 12px; font-size: 0.85rem; }
-  .tab-btn { padding: 10px 14px; font-size: 0.85rem; }
+  .profile-container { padding: 20px 8px; }
+  .profile-identity { padding: 0 16px 20px !important; gap: 20px; }
+  .avatar-container img { width: 100px; height: 100px; }
+  .name-row h1 { font-size: 1.4rem; }
+
+  /* Stats: layout horizontal compacto — cada stat ocupa espacio igual */
+  .profile-stats {
+    gap: 0;
+    width: 100%;
+    justify-content: space-around;
+  }
+  .stat-box { align-items: center; }
+  .stat-number { font-size: 1.1rem; }
+  .stat-label { font-size: 0.65rem; letter-spacing: 0.3px; }
+
+  /* Botones: ocupan todo el ancho, sin texto cortado */
+  .profile-actions {
+    flex-wrap: nowrap;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-action {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    gap: 6px;
+    white-space: nowrap;
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Tabs: mas compactos para que quepan mas en pantalla */
+  .tab-btn {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+  .tab-btn i { font-size: 0.8rem; }
+
+  /* Grids adaptados a pantalla chica */
   .grid-games {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 12px;
   }
+  .achievements-list { gap: 10px; }
+  .achievement-card { padding: 12px; gap: 10px; }
+  .ach-icon-wrapper { width: 40px; height: 40px; }
+  .ach-icon { font-size: 1rem; }
+  .ach-header h4 { font-size: 0.9rem; }
+  .ach-info p { font-size: 0.8rem; }
+
+  /* Bio centrada y con padding adecuado */
+  .bio-display { margin: 8px auto 15px auto; padding: 6px; }
+  .user-bio-text, .user-bio-placeholder { font-size: 0.85rem; }
+
+  /* Banner mas bajo en mobile */
+  .profile-banner-container { height: 130px; }
 }
 
 /* =========================================
