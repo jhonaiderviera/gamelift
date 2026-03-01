@@ -5,6 +5,7 @@ const { db, admin } = require("../services/firebase");
 const { logActivity } = require("../services/activityLogger");
 
 // Listado de todos los proyectos indie, ordenados del mas reciente al mas viejo
+// Soporta filtro por estado via query param: ?status=in-progress | ?status=finished
 router.get("/", async (req, res) => {
   try {
     const projectsRef = db.collection("indie_games");
@@ -17,13 +18,21 @@ router.get("/", async (req, res) => {
       });
     }
 
+    // Filtrado por estado — calculado dinamicamente: raised >= goal = funded, sino in-progress
+    const statusFilter = req.query.status || 'all';
+    if (statusFilter === 'finished') {
+      projects = projects.filter(p => (p.raised || 0) >= (p.goal || 1));
+    } else if (statusFilter === 'in-progress') {
+      projects = projects.filter(p => (p.raised || 0) < (p.goal || 1));
+    }
+
     res.render("layout", {
       title: "Support Developers | GameLift",
       page: "support",
       active: "support",
-      data: { projects },
+      data: { projects, currentFilter: statusFilter },
       user: req.user || null,
-      messages: req.query // <--- ¡ESTO ES LO QUE FALTABA!
+      messages: req.query // Pasamos query params para mensajes de exito/error
     });
   } catch (error) {
     console.error("Error fetching projects:", error);

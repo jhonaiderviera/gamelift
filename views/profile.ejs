@@ -232,8 +232,13 @@
                 <div class="grid-layout">
                   <% data.myProjects.forEach(project=> { %>
                     <div class="mini-project-card">
-                      <div class="mini-cover"><img src="<%= project.image %>" loading="lazy"><span
-                          class="status-badge">Live</span></div>
+                      <div class="mini-cover"><img src="<%= project.image %>" loading="lazy">
+                        <% if ((project.raised || 0) >= (project.goal || 1)) { %>
+                          <span class="status-badge completed">Funded</span>
+                        <% } else { %>
+                          <span class="status-badge playing">In Progress</span>
+                        <% } %>
+                      </div>
                       <div class="mini-info">
                         <h3>
                           <%= project.title %>

@@ -35,7 +35,15 @@
           <% }) %>
         <% } %>
       </div>
-      <h1 class="project-title-large"><%= data.project.title %></h1>
+      <% const isFunded = (data.project.raised || 0) >= (data.project.goal || 1); %>
+      <h1 class="project-title-large">
+        <%= data.project.title %>
+        <% if (isFunded) { %>
+          <span class="project-status-badge funded" style="font-size: 0.5em; vertical-align: middle; margin-left: 10px;"><i class="fas fa-check-circle"></i> Funded</span>
+        <% } else { %>
+          <span class="project-status-badge in-progress" style="font-size: 0.5em; vertical-align: middle; margin-left: 10px;"><i class="fas fa-rocket"></i> In Progress</span>
+        <% } %>
+      </h1>
       
       <a href="/profile/u/<%= data.project.authorId %>" class="creator-mini-profile profile-link">
         <img src="<%= (data.project.authorAvatar && data.project.authorAvatar.startsWith('http')) ? data.project.authorAvatar : 'https://ui-avatars.com/api/?name=' + (data.project.author || 'User') + '&background=random&color=fff' %>" alt="Creator">
@@ -115,7 +123,12 @@
           <div class="stat-item"><span class="stat-value"><%= data.project.backers || 0 %></span><span class="stat-label">backers</span></div>
         </div>
 
-        <% if (isMe) { %>
+        <% if (isFunded) { %>
+          <%/* Proyecto ya alcanzo su meta — boton deshabilitado con mensaje de exito */%>
+          <button class="btn-donate-large" disabled style="background: rgba(16,185,129,0.2); color: #6ee7b7; cursor: default; border: 1px solid rgba(16,185,129,0.3);">
+            <i class="fas fa-trophy"></i> Goal Reached! 🎉
+          </button>
+        <% } else if (isMe) { %>
           <button class="btn-donate-large" disabled style="background: #334155; color: #94a3b8; cursor: default;">
             <i class="fas fa-user-check"></i> This is your project
           </button>

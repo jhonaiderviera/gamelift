@@ -41,6 +41,13 @@
       <span style="font-weight: 500;"><%= messages.error %></span>
     </div>
   <% } %>
+  <!-- Barra de filtros: All / In Progress / Finished -->
+  <div class="filter-bar">
+    <a href="/support-developers" class="filter-btn <%= (!data.currentFilter || data.currentFilter === 'all') ? 'active' : '' %>">All</a>
+    <a href="/support-developers?status=in-progress" class="filter-btn <%= data.currentFilter === 'in-progress' ? 'active' : '' %>"><i class="fas fa-rocket"></i> In Progress</a>
+    <a href="/support-developers?status=finished" class="filter-btn <%= data.currentFilter === 'finished' ? 'active' : '' %>"><i class="fas fa-check-circle"></i> Funded</a>
+  </div>
+
   <div class="projects-grid">
     <% if (data.projects && data.projects.length > 0) { %>
       <% data.projects.forEach(project => { %>
@@ -50,7 +57,15 @@
           <a href="/support-developers/<%= project.id %>" class="card-link-wrapper">
             <div class="project-media">
               <img src="<%= project.image %>" alt="<%= project.title %>" loading="lazy">
-              
+
+              <%/* Badge de estado: funded (verde) o in-progress (azul) */%>
+              <% const isFunded = (project.raised || 0) >= (project.goal || 1); %>
+              <% if (isFunded) { %>
+                <span class="project-status-badge funded"><i class="fas fa-check-circle"></i> Funded</span>
+              <% } else { %>
+                <span class="project-status-badge in-progress"><i class="fas fa-rocket"></i> In Progress</span>
+              <% } %>
+
               <div class="category-badges">
                 <% if(project.tags && project.tags.length > 0) { %>
                   <% project.tags.slice(0, 2).forEach(tag => { %>
@@ -106,8 +121,13 @@
               <a href="/support-developers/<%= project.id %>" class="btn-donate" style="background: rgba(255,255,255,0.05); color: #fff; flex: 1;">
                 Details
               </a>
-              
-              <% if (user) { %>
+
+              <% if (isFunded) { %>
+                <%/* Proyecto completado — no se puede donar mas */%>
+                <button class="btn-donate" disabled style="flex: 1; opacity: 0.6; cursor: default; background: rgba(16,185,129,0.15); color: #6ee7b7;">
+                  <i class="fas fa-check"></i> Goal Reached
+                </button>
+              <% } else if (user) { %>
                 <button class="btn-donate" onclick="openDonationModal('<%= project.id %>', '<%= project.title %>')" style="flex: 1;">
                   <i class="fas fa-heart"></i> Support
                 </button>

@@ -10,6 +10,63 @@
   margin-bottom: 15px; border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
+/* --- BARRA DE FILTROS (All / In Progress / Funded) --- */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-btn:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+}
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.filter-btn i { font-size: 0.8rem; }
+
+/* --- BADGE DE ESTADO EN TARJETA (funded / in-progress) --- */
+.project-status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.project-status-badge.funded {
+  background: rgba(16,185,129,0.9);
+  color: #fff;
+}
+.project-status-badge.in-progress {
+  background: rgba(59,130,246,0.85);
+  color: #fff;
+}
+
 /* --- GRID DE PROYECTOS --- */
 .projects-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -247,4 +304,7 @@ input[type="number"] {
   .project-media { height: 160px; }
   .project-title { font-size: 1.1rem; }
   .btn-confirm-donation { font-size: 1rem; padding: 14px; }
+  .filter-bar { gap: 8px; margin-bottom: 20px; }
+  .filter-btn { padding: 6px 14px; font-size: 0.8rem; }
+  .project-status-badge { font-size: 0.65rem; padding: 3px 8px; }
 }
