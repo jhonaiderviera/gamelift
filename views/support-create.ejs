@@ -1,10 +1,17 @@
+<link rel="stylesheet" href="/stylesheets/support-create.css">
+
+<!-- Orbes de fondo animados -->
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
+
 <div class="create-page-container">
-  
   <div class="create-wrapper">
-    
+
+    <!-- LADO IZQUIERDO — Hero text + Live Preview -->
     <div class="create-info">
       <a href="/support-developers" class="back-link"><i class="fas fa-arrow-left"></i> Back to Hub</a>
-      
+
       <div class="hero-text-block">
         <h1 class="create-title">Build the <br><span class="text-gradient">Extraordinary.</span></h1>
         <p class="create-desc">
@@ -12,127 +19,190 @@
         </p>
       </div>
 
-      <div class="floating-decor">
-        <div class="decor-row" style="margin-left: 0px;">
-          <div class="decor-card"><i class="fas fa-code"></i> Indie Dev</div>
-          <div class="decor-card"><i class="fas fa-paint-brush"></i> Art</div>
+      <!-- Live Preview Card — se actualiza en tiempo real con JS -->
+      <div class="live-preview-section">
+        <div class="preview-label">
+          <span class="preview-dot"></span> Live Preview
         </div>
-        <div class="decor-row" style="margin-left: 40px;">
-          <div class="decor-card"><i class="fas fa-rocket"></i> Launch</div>
-          <div class="decor-card"><i class="fas fa-users"></i> Community</div>
-        </div>
-        <div class="decor-row" style="margin-left: 10px;">
-          <div class="decor-card"><i class="fas fa-gamepad"></i> Gameplay</div>
+
+        <div class="preview-card">
+          <div class="preview-media">
+            <img id="previewImage" src="" alt="Preview" style="display: none;">
+            <div id="previewPlaceholder" class="preview-placeholder">
+              <i class="fas fa-image"></i>
+              <span>Your cover will appear here</span>
+            </div>
+            <div id="previewTags" class="preview-tags"></div>
+          </div>
+
+          <div class="preview-body">
+            <div class="preview-author">
+              <img src="<%= user.avatarUrl || user.photoUrl || ('https://ui-avatars.com/api/?name=' + (user.username || 'Dev') + '&background=random&color=fff') %>" alt="You">
+              <span><%= user.username || 'You' %></span>
+            </div>
+
+            <h3 id="previewTitle" class="preview-title">Your Project Title</h3>
+            <p id="previewDesc" class="preview-desc">Project description will appear here as you type...</p>
+
+            <div class="preview-funding">
+              <div class="preview-funding-info">
+                <span class="preview-raised">$0 <small id="previewGoalText">of $1,000</small></span>
+                <span class="preview-percent">0%</span>
+              </div>
+              <div class="preview-bar-track">
+                <div id="previewBarFill" class="preview-bar-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="preview-buttons">
+              <span class="preview-btn-detail">Details</span>
+              <span class="preview-btn-support"><i class="fas fa-heart"></i> Support</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="create-form-card">
-      <div class="form-header">
-        <h2>Project Details</h2>
-        <p>Tell us about your next big hit</p>
+    <!-- LADO DERECHO — Formulario -->
+    <div class="create-form-card-wrapper">
+      <div class="create-form-card">
+        <div class="form-header">
+          <h2><i class="fas fa-wand-magic-sparkles"></i> Project Details</h2>
+          <p>Tell us about your next big hit</p>
+        </div>
+
+        <form action="/support-developers/create" method="POST" id="createProjectForm" onkeydown="return event.key != 'Enter';">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+
+          <!-- Step 1: Game Title -->
+          <div class="form-group">
+            <div class="step-header">
+              <span class="step-number">01</span>
+              <label>Game Title</label>
+            </div>
+            <div class="input-wrapper">
+              <i class="fas fa-gamepad input-icon"></i>
+              <input type="text" name="title" id="inputTitle" class="input-field" placeholder="e.g. Neon Horizon" required>
+            </div>
+            <span class="field-hint">Choose a memorable name for your project</span>
+          </div>
+
+          <!-- Step 2: Cover Image -->
+          <div class="form-group">
+            <div class="step-header">
+              <span class="step-number">02</span>
+              <label>Cover Image URL</label>
+            </div>
+            <div class="input-wrapper">
+              <i class="fas fa-image input-icon"></i>
+              <input type="url" name="image" id="inputImage" class="input-field" placeholder="https://..." required>
+            </div>
+            <span class="field-hint">Use a wide image (1920x1080) for best results</span>
+            <!-- Mini preview de la imagen -->
+            <div id="imagePreviewBox" class="image-preview-box" style="display: none;">
+              <img id="imagePreviewThumb" src="" alt="Preview">
+              <div class="image-preview-ok"><i class="fas fa-check-circle"></i> Image loaded</div>
+            </div>
+          </div>
+
+          <!-- Step 3: Funding Goal -->
+          <div class="form-group">
+            <div class="step-header">
+              <span class="step-number">03</span>
+              <label>Funding Goal ($)</label>
+            </div>
+            <div class="input-wrapper">
+              <i class="fas fa-dollar-sign input-icon"></i>
+              <input type="number" name="goal" id="inputGoal" class="input-field no-spin" placeholder="5000" min="100" required>
+            </div>
+            <span class="field-hint">Minimum $100 — set a realistic target</span>
+          </div>
+
+          <!-- Step 4: Tags -->
+          <div class="form-group">
+            <div class="step-header">
+              <span class="step-number">04</span>
+              <label>Genres & Tags</label>
+            </div>
+
+            <div class="tags-input-container" onclick="document.getElementById('tagInput').focus()">
+              <div id="tagsList" style="display:contents;"></div>
+              <input type="text" id="tagInput" class="tag-input-text" placeholder="Type genre + Enter..." autocomplete="off">
+            </div>
+
+            <div class="tags-suggestions">
+              <small style="width: 100%; color:#64748b; margin-bottom: 4px;">Popular:</small>
+              <span class="suggestion-chip" onclick="addTag('Action')"><i class="fas fa-plus"></i> Action</span>
+              <span class="suggestion-chip" onclick="addTag('Adventure')"><i class="fas fa-plus"></i> Adventure</span>
+              <span class="suggestion-chip" onclick="addTag('RPG')"><i class="fas fa-plus"></i> RPG</span>
+              <span class="suggestion-chip" onclick="addTag('Horror')"><i class="fas fa-plus"></i> Horror</span>
+              <span class="suggestion-chip" onclick="addTag('Indie')"><i class="fas fa-plus"></i> Indie</span>
+              <span class="suggestion-chip" onclick="addTag('Strategy')"><i class="fas fa-plus"></i> Strategy</span>
+            </div>
+
+            <input type="hidden" name="tags" id="hiddenTagsInput" value="">
+          </div>
+
+          <!-- Step 5: Description -->
+          <div class="form-group">
+            <div class="step-header">
+              <span class="step-number">05</span>
+              <label>Description</label>
+            </div>
+            <textarea name="desc" id="inputDesc" class="textarea-field" placeholder="What is the story? Key mechanics? What makes your game unique?..." maxlength="500" required></textarea>
+            <div class="textarea-footer">
+              <span class="field-hint">Describe what makes your game special</span>
+              <span id="charCounter" class="char-counter">0 / 500</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit-project" id="btnSubmit">
+            <span class="btn-text">Launch Campaign</span>
+            <i class="fas fa-rocket"></i>
+          </button>
+        </form>
       </div>
-
-      <form action="/support-developers/create" method="POST" id="createProjectForm" onkeydown="return event.key != 'Enter';">
-        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
-
-        <div class="form-group">
-          <label>Game Title</label>
-          <div class="input-wrapper">
-            <i class="fas fa-gamepad input-icon"></i>
-            <input type="text" name="title" class="input-field" placeholder="e.g. Neon Horizon" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Cover Image URL</label>
-          <div class="input-wrapper">
-            <i class="fas fa-image input-icon"></i>
-            <input type="url" name="image" class="input-field" placeholder="https://..." required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Funding Goal ($)</label>
-          <div class="input-wrapper">
-            <i class="fas fa-dollar-sign input-icon"></i>
-            <input type="number" name="goal" class="input-field no-spin" placeholder="5000" min="100" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Genres & Tags</label>
-          
-          <div class="tags-input-container" onclick="document.getElementById('tagInput').focus()">
-            <div id="tagsList" style="display:contents;"></div>
-            
-            <input type="text" id="tagInput" class="tag-input-text" placeholder="Type genre + Enter..." autocomplete="off">
-          </div>
-
-          <div class="tags-suggestions">
-            <small style="width: 100%; color:#64748b; margin-bottom: 4px;">Popular Suggestions:</small>
-            <span class="suggestion-chip" onclick="addTag('Action')"><i class="fas fa-plus"></i> Action</span>
-            <span class="suggestion-chip" onclick="addTag('Adventure')"><i class="fas fa-plus"></i> Adventure</span>
-            <span class="suggestion-chip" onclick="addTag('RPG')"><i class="fas fa-plus"></i> RPG</span>
-            <span class="suggestion-chip" onclick="addTag('Horror')"><i class="fas fa-plus"></i> Horror</span>
-            <span class="suggestion-chip" onclick="addTag('Indie')"><i class="fas fa-plus"></i> Indie</span>
-            <span class="suggestion-chip" onclick="addTag('Strategy')"><i class="fas fa-plus"></i> Strategy</span>
-          </div>
-
-          <input type="hidden" name="tags" id="hiddenTagsInput" value="">
-        </div>
-
-        <div class="form-group">
-          <label>Description</label>
-          <textarea name="desc" class="textarea-field" placeholder="What is the story? Key mechanics?..." required></textarea>
-        </div>
-
-        <button type="submit" class="btn-submit-project" id="btnSubmit">
-          Launch Campaign <i class="fas fa-rocket"></i>
-        </button>
-
-      </form>
     </div>
 
   </div>
 </div>
 
-<link rel="stylesheet" href="/stylesheets/support-create.css">
-
 <script>
-  /* --- LÓGICA DE TAGS (Tu código original) --- */
-  let tags = []; 
+  /* --- LOGICA DE TAGS (original) --- */
+  let tags = [];
   const tagInput = document.getElementById('tagInput');
   const tagsList = document.getElementById('tagsList');
   const hiddenInput = document.getElementById('hiddenTagsInput');
 
   tagInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      e.preventDefault(); 
+      e.preventDefault();
       const val = tagInput.value.trim();
       if (val.length > 0) {
         addTag(val);
-        tagInput.value = ''; 
+        tagInput.value = '';
       }
     }
   });
 
   function addTag(text) {
-    if (tags.includes(text)) return; 
+    if (tags.includes(text)) return;
     text = text.charAt(0).toUpperCase() + text.slice(1);
     tags.push(text);
     renderTags();
     updateHiddenInput();
+    updatePreviewTags();
   }
 
   function removeTag(text) {
     tags = tags.filter(t => t !== text);
     renderTags();
     updateHiddenInput();
+    updatePreviewTags();
   }
 
   function renderTags() {
-    tagsList.innerHTML = ''; 
+    tagsList.innerHTML = '';
     tags.forEach(tag => {
       const pill = document.createElement('div');
       pill.className = 'tag-pill';
@@ -145,25 +215,93 @@
     hiddenInput.value = tags.join(', ');
   }
 
-  /* --- LÓGICA ANTI DOBLE CLICK (Lo nuevo) --- */
+  /* --- LIVE PREVIEW — actualiza la tarjeta en tiempo real --- */
+  const previewTitle = document.getElementById('previewTitle');
+  const previewDesc = document.getElementById('previewDesc');
+  const previewImage = document.getElementById('previewImage');
+  const previewPlaceholder = document.getElementById('previewPlaceholder');
+  const previewGoalText = document.getElementById('previewGoalText');
+  const previewBarFill = document.getElementById('previewBarFill');
+  const previewTagsContainer = document.getElementById('previewTags');
+  const imagePreviewBox = document.getElementById('imagePreviewBox');
+  const imagePreviewThumb = document.getElementById('imagePreviewThumb');
+
+  // Titulo
+  document.getElementById('inputTitle').addEventListener('input', function() {
+    previewTitle.textContent = this.value || 'Your Project Title';
+  });
+
+  // Imagen — validamos que cargue antes de mostrarla
+  let imageDebounce;
+  document.getElementById('inputImage').addEventListener('input', function() {
+    const url = this.value.trim();
+    clearTimeout(imageDebounce);
+    if (!url) {
+      previewImage.style.display = 'none';
+      previewPlaceholder.style.display = 'flex';
+      imagePreviewBox.style.display = 'none';
+      return;
+    }
+    // Debounce 500ms para no spamear requests mientras escribe
+    imageDebounce = setTimeout(() => {
+      const testImg = new Image();
+      testImg.onload = function() {
+        previewImage.src = url;
+        previewImage.style.display = 'block';
+        previewPlaceholder.style.display = 'none';
+        imagePreviewThumb.src = url;
+        imagePreviewBox.style.display = 'flex';
+      };
+      testImg.onerror = function() {
+        previewImage.style.display = 'none';
+        previewPlaceholder.style.display = 'flex';
+        imagePreviewBox.style.display = 'none';
+      };
+      testImg.src = url;
+    }, 500);
+  });
+
+  // Goal
+  document.getElementById('inputGoal').addEventListener('input', function() {
+    const val = parseInt(this.value) || 0;
+    previewGoalText.textContent = val > 0 ? `of $${val.toLocaleString()}` : 'of $1,000';
+    // Simulamos 0% siempre en preview (no hay donaciones aun)
+    previewBarFill.style.width = '0%';
+  });
+
+  // Tags en la preview
+  function updatePreviewTags() {
+    previewTagsContainer.innerHTML = tags.slice(0, 3).map(t =>
+      `<span class="preview-tag">${t}</span>`
+    ).join('');
+  }
+
+  // Descripcion + char counter
+  const descInput = document.getElementById('inputDesc');
+  const charCounter = document.getElementById('charCounter');
+
+  descInput.addEventListener('input', function() {
+    const len = this.value.length;
+    charCounter.textContent = `${len} / 500`;
+    // Cambiar color si se acerca al limite
+    if (len > 450) charCounter.classList.add('warn');
+    else charCounter.classList.remove('warn');
+
+    // Actualizar preview
+    previewDesc.textContent = this.value
+      ? (this.value.substring(0, 100) + (this.value.length > 100 ? '...' : ''))
+      : 'Project description will appear here as you type...';
+  });
+
+  /* --- ANTI DOBLE CLICK (original) --- */
   const form = document.getElementById('createProjectForm');
   const btn = document.getElementById('btnSubmit');
 
   form.addEventListener('submit', function(e) {
-    // Si ya está deshabilitado, paramos
-    if (btn.disabled) {
-      e.preventDefault();
-      return;
-    }
-
-    // 1. Cambiar texto para feedback visual
+    if (btn.disabled) { e.preventDefault(); return; }
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Launching...';
-    
-    // 2. Deshabilitar botón
     btn.disabled = true;
     btn.style.opacity = '0.7';
     btn.style.cursor = 'not-allowed';
-    
-    // El formulario se enviará ahora al servidor
   });
 </script>
