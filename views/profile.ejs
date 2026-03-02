@@ -232,17 +232,16 @@
                 <div class="grid-layout">
                   <% data.myProjects.forEach(project=> { %>
                     <div class="mini-project-card">
-                      <div class="mini-cover"><img src="<%= project.image %>" loading="lazy">
-                        <% if ((project.raised || 0) >= (project.goal || 1)) { %>
-                          <span class="status-badge completed">Funded</span>
-                        <% } else { %>
-                          <span class="status-badge playing">In Progress</span>
-                        <% } %>
-                      </div>
+                      <div class="mini-cover"><img src="<%= project.image %>" loading="lazy"></div>
                       <div class="mini-info">
-                        <h3>
-                          <%= project.title %>
-                        </h3>
+                        <div class="mini-title-row">
+                          <h3><%= project.title %></h3>
+                          <% if ((project.raised || 0) >= (project.goal || 1)) { %>
+                            <span class="mini-status-badge funded"><i class="fas fa-check-circle"></i> Funded</span>
+                          <% } else { %>
+                            <span class="mini-status-badge in-progress"><i class="fas fa-rocket"></i> Active</span>
+                          <% } %>
+                        </div>
                         <div class="mini-progress">
                           <% const percent=project.goal> 0 ? Math.min(100, Math.round((project.raised / project.goal) *
                             100)) : 0; %>
