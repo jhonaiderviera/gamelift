@@ -4,24 +4,9 @@ const { admin, db } = require("../services/firebase");
 const { getNewReleasesGames } = require("../services/igdbClient");
 
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require("../services/emailClient");
 
 // Rutas de autenticacion: login, registro, logout, recuperacion de contrasena y paginas legales
-
-// Gmail SMTP — forzamos IPv4 porque Render no soporta IPv6 saliente (ENETUNREACH)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
 
 // Trae un fondo random de IGDB para las pantallas de login/registro (mas visual)
 async function getRandomBackground() {
@@ -306,14 +291,11 @@ router.post('/forgot-password', async (req, res) => {
       </div>
     `;
 
-    const mailOptions = {
+    await sendEmail({
       to: email,
-      from: 'GameLift Security <no-reply@gamelift.com>',
       subject: 'Reset your Password',
-      html: htmlContent
-    };
-
-    await transporter.sendMail(mailOptions);
+      html: htmlContent,
+    });
 
     req.flash('success', 'Recovery email sent! Check your inbox.');
     res.redirect('/auth/forgot-password');

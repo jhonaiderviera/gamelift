@@ -1,26 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
-
-// Gmail SMTP — forzamos IPv4 porque Render no soporta IPv6 saliente (ENETUNREACH)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
-
-// Aviso temprano si faltan credenciales de email
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.warn("⚠️  EMAIL_USER or EMAIL_PASS not set — contact form emails will fail");
-}
+const { sendEmail } = require("../services/emailClient");
 
 // Si no hay SUPPORT_EMAIL configurado, cae al EMAIL_USER general
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.EMAIL_USER || "supportgamelift@gmail.com";
@@ -115,8 +95,7 @@ router.post("/", async (req, res) => {
       </div>
     `;
 
-    await transporter.sendMail({
-      from: `GameLift Contact <${process.env.EMAIL_USER}>`,
+    await sendEmail({
       to: SUPPORT_EMAIL,
       replyTo: trimEmail,
       subject: `[GameLift Contact] ${trimSubject} — from ${trimName}`,
@@ -125,9 +104,7 @@ router.post("/", async (req, res) => {
 
     return res.json({ success: true, message: "Your message has been sent! We'll get back to you soon." });
   } catch (error) {
-    console.error("Contact form error:", error.code || error.name, "—", error.message);
-    if (error.responseCode) console.error("  → SMTP response:", error.responseCode, error.response);
-    if (error.command) console.error("  → Failed command:", error.command);
+    console.error("Contact form error:", error.message);
     return res.status(500).json({ error: "Something went wrong sending your message. Please try again." });
   }
 });
