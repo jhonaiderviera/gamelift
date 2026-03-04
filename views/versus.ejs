@@ -99,61 +99,67 @@
                 </div>
 </div>
 
-<!-- Script de votacion: usa localStorage para evitar doble voto -->
+<!-- Script de votacion: tracking en Firestore (requiere login) -->
 <script>
-    // Variables del servidor inyectadas en JS
     const BATTLE_DATE = "<%= data.date %>";
     const IS_TODAY = <%= data.isToday %>;
-    const HAS_VOTED_KEY = "voted_" + BATTLE_DATE;
+    const USER_VOTED = <%= data.userVoted ? 'true' : 'false' %>;
+    const IS_LOGGED_IN = <%= typeof user !== 'undefined' && user ? 'true' : 'false' %>;
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Al cargar, verificar si ya voto o si es batalla pasada para mostrar resultados
-        if (localStorage.getItem(HAS_VOTED_KEY)) {
+        if (USER_VOTED || !IS_TODAY) {
             showResultsMode();
-        } else if (!IS_TODAY) {
-            // Si es una batalla antigua y no votaste, solo muestra resultados
-            showResultsMode();
+        } else if (!IS_LOGGED_IN && IS_TODAY) {
+            // No logueado: deshabilitar botones y mostrar mensaje
+            document.querySelectorAll('.btn-vote').forEach(b => {
+                b.textContent = "LOG IN TO VOTE";
+                b.style.opacity = "0.6";
+            });
+            document.querySelectorAll('.fighter-card').forEach(c => {
+                c.onclick = () => { window.location.href = '/auth/login'; };
+                c.style.cursor = "pointer";
+            });
         }
     });
 
     async function handleVote(side) {
-        // 1. Validaciones
-        if (localStorage.getItem(HAS_VOTED_KEY)) return;
-        if (!IS_TODAY) {
-            alert("Voting for this battle is closed.");
-            return;
-        }
+        if (USER_VOTED) return;
+        if (!IS_LOGGED_IN) { window.location.href = '/auth/login'; return; }
+        if (!IS_TODAY) return;
 
-        // 2. Efecto visual inmediato
+        // Efecto visual inmediato
         const btn = document.querySelector(side === 'left' ? '.btn-vote.red' : '.btn-vote.blue');
         if (btn) {
             btn.innerHTML = "VOTED! <i class='fas fa-check'></i>";
             btn.style.transform = "scale(1.1)";
         }
 
-        // 3. Guardar en localStorage
-        localStorage.setItem(HAS_VOTED_KEY, side);
-
-        // 4. Enviar al backend
         try {
-            await fetch('/versus/vote', {
+            const res = await fetch('/versus/vote', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
                 body: JSON.stringify({ date: BATTLE_DATE, winnerSide: side })
             });
 
-            // 5. Recargar para ver los porcentajes
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            if (res.status === 401) {
+                showToast('Log in to vote', 'error');
+                window.location.href = '/auth/login';
+                return;
+            }
 
+            if (res.status === 409) {
+                showToast('You already voted today!', 'error');
+                showResultsMode();
+                return;
+            }
+
+            setTimeout(() => { window.location.reload(); }, 800);
         } catch (e) {
             console.error(e);
             window.location.reload();
         }
     }
 
-    // Modo resultados: oculta botones de voto, muestra barra y conteos
     function showResultsMode() {
         const bar = document.getElementById('resultsBar');
         if (bar) bar.style.display = 'flex';
@@ -166,10 +172,7 @@
             c.style.cursor = "default";
         });
 
-        document.querySelectorAll('.btn-vote').forEach(b => {
-            b.style.display = "none";
-        });
-
+        document.querySelectorAll('.btn-vote').forEach(b => { b.style.display = "none"; });
         document.querySelectorAll('.vote-count-display').forEach(s => s.style.display = "block");
 
         const sub = document.querySelector('.versus-subtitle');

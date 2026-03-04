@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const { db, admin } = require("../services/firebase");
 const { getTrendingGames } = require("../services/igdbClient");
+const { isAuthenticatedApi, getUid } = require("../middleware/auth");
 
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 
@@ -71,11 +72,19 @@ router.get("/:date?", async (req, res) => {
         const p1 = total === 0 ? 50 : Math.round((battleData.game1.votes / total) * 100);
         const p2 = total === 0 ? 50 : 100 - p1;
 
+        // Verificar si el usuario ya voto hoy (solo si esta logueado)
+        let userVoted = false;
+        if (req.user) {
+            const uid = getUid(req);
+            const voterDoc = await db.collection('daily_versus').doc(dateParam).collection('voters').doc(uid).get();
+            userVoted = voterDoc.exists;
+        }
+
         res.render("layout", {
             title: isToday ? "Daily Battle | GameLift" : `Battle of ${dateParam}`,
             page: "versus",
             active: "versus",
-            data: { ...battleData, p1, p2, isToday, total },
+            data: { ...battleData, p1, p2, isToday, total, userVoted },
             user: req.user
         });
 
@@ -86,19 +95,23 @@ router.get("/:date?", async (req, res) => {
     }
 });
 
-// Registrar un voto — usa transaccion para que los contadores no se pisen entre usuarios
-router.post("/vote", async (req, res) => {
+// Registrar un voto — requiere login + tracking en Firestore para evitar duplicados
+router.post("/vote", isAuthenticatedApi, async (req, res) => {
     const { date, winnerSide } = req.body;
+    const uid = getUid(req);
 
-    if (!date) return res.status(400).json({ success: false });
+    if (!date || !uid) return res.status(400).json({ success: false });
 
     try {
         const docRef = db.collection('daily_versus').doc(date);
+        const voterRef = docRef.collection('voters').doc(uid);
 
-        // Transaccion porque varios usuarios votan al mismo tiempo
+        // Transaccion: verificar voto previo + sumar en un solo paso atómico
         await db.runTransaction(async (t) => {
-            const doc = await t.get(docRef);
+            const [doc, voterDoc] = await Promise.all([t.get(docRef), t.get(voterRef)]);
+
             if (!doc.exists) throw "Document does not exist!";
+            if (voterDoc.exists) throw "already_voted";
 
             const data = doc.data();
             const newTotal = (data.totalVotes || 0) + 1;
@@ -110,11 +123,17 @@ router.post("/vote", async (req, res) => {
                 const newVotes = (data.game2.votes || 0) + 1;
                 t.update(docRef, { 'game2.votes': newVotes, totalVotes: newTotal });
             }
+
+            // Registrar quién votó y por quién
+            t.set(voterRef, { side: winnerSide, votedAt: admin.firestore.FieldValue.serverTimestamp() });
         });
 
         res.json({ success: true });
     } catch (error) {
-        console.error(error);
+        if (error === "already_voted") {
+            return res.status(409).json({ success: false, error: "already_voted" });
+        }
+        console.error("Vote error:", error);
         res.status(500).json({ success: false });
     }
 });
