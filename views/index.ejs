@@ -249,9 +249,11 @@
                   <h4>
                     <%= battle.winner.name %>
                   </h4>
-                  <p class="defeated">Defeated <%= (battle.winner.id===battle.game1.id) ? battle.game2.name :
-                      battle.game1.name %>
-                  </p>
+                  <% if (battle.winnerColor === 'gray') { %>
+                    <p class="defeated"><%= battle.game1.name %> vs <%= battle.game2.name %></p>
+                  <% } else { %>
+                    <p class="defeated">Defeated <%= (battle.winner.id===battle.game1.id) ? battle.game2.name : battle.game1.name %></p>
+                  <% } %>
                   <%/* Calcular porcentajes de votos para la barra de progreso */%>
                   <% const total=(battle.game1.votes || 0) + (battle.game2.votes || 0); const p1=total===0 ? 50 :
                     Math.round((battle.game1.votes/total)*100); %>
