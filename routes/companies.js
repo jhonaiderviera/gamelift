@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
     const developedGames = Array.isArray(gamesData) ? gamesData.map(g => ({
       id: g.id,
       name: g.name,
-      coverUrl: g.cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${g.cover.image_id}.jpg` : '/images/no-cover.png',
+      coverUrl: g.cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${g.cover.image_id}.jpg` : '/images/no-cover.svg',
       rating: g.total_rating ? Math.round(g.total_rating) : null,
       year: g.first_release_date ? new Date(g.first_release_date * 1000).getFullYear() : 'N/A'
     })) : [];

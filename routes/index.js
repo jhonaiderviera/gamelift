@@ -64,9 +64,9 @@ async function getLocalTop() {
   const result = await Promise.all(processedGames.map(async (localGame) => {
     try {
       const apiData = await getGameDetails(localGame.id);
-      return { ...localGame, coverUrl: apiData ? apiData.coverUrl : '/images/no-cover.png', summary: apiData ? apiData.summary : 'No summary available.' };
+      return { ...localGame, coverUrl: apiData ? apiData.coverUrl : '/images/no-cover.svg', summary: apiData ? apiData.summary : 'No summary available.' };
     } catch (err) {
-      return { ...localGame, coverUrl: '/images/no-cover.png', summary: '' };
+      return { ...localGame, coverUrl: '/images/no-cover.svg', summary: '' };
     }
   }));
 
@@ -240,7 +240,7 @@ router.get("/", async (req, res, next) => {
             let winnerGame, winnerColor;
             if (w1 > w2) { winnerGame = d.game1; winnerColor = 'red'; }
             else if (w2 > w1) { winnerGame = d.game2; winnerColor = 'blue'; }
-            else { winnerGame = { name: "Tie", coverUrl: "/images/no-cover.png", id: null }; winnerColor = 'gray'; }
+            else { winnerGame = { name: "Tie", coverUrl: "/images/no-cover.svg", id: null }; winnerColor = 'gray'; }
             return { date: d.date, winner: winnerGame, winnerColor, game1: d.game1, game2: d.game2 };
           });
         } catch (e) { console.error("Error loading versus:", e.message); }
@@ -271,7 +271,7 @@ router.get('/search', async (req, res) => {
     const games = gamesResult.map(g => ({
       id: g.id,
       name: g.name,
-      coverUrl: g.coverUrl || '/images/no-cover.png',
+      coverUrl: g.coverUrl || '/images/no-cover.svg',
       rating: g.rating,
       year: 'N/A' // searchGames no devuelve year, pero mantiene compatibilidad
     }));

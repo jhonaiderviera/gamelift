@@ -241,7 +241,7 @@
               <div class="hall-content">
                 <div class="winner-info">
                   <img
-                    src="<%= battle.winner.coverUrl ? battle.winner.coverUrl.replace('t_cover_big', 't_thumb') : '/images/no-cover.png' %>"
+                    src="<%= (battle.winner.coverUrl && battle.winner.coverUrl.startsWith('http')) ? battle.winner.coverUrl.replace('t_cover_big', 't_thumb') : '/images/no-cover.svg' %>"
                     class="winner-cover" loading="lazy">
                   <span class="crown-icon"><i class="fas fa-crown"></i></span>
                 </div>

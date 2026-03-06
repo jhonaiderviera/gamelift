@@ -67,8 +67,8 @@ router.get("/", async (req, res) => {
     const discoverGames = games.map(g => ({
       id: String(g.id),
       name: g.name,
-      coverUrl: g.coverUrl || "/images/no-cover.png",
-      heroUrl: g.heroFallbackUrl || g.coverUrl || "/images/no-cover.png",
+      coverUrl: g.coverUrl || "/images/no-cover.svg",
+      heroUrl: g.heroFallbackUrl || g.coverUrl || "/images/no-cover.svg",
       genres: (g.genres || []).slice(0, 3),
       rating: g.rating ? Math.round(g.rating) : null,
     }));
